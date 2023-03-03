@@ -21,13 +21,13 @@ classDeclaration
     : 'class' ID ('extends' ID)? '{' varDeclaration* methodDeclaration* '}'
     ;
 
-varDeclaration
-    : type ID ';'
-    ;
-
 methodDeclaration
     : ('public')? type ID '(' (type ID (',' type ID)*)? ')' '{' varDeclaration* statement* 'return' expression ';' '}'
     | ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' ID ')' '{' varDeclaration* statement* '}'
+    ;
+
+varDeclaration
+    : type ID ';'
     ;
 
 type
