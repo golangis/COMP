@@ -15,6 +15,8 @@ package pt.up.fe.comp;
 
 import org.junit.Test;
 
+import static junit.framework.TestCase.fail;
+
 public class GrammarTest {
 
     private static final String IMPORT = "importDeclaration";
@@ -121,8 +123,33 @@ public class GrammarTest {
     }
 
     @Test
-    public void testExprIntLiteral() {
+    public void testExprIntLiteral1() {
         TestUtils.parseVerbose("10", EXPRESSION);
+    }
+
+    @Test
+    public void testExprIntLiteral2() {
+        TestUtils.parseVerbose("0", EXPRESSION);
+    }
+
+    @Test
+    public void testExprIntLiteral3() {
+        TestUtils.parseVerbose("2", EXPRESSION);
+    }
+
+    @Test
+    public void testExprIntLiteral4() {
+        TestUtils.parseVerbose("7010", EXPRESSION);
+    }
+
+    @Test
+    public void testExprIntLiteral5() {
+        try {
+            TestUtils.parseVerbose("07", EXPRESSION);
+            fail("Should've thrown exception");
+        } catch (Exception e) {
+            System.out.println("Hello world");
+        }
     }
 
     @Test
