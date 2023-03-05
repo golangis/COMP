@@ -147,9 +147,7 @@ public class GrammarTest {
         try {
             TestUtils.parseVerbose("07", EXPRESSION);
             fail("Should've thrown exception");
-        } catch (Exception e) {
-            System.out.println("Hello world");
-        }
+        } catch (Exception e) {}
     }
 
     @Test
