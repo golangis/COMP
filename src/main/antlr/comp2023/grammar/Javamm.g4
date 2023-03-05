@@ -47,17 +47,17 @@ statement
     ;
 
 expression
-    : expression ('&&' | '<' | '+' | '-' | '*' | '/' ) expression
+    :  '(' expression ')'
+    |  '!' expression
+    | expression op= ('&&' | '<' | '+' | '-' | '*' | '/' ) expression
     | expression '[' expression ']'
     | expression '.' 'length'
     | expression '.' ID '(' (expression (',' expression)*)? ')'
     | 'new' 'int' '[' expression ']'
     | 'new' ID '(' ')'
-    | '!' expression
-    | '(' expression ')'
     | INT
     | 'true'
     | 'false'
-    | ID
     | 'this'
+    | ID
     ;
