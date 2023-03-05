@@ -58,6 +58,14 @@ public class GrammarTest {
     }
 
     @Test
+    public void testMainMethodEmpty1() {
+        try {
+            TestUtils.parseVerbose("static void main(String[] args) {return 0;}", MAIN_METHOD);
+            fail("Should've thrown exception");
+        } catch (Exception e) {}
+    }
+
+    @Test
     public void testInstanceMethodEmpty() {
         TestUtils.parseVerbose("int foo(int anInt, int[] anArray, boolean aBool, String aString) {return a;}", INSTANCE_METHOD);
     }
@@ -118,32 +126,37 @@ public class GrammarTest {
     }
 
     @Test
+    public void testExprThis1() {
+        TestUtils.parseVerbose("this.bar()", EXPRESSION);
+    }
+
+    @Test
     public void testExprId() {
         TestUtils.parseVerbose("a", EXPRESSION);
     }
 
     @Test
-    public void testExprIntLiteral1() {
+    public void testExprIntLiteral() {
         TestUtils.parseVerbose("10", EXPRESSION);
     }
 
     @Test
-    public void testExprIntLiteral2() {
+    public void testExprIntLiteral1() {
         TestUtils.parseVerbose("0", EXPRESSION);
     }
 
     @Test
-    public void testExprIntLiteral3() {
+    public void testExprIntLiteral2() {
         TestUtils.parseVerbose("2", EXPRESSION);
     }
 
     @Test
-    public void testExprIntLiteral4() {
+    public void testExprIntLiteral3() {
         TestUtils.parseVerbose("7010", EXPRESSION);
     }
 
     @Test
-    public void testExprIntLiteral5() {
+    public void testExprIntLiteral4() {
         try {
             TestUtils.parseVerbose("07", EXPRESSION);
             fail("Should've thrown exception");
@@ -263,5 +276,71 @@ public class GrammarTest {
     @Test
     public void testExprChain() {
         TestUtils.parseVerbose("1 && 2 < 3 + 4 - 5 * 6 / 7", EXPRESSION);
+    }
+
+    @Test
+    public void testComplexClass1() {
+        TestUtils.parseVerbose(
+            "class Foo {\n" +
+            "    public static void main(String[] args) {\n" +
+            "        1 < 2 && 2 < 3 + (4 - 5) * 6 / 7;\n" +
+            "    }\n" +
+            "}");
+    }
+
+    @Test
+    public void testComplexClass2() {
+        TestUtils.parseVerbose(
+            "class Foo {\n" +
+            "    public static void main(String[] args) {\n" +
+            "        boolean a;\n" +
+            "        int[] b_array;\n" +
+            "        a = 1 < 2 && 2 < 3 + 4 - 5 * 6 / 7;\n" +
+            "    }\n" +
+            "}"
+        );
+    }
+
+    @Test
+    public void testComplexClass3() {
+        TestUtils.parseVerbose(
+            "class Foo {\n" +
+            "    public static void main(String[] args) {\n" +
+            "        boolean a;\n" +
+            "        int[] b_array;\n" +
+            "        int c;\n" +
+            "        a = 1 < 2 && 2 < 3 + 4 - 5 * 6 / 7;\n" +
+            "        if (!a) {\n" +
+            "            c = 1;\n" +
+            "        }\n" +
+            "        else {\n" +
+            "            c = 2;\n" +
+            "        }\n" +
+            "    }\n" +
+            "}"
+        );
+    }
+
+    @Test
+    public void testComplexClass4() {
+        TestUtils.parseVerbose(
+            "class Foo extends FooBar {\n" +
+            "    int atr1;\n" +
+            "    int atr2;\n" +
+            "\n" +
+            "    public int bar1() {\n" +
+            "        return atr1;\n" +
+            "    }\n" +
+            "\n" +
+            "    public int bar2() {\n" +
+            "        return atr2;\n" +
+            "    }\n" +
+            "\n" +
+            "    public static void main(String[] args) {\n" +
+            "        this.bar1();\n" +
+            "        this.bar2();\n" +
+            "    }\n" +
+            "}"
+        );
     }
 }
