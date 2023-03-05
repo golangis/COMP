@@ -49,7 +49,10 @@ statement
 expression
     :  '(' expression ')'
     |  '!' expression
-    | expression op= ('&&' | '<' | '+' | '-' | '*' | '/' ) expression
+    | expression op=('*' | '/') expression
+    | expression op=('+' | '-') expression
+    | expression op='<' expression
+    | expression op='&&' expression
     | expression '[' expression ']'
     | expression '.' 'length'
     | expression '.' ID '(' (expression (',' expression)*)? ')'
