@@ -342,4 +342,28 @@ public class GrammarTest {
             "}"
         );
     }
+
+    @Test
+    public void testComplexClassWithComments() {
+        TestUtils.parseVerbose(
+                "class Bar extends FooBar {\n" +
+                        "//This is a single-line Java comment" + "\n" +
+                        "//Class fields:" + "\n" +
+                        "    int atr1;\n" +
+                        "    int atr2;\n" +
+                        "\n" +
+                        "    public int foo() {\n" +
+                        "        return atr1;\n" +
+                        "    }\n" +
+                        "\n" +
+                        "/*" + "\n" +
+                        "* The starting point for program execution" +
+                        "* @args: Configuration parameters passed into the main function\n" +
+                        "*/" + "\n" +
+                        "    public static void main(String[] args) {\n" +
+                        "        this.foo();\n" +
+                        "    }\n" +
+                        "}"
+        );
+    }
 }
