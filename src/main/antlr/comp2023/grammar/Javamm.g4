@@ -25,7 +25,7 @@ classDeclaration
 
 methodDeclaration
     : ('public')? type ID '(' (type ID (',' type ID)*)? ')' '{' varDeclaration* statement* 'return' expression ';' '}'
-    | ('public')? 'static' 'void' 'main' '(' 'String' '[' ']' ID ')' '{' varDeclaration* statement* '}'
+    | ('public')? 'static' 'void' 'main' '(' ID '[' ']' ID ')' '{' varDeclaration* statement* '}'
     ;
 
 varDeclaration

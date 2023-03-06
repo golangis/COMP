@@ -45,12 +45,11 @@ public class GrammarTest {
         TestUtils.parseVerbose("class Foo {int a; int[] b; int c; boolean d; Bar e;}");
     }
 
-   /*
    @Test
     public void testVarDeclString() {
-        TestUtils.parseVerbose("String aString;", "VarDecl");
+        TestUtils.parseVerbose("String aString;", "varDeclaration");
     }
-    */
+
 
     @Test
     public void testMainMethodEmpty() {
