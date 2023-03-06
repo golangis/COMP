@@ -50,6 +50,42 @@ public class GrammarTest {
         TestUtils.parseVerbose("String aString;", "varDeclaration");
     }
 
+    @Test
+    public void testID1() { TestUtils.parseVerbose("variableName = 1;", STATEMENT); }
+
+    @Test
+    public void testID2() { TestUtils.parseVerbose("Variable = 1;", STATEMENT); }
+
+    @Test
+    public void testID3() { TestUtils.parseVerbose("variable_name = 1;", STATEMENT); }
+
+    @Test
+    public void testID4() { TestUtils.parseVerbose("_ = 1;", STATEMENT); }
+
+    @Test
+    public void testID5() { TestUtils.parseVerbose("$ = 1;", STATEMENT); }
+
+    @Test
+    public void testID6() { TestUtils.parseVerbose("_variableName = 1;", STATEMENT); }
+
+    @Test
+    public void testID7() { TestUtils.parseVerbose("$variableName = 1;", STATEMENT); }
+
+    @Test
+    public void testID8() {
+        try {
+            TestUtils.parseVerbose("1variableName = 1", STATEMENT);
+            fail("Should've thrown exception");
+        } catch (Exception e) {}
+    }
+
+    @Test
+    public void testID9() {
+        try {
+            TestUtils.parseVerbose("variable%name = 1", STATEMENT);
+            fail("Should've thrown exception");
+        } catch (Exception e) {}
+    }
 
     @Test
     public void testMainMethodEmpty() {
