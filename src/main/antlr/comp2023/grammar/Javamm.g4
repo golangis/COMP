@@ -8,6 +8,8 @@ INT : '0' | [1-9][0-9]* ;
 ID : [a-zA-Z_$][a-zA-Z_$0-9]* ;
 
 WS : [ \t\n\r\f]+ -> skip ;
+SINGLE_LINE_COMMENT : '//' (~'\n')* '\n' -> skip;
+MULTI_LINE_COMMENT: '/*' .*? '*/' -> skip;
 
 program
     : importDeclaration* classDeclaration EOF
