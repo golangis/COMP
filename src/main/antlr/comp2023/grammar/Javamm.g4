@@ -16,27 +16,27 @@ program
     ;
 
 importDeclaration
-    : 'import' ID ('.' ID)* ';'
+    : 'import' ID ('.' ID)* ';' #ImportDecl
     ;
 
 classDeclaration
-    : 'class' ID ('extends' ID)? '{' varDeclaration* methodDeclaration* '}'
+    : 'class' ID ('extends' ID)? '{' varDeclaration* methodDeclaration* '}' #ClassDecl
     ;
 
 methodDeclaration
-    : ('public')? type ID '(' (type ID (',' type ID)*)? ')' '{' varDeclaration* statement* 'return' expression ';' '}' #FunctionDeclaration
-    | ('public')? 'static' 'void' 'main' '(' ID '[' ']' ID ')' '{' varDeclaration* statement* '}' #MainFuncDeclaration
+    : ('public')? type ID '(' (type ID (',' type ID)*)? ')' '{' varDeclaration* statement* 'return' expression ';' '}' #MethodDecl
+    | ('public')? 'static' 'void' 'main' '(' ID '[' ']' ID ')' '{' varDeclaration* statement* '}' #MainMethodDecl
     ;
 
 varDeclaration
-    : type ID ';'
+    : type ID ';' #VarDecl
     ;
 
 type
-    : 'int' '[' ']'
-    | 'boolean'
-    | 'int'
-    | ID
+    : 'int' '[' ']' #TypeArray
+    | 'boolean' #TypeBoolean
+    | 'int' #TypeInt
+    | ID #TypeID
     ;
 
 statement
@@ -44,25 +44,25 @@ statement
     | 'if' '(' expression ')' statement 'else' statement #Condition
     | 'while' '(' expression ')' statement #Cycle
     | expression ';' #Expr
-    | ID '=' expression ';' #Attribution
-    | ID '[' expression ']' '=' expression ';' #Attribution
+    | ID '=' expression ';' #Assignment
+    | ID '[' expression ']' '=' expression ';' #ArrayAssignment
     ;
 
 expression
-    :  '(' expression ')' #Parentheses
-    |  '!' expression #Negation
-    | expression op=('*' | '/') expression #BinExp
-    | expression op=('+' | '-') expression #BinExp
-    | expression op='<' expression #BinExp
-    | expression op='&&' expression #BinExp
+    :  '(' expression ')' #ParenthesesEpr
+    |  '!' expression #NegationExpr
+    | expression op=('*' | '/') expression #BinExpr
+    | expression op=('+' | '-') expression #BinExpr
+    | expression op='<' expression #BinExpr
+    | expression op='&&' expression #BinExpr
     | expression '[' expression ']' #ArraySubscript
     | expression '.' 'length' #MemberAccess
-    | expression '.' ID '(' (expression (',' expression)*)? ')' #FunctionCall
+    | expression '.' ID '(' (expression (',' expression)*)? ')' #MethodCall
     | 'new' 'int' '[' expression ']' #ArrayCreation
     | 'new' ID '(' ')' #VarCreation
     | INT #Integer
     | 'true' #Boolean
     | 'false' #Boolean
     | 'this' #This
-    | ID #Idntifier
+    | ID #Identifier
     ;
