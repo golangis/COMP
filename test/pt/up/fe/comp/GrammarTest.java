@@ -50,6 +50,42 @@ public class GrammarTest {
         TestUtils.parseVerbose("String aString;", "varDeclaration");
     }
 
+    @Test
+    public void testID1() { TestUtils.parseVerbose("variableName = 1;", STATEMENT); }
+
+    @Test
+    public void testID2() { TestUtils.parseVerbose("Variable = 1;", STATEMENT); }
+
+    @Test
+    public void testID3() { TestUtils.parseVerbose("variable_name = 1;", STATEMENT); }
+
+    @Test
+    public void testID4() { TestUtils.parseVerbose("_ = 1;", STATEMENT); }
+
+    @Test
+    public void testID5() { TestUtils.parseVerbose("$ = 1;", STATEMENT); }
+
+    @Test
+    public void testID6() { TestUtils.parseVerbose("_variableName = 1;", STATEMENT); }
+
+    @Test
+    public void testID7() { TestUtils.parseVerbose("$variableName = 1;", STATEMENT); }
+
+    @Test
+    public void testID8() {
+        try {
+            TestUtils.parseVerbose("1variableName = 1", STATEMENT);
+            fail("Should've thrown exception");
+        } catch (Exception e) {}
+    }
+
+    @Test
+    public void testID9() {
+        try {
+            TestUtils.parseVerbose("variable%name = 1", STATEMENT);
+            fail("Should've thrown exception");
+        } catch (Exception e) {}
+    }
 
     @Test
     public void testMainMethodEmpty() {
@@ -340,6 +376,30 @@ public class GrammarTest {
             "        this.bar2();\n" +
             "    }\n" +
             "}"
+        );
+    }
+
+    @Test
+    public void testComplexClassWithComments() {
+        TestUtils.parseVerbose(
+                "class Bar extends FooBar {\n" +
+                        "//This is a single-line Java comment" + "\n" +
+                        "//Class fields:" + "\n" +
+                        "    int atr1;\n" +
+                        "    int atr2;\n" +
+                        "\n" +
+                        "    public int foo() {\n" +
+                        "        return atr1;\n" +
+                        "    }\n" +
+                        "\n" +
+                        "/*" + "\n" +
+                        "* The starting point for program execution" +
+                        "* @args: Configuration parameters passed into the main function\n" +
+                        "*/" + "\n" +
+                        "    public static void main(String[] args) {\n" +
+                        "        this.foo();\n" +
+                        "    }\n" +
+                        "}"
         );
     }
 }
