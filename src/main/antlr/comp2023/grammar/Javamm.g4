@@ -16,7 +16,7 @@ program
     ;
 
 importDeclaration
-    : 'import' ID ('.' ID)* ';'
+    : 'import' ids += ID ('.' ids+=ID)* ';'
     ;
 
 classDeclaration
@@ -24,8 +24,13 @@ classDeclaration
     ;
 
 methodDeclaration
-    : ('public')? type ID '(' (type ID (',' type ID)*)? ')' '{' varDeclaration* statement* 'return' expression ';' '}' #FunctionDeclaration
-    | ('public')? 'static' 'void' 'main' '(' ID '[' ']' ID ')' '{' varDeclaration* statement* '}' #MainFuncDeclaration
+    : ('public')? type ID '(' parameters ')' '{' (varDeclaration | statement )* 'return' expression ';' '}' #FunctionDeclaration
+    | ('public')? 'void' ID '(' parameters ')' '{' (varDeclaration | statement )* ('return' ';')? '}' #FunctionDeclaration
+    | ('public')? 'static' 'void' 'main' '(' ID '[' ']' ID ')' '{' (varDeclaration | statement )* '}' #MainFuncDeclaration
+    ;
+
+parameters
+    : (type ID (',' type ID)*)?
     ;
 
 varDeclaration
@@ -49,8 +54,8 @@ statement
     ;
 
 expression
-    :  '(' expression ')' #Parentheses
-    |  '!' expression #Negation
+    : '(' expression ')' #Parentheses
+    | '!' expression #Negation
     | expression op=('*' | '/') expression #BinExp
     | expression op=('+' | '-') expression #BinExp
     | expression op='<' expression #BinExp
@@ -64,5 +69,5 @@ expression
     | 'true' #Boolean
     | 'false' #Boolean
     | 'this' #This
-    | ID #Idntifier
+    | ID #Identifier
     ;
