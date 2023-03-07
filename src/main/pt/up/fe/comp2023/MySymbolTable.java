@@ -5,6 +5,7 @@ import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 
 import java.util.List;
+import java.util.Map;
 
 public class MySymbolTable implements SymbolTable {
 
@@ -13,7 +14,7 @@ public class MySymbolTable implements SymbolTable {
     private String superClass;
     private List<Symbol> fields;
     private List<String> methods;
-    // TODO: add field methodSignatures
+    Map<String, MethodTable> methodTables;
 
     @Override
     public List<String> getImports() {
@@ -41,20 +42,17 @@ public class MySymbolTable implements SymbolTable {
     }
 
     @Override
-    // TODO: implement after having methodSignatures
     public Type getReturnType(String methodSignature) {
-        return null;
+       return this.methodTables.get(methodSignature).getReturnType();
     }
 
     @Override
-    // TODO: implement after having methodSignatures
     public List<Symbol> getParameters(String methodSignature) {
-        return null;
+        return this.methodTables.get(methodSignature).getParameters();
     }
 
     @Override
-    // TODO: implement after having methodSignatures
     public List<Symbol> getLocalVariables(String methodSignature) {
-        return null;
+        return this.methodTables.get(methodSignature).getLocalVariables();
     }
 }

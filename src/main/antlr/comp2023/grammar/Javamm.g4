@@ -16,7 +16,7 @@ program
     ;
 
 importDeclaration
-    : 'import' ID ('.' ID)* ';' #ImportDecl
+    : 'import' imports+= ID ('.' imports+=ID)* ';' #ImportDecl
     ;
 
 classDeclaration
@@ -24,8 +24,13 @@ classDeclaration
     ;
 
 methodDeclaration
-    : ('public')? type ID '(' (type ID (',' type ID)*)? ')' '{' varDeclaration* statement* 'return' expression ';' '}' #MethodDecl
-    | ('public')? 'static' 'void' 'main' '(' ID '[' ']' ID ')' '{' varDeclaration* statement* '}' #MainMethodDecl
+    : ('public')? type ID '(' parameters ')' '{' (varDeclaration | statement )* 'return' expression ';' '}' #MethodDecl
+    | ('public')? 'void' ID '(' parameters ')' '{' (varDeclaration | statement )* ('return' ';')? '}' #MethodDecl
+    | ('public')? 'static' 'void' 'main' '(' ID '[' ']' ID ')' '{' (varDeclaration | statement )* '}' #MainMethodDecl
+    ;
+
+parameters
+    : (type ID (',' type ID)*)? #ParametersDecl
     ;
 
 varDeclaration
@@ -49,8 +54,8 @@ statement
     ;
 
 expression
-    :  '(' expression ')' #ParenthesesEpr
-    |  '!' expression #NegationExpr
+    : '(' expression ')' #ParenthesesExpr
+    | '!' expression #NegationExpr
     | expression op=('*' | '/') expression #BinExpr
     | expression op=('+' | '-') expression #BinExpr
     | expression op='<' expression #BinExpr
