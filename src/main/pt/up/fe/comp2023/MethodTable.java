@@ -1,15 +1,16 @@
 package pt.up.fe.comp2023;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
+import pt.up.fe.comp.jmm.analysis.table.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MethodTable {
-    Symbol name;
+    String name;
     List<Symbol> parameters = new ArrayList<>();
     List<Symbol> localVariables = new ArrayList<>();
-    Symbol returnType;
+    Type returnType;
 
-    public Symbol getName() {
+    public String getName() {
         return name;
     }
 
@@ -21,7 +22,7 @@ public class MethodTable {
         return localVariables;
     }
 
-    public Symbol getReturnType() {
+    public Type getReturnType() {
         return returnType;
     }
 }
