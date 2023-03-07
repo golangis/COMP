@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Analysis implements JmmAnalysis {
     @Override
     public JmmSemanticsResult semanticAnalysis(JmmParserResult parserResult) {
-        SimpleSymbolTable symbolTable = new SimpleSymbolTable();
+        MySymbolTable symbolTable = new MySymbolTable();
         return new JmmSemanticsResult(parserResult, symbolTable, new ArrayList<Report>());
     }
 }

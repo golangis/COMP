@@ -6,7 +6,7 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 
 import java.util.List;
 
-public class SimpleSymbolTable implements SymbolTable {
+public class MySymbolTable implements SymbolTable {
     @Override
     public List<String> getImports() {
         return null;
