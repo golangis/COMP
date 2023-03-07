@@ -24,8 +24,8 @@ classDeclaration
     ;
 
 methodDeclaration
-    : ('public')? type ID '(' (type ID (',' type ID)*)? ')' '{' varDeclaration* statement* 'return' expression ';' '}'
-    | ('public')? 'static' 'void' 'main' '(' ID '[' ']' ID ')' '{' varDeclaration* statement* '}'
+    : ('public')? type ID '(' (type ID (',' type ID)*)? ')' '{' varDeclaration* statement* 'return' expression ';' '}' #FunctionDeclaration
+    | ('public')? 'static' 'void' 'main' '(' ID '[' ']' ID ')' '{' varDeclaration* statement* '}' #MainFuncDeclaration
     ;
 
 varDeclaration
@@ -40,29 +40,29 @@ type
     ;
 
 statement
-    : '{' statement* '}'
-    | 'if' '(' expression ')' statement 'else' statement
-    | 'while' '(' expression ')' statement
-    | expression ';'
-    | ID '=' expression ';'
-    | ID '[' expression ']' '=' expression ';'
+    : '{' statement* '}' #CodeBlock
+    | 'if' '(' expression ')' statement 'else' statement #Condition
+    | 'while' '(' expression ')' statement #Cycle
+    | expression ';' #Expr
+    | ID '=' expression ';' #Attribution
+    | ID '[' expression ']' '=' expression ';' #Attribution
     ;
 
 expression
-    :  '(' expression ')'
-    |  '!' expression
-    | expression op=('*' | '/') expression
-    | expression op=('+' | '-') expression
-    | expression op='<' expression
-    | expression op='&&' expression
-    | expression '[' expression ']'
-    | expression '.' 'length'
-    | expression '.' ID '(' (expression (',' expression)*)? ')'
-    | 'new' 'int' '[' expression ']'
-    | 'new' ID '(' ')'
-    | INT
-    | 'true'
-    | 'false'
-    | 'this'
-    | ID
+    :  '(' expression ')' #Parentheses
+    |  '!' expression #Negation
+    | expression op=('*' | '/') expression #BinExp
+    | expression op=('+' | '-') expression #BinExp
+    | expression op='<' expression #BinExp
+    | expression op='&&' expression #BinExp
+    | expression '[' expression ']' #ArraySubscript
+    | expression '.' 'length' #MemberAccess
+    | expression '.' ID '(' (expression (',' expression)*)? ')' #FunctionCall
+    | 'new' 'int' '[' expression ']' #ArrayCreation
+    | 'new' ID '(' ')' #VarCreation
+    | INT #Integer
+    | 'true' #Boolean
+    | 'false' #Boolean
+    | 'this' #This
+    | ID #Idntifier
     ;
