@@ -43,6 +43,9 @@ public class Launcher {
         // Output AST
         System.out.println(parserResult.getRootNode().toTree());
 
+        // Generate Symbol Table
+        MySymbolTable symbolTable = new MySymbolTable(parserResult.getRootNode());
+
         // ... add remaining stages
     }
 
