@@ -16,41 +16,41 @@ program
     ;
 
 importDeclaration
-    : 'import' imports+= ID ('.' imports+=ID)* ';' #ImportDecl
+    : 'import' imports+=ID ('.' imports+=ID)* ';' #ImportDecl
     ;
 
 classDeclaration
-    : 'class' name = ID ('extends' ID)? '{' varDeclaration* methodDeclaration* '}' #ClassDecl
+    : 'class' classname=ID ('extends' superclass=ID)? '{' varDeclaration* methodDeclaration* '}' #ClassDecl
     ;
 
 methodDeclaration
-    : ('public')? type name = ID '(' parameters ')' '{' (varDeclaration | statement )* 'return' expression ';' '}' #MethodDecl
-    | ('public')? 'void' name = ID '(' parameters ')' '{' (varDeclaration | statement )* ('return' ';')? '}' #MethodDecl
-    | ('public')? 'static' 'void' 'main' '(' ID '[' ']' ID ')' '{' (varDeclaration | statement )* '}' #MainMethodDecl
+    : ('public')? type methodname=ID '(' parameters ')' '{' (varDeclaration | statement)* 'return' expression ';' '}' #MethodDecl
+    | ('public')? 'void' methodname=ID '(' parameters ')' '{' (varDeclaration | statement)* ('return' ';')? '}' #VoidMethodDecl
+    | ('public')? 'static' 'void' methodname='main' '(' parametertype=ID '[' ']' parametername=ID ')' '{' (varDeclaration | statement)* '}' #MainMethodDecl
     ;
 
 parameters
-    : (type ID (',' type ID)*)? #ParametersDecl
+    : (type parametername+=ID (',' type parametername+=ID)*)? #ParametersDecl
     ;
 
 varDeclaration
-    : type ID ';' #VarDecl
+    : type varname=ID ';' #VarDecl
     ;
 
 type
     : 'int' '[' ']' #TypeArray
     | 'boolean' #TypeBoolean
     | 'int' #TypeInt
-    | ID #TypeID
+    | typename=ID #TypeID
     ;
 
 statement
     : '{' statement* '}' #CodeBlock
-    | 'if' '(' expression ')' statement 'else' statement #Condition
-    | 'while' '(' expression ')' statement #Cycle
+    | 'if' '(' condition=expression ')' iftrue=statement 'else' iffalse=statement #Condition
+    | 'while' '(' condition=expression ')' whiletrue=statement #Cycle
     | expression ';' #Expr
-    | ID '=' expression ';' #Assignment
-    | ID '[' expression ']' '=' expression ';' #ArrayAssignment
+    | varname=ID '=' value=expression ';' #Assignment
+    | arrayname=ID '[' index=expression ']' '=' value=expression ';' #ArrayAssignment
     ;
 
 expression
@@ -58,16 +58,16 @@ expression
     | '!' expression #NegationExpr
     | expression op=('*' | '/') expression #BinExpr
     | expression op=('+' | '-') expression #BinExpr
-    | expression op='<' expression #BinExpr
+    | expression op=('<' | '>') expression #BinExpr
     | expression op='&&' expression #BinExpr
+    | expression op='||' expression #BinExpr
     | expression '[' expression ']' #ArraySubscript
     | expression '.' 'length' #MemberAccess
-    | expression '.' ID '(' (expression (',' expression)*)? ')' #MethodCall
+    | expression '.' methodcall=ID '(' parameters ')' #MethodCall
     | 'new' 'int' '[' expression ']' #ArrayCreation
-    | 'new' ID '(' ')' #VarCreation
-    | INT #Integer
-    | 'true' #Boolean
-    | 'false' #Boolean
+    | 'new' classname=ID '(' ')' #ObjectCreation
+    | value=INT #Integer
+    | value=('true' | 'false') #Boolean
     | 'this' #This
-    | ID #Identifier
+    | value=ID #Identifier
     ;
