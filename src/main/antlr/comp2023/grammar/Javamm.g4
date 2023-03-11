@@ -24,13 +24,17 @@ classDeclaration
     ;
 
 methodDeclaration
-    : ('public')? type methodname=ID '(' parameters ')' '{' (varDeclaration | statement)* 'return' expression ';' '}' #MethodDecl
-    | ('public')? 'void' methodname=ID '(' parameters ')' '{' (varDeclaration | statement)* ('return' ';')? '}' #VoidMethodDecl
+    : ('public')? type methodname=ID '(' methodDeclarationParameters ')' '{' (varDeclaration | statement)* 'return' expression ';' '}' #MethodDecl
+    | ('public')? 'void' methodname=ID '(' methodDeclarationParameters ')' '{' (varDeclaration | statement)* ('return' ';')? '}' #VoidMethodDecl
     | ('public')? 'static' 'void' methodname='main' '(' parametertype=ID '[' ']' parametername=ID ')' '{' (varDeclaration | statement)* '}' #MainMethodDecl
     ;
 
-parameters
-    : (type parametername+=ID (',' type parametername+=ID)*)? #ParametersDecl
+methodDeclarationParameters
+    : (type parametername+=ID (',' type parametername+=ID)*)? #MethodDeclParameters
+    ;
+
+methodCallParameters
+    : (expression (',' expression)*)? #MethodParameters
     ;
 
 varDeclaration
@@ -63,7 +67,7 @@ expression
     | expression op='||' expression #BinExpr
     | expression '[' expression ']' #ArraySubscript
     | expression '.' 'length' #MemberAccess
-    | expression '.' methodcall=ID '(' parameters ')' #MethodCall
+    | expression '.' methodcall=ID '(' methodCallParameters ')' #MethodCall
     | 'new' 'int' '[' expression ']' #ArrayCreation
     | 'new' classname=ID '(' ')' #ObjectCreation
     | value=INT #Integer
