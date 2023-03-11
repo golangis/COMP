@@ -20,12 +20,12 @@ importDeclaration
     ;
 
 classDeclaration
-    : 'class' ID ('extends' ID)? '{' varDeclaration* methodDeclaration* '}' #ClassDecl
+    : 'class' name = ID ('extends' ID)? '{' varDeclaration* methodDeclaration* '}' #ClassDecl
     ;
 
 methodDeclaration
-    : ('public')? type ID '(' parameters ')' '{' (varDeclaration | statement )* 'return' expression ';' '}' #MethodDecl
-    | ('public')? 'void' ID '(' parameters ')' '{' (varDeclaration | statement )* ('return' ';')? '}' #MethodDecl
+    : ('public')? type name = ID '(' parameters ')' '{' (varDeclaration | statement )* 'return' expression ';' '}' #MethodDecl
+    | ('public')? 'void' name = ID '(' parameters ')' '{' (varDeclaration | statement )* ('return' ';')? '}' #MethodDecl
     | ('public')? 'static' 'void' 'main' '(' ID '[' ']' ID ')' '{' (varDeclaration | statement )* '}' #MainMethodDecl
     ;
 
