@@ -69,6 +69,8 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
     }
 
     private Void setDefaultVisit(JmmNode jmmNode, Void unused) {
+        for (JmmNode child: jmmNode.getChildren())
+            visit(child);
         return null;
     }
 }
