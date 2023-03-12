@@ -85,12 +85,7 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
         List<Symbol> localVariables = dealWithLocalVars(jmmNode.getChildren());
         Type returnType = dealWithType(jmmNode.getJmmChild(0));
 
-        MethodTable method = new MethodTable();
-        method.setName(name);
-        method.setParameters(parameters);
-        method.setLocalVariables(localVariables);
-        method.setReturnType(returnType);
-
+        MethodTable method = new MethodTable(name, parameters, localVariables, returnType);
         methods.add(name);
         methodTables.put(name, method);
         return null;
@@ -102,12 +97,7 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
         List<Symbol> localVariables = dealWithLocalVars(jmmNode.getChildren());
         Type returnType = new Type("void", false);
 
-        MethodTable method = new MethodTable();
-        method.setName(name);
-        method.setParameters(parameters);
-        method.setLocalVariables(localVariables);
-        method.setReturnType(returnType);
-
+        MethodTable method = new MethodTable(name, parameters, localVariables, returnType);
         methods.add(name);
         methodTables.put(name, method);
         return null;

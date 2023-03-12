@@ -6,40 +6,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MethodTable {
-    String name;
-    List<Symbol> parameters;
-    List<Symbol> localVariables;
-    Type returnType;
+    private final String name;
+    private final List<Symbol> parameters;
+    private final List<Symbol> localVariables;
+    private final Type returnType;
+
+    public MethodTable(String name, List<Symbol> parameters, List<Symbol> localVariables, Type returnType){
+        this.name = name;
+        this.parameters = parameters;
+        this.localVariables = localVariables;
+        this.returnType = returnType;
+    }
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public List<Symbol> getParameters() {
         return parameters;
     }
 
-    public void setParameters(List<Symbol> parameters) {
-        this.parameters = parameters;
-    }
-
     public List<Symbol> getLocalVariables() {
         return localVariables;
-    }
-
-    public void setLocalVariables(List<Symbol> localVariables) {
-        this.localVariables = localVariables;
     }
 
     public Type getReturnType() {
         return returnType;
     }
 
-    public void setReturnType(Type returnType) {
-        this.returnType = returnType;
-    }
 }
