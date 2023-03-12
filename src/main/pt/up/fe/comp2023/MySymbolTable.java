@@ -6,19 +6,16 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTable {
 
-    private List<String> imports = new ArrayList<>();
+    private final List<String> imports = new ArrayList<>();
     private String className;
     private String superClass;
-    private List<Symbol> fields = new ArrayList<>();
-    private List<String> methods = new ArrayList<>();
-    Map<String, MethodTable> methodTables = new HashMap<>();
+    private final List<Symbol> fields = new ArrayList<>();
+    private final List<String> methods = new ArrayList<>();
+    private final Map<String, MethodTable> methodTables = new HashMap<>();
 
     public MySymbolTable(JmmNode jmmNode) {
         this.visit(jmmNode);
@@ -104,7 +101,14 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
     }
 
     private Void dealWithMainMethod(JmmNode jmmNode, Void unused) {
-        //TODO
+        String name = jmmNode.get("methodname");
+        List<Symbol> parameters = dealWithMainMethodParameter(jmmNode);
+        List<Symbol> localVariables = dealWithLocalVars(jmmNode.getChildren());
+        Type returnType = new Type("void", false);
+
+        MethodTable method = new MethodTable(name, parameters, localVariables, returnType);
+        methods.add(name);
+        methodTables.put(name, method);
         return null;
     }
 
@@ -127,6 +131,14 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
             parameters.add(parameter);
         }
         return parameters;
+    }
+
+    private List<Symbol> dealWithMainMethodParameter(JmmNode jmmNode) {
+        Type type = new Type (jmmNode.get("parametertype"), true);
+        String name = jmmNode.get("parametername");
+        Symbol parameter = new Symbol(type, name);
+
+        return new ArrayList<>(List.of(parameter));
     }
 
     private List<Symbol> dealWithLocalVars(List<JmmNode> children) {
