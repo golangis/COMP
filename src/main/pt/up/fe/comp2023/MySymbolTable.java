@@ -97,7 +97,19 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
     }
 
     private Void dealWithVoidMethod(JmmNode jmmNode, Void unused) {
-        //TODO
+        String name = jmmNode.get("methodname");
+        List<Symbol> parameters = dealWithMethodDeclarationParameters(jmmNode.getJmmChild(0));
+        List<Symbol> localVariables = dealWithLocalVars(jmmNode.getChildren());
+        Type returnType = new Type("void", false);
+
+        MethodTable method = new MethodTable();
+        method.setName(name);
+        method.setParameters(parameters);
+        method.setLocalVariables(localVariables);
+        method.setReturnType(returnType);
+
+        methods.add(name);
+        methodTables.put(name, method);
         return null;
     }
 
