@@ -66,11 +66,36 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
     protected void buildVisitor() {
         System.out.println("This is the visitor");
         setDefaultVisit(this::setDefaultVisit);
+        addVisit ("MethodDecl", this::dealWithMethod);
+        addVisit("VoidMethodDecl", this::dealWithVoidMethod);
+        addVisit("MainMethodDecl", this::dealWithMainMethod);
     }
 
     private Void setDefaultVisit(JmmNode jmmNode, Void unused) {
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
         return null;
+    }
+
+    private Void dealWithMethod(JmmNode jmmNode, Void unused) {
+        //TODO
+        return null;
+    }
+
+    private Void dealWithVoidMethod(JmmNode jmmNode, Void unused) {
+        //TODO
+        return null;
+    }
+
+    private Void dealWithMainMethod(JmmNode jmmNode, Void unused) {
+        //TODO
+        return null;
+    }
+
+    private Type dealWithType(JmmNode jmmNode) {
+        String kind = jmmNode.getKind();
+        boolean isArray = kind.equals("TypeArray");
+
+        return new Type(jmmNode.get("typename"), isArray);
     }
 }
