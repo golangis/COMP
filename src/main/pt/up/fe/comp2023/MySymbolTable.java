@@ -107,10 +107,10 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
     }
 
     private Type dealWithType(JmmNode jmmNode) {
-        String kind = jmmNode.getKind();
-        boolean isArray = kind.equals("TypeArray");
+        String name = jmmNode.get("typename");
+        boolean isArray = jmmNode.getKind().equals("TypeArray");
 
-        return new Type(jmmNode.get("typename"), isArray);
+        return new Type(name, isArray);
     }
 
     private List<Symbol> dealWithMethodDeclarationParameters(JmmNode jmmNode) {

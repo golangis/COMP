@@ -46,6 +46,9 @@ public class Launcher {
         // Generate Symbol Table
         MySymbolTable symbolTable = new MySymbolTable(parserResult.getRootNode());
 
+        // Output Symbol Table
+        System.out.println(symbolTable.print());
+
         // ... add remaining stages
     }
 
