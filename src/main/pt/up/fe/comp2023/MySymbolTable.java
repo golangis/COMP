@@ -6,6 +6,7 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -97,5 +98,36 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
         boolean isArray = kind.equals("TypeArray");
 
         return new Type(jmmNode.get("typename"), isArray);
+    }
+
+    private List<Symbol> dealWithMethodDeclarationParameters(JmmNode jmmNode) {
+        List<Symbol> parameters = new ArrayList<>();
+        String parameterNames = jmmNode.get("parametername").replaceAll("[\\[\\]\\s+]", "");
+        String[] names = parameterNames.split(",");
+
+        for ( int child = 0; child < jmmNode.getNumChildren(); child++){
+            String name = names[child];
+            Type type = dealWithType(jmmNode.getJmmChild(child));
+            Symbol parameter = new Symbol(type, name);
+            parameters.add(parameter);
+        }
+        return parameters;
+    }
+
+    private List<Symbol> dealWithLocalVars(List<JmmNode> children) {
+        List<Symbol> variables = new ArrayList<>();
+
+        for (JmmNode child: children) {
+            if(child.getKind().equals("VarDecl"))
+                variables.add(dealWithVarDeclaration(child));
+        }
+        return variables;
+    }
+
+    private Symbol dealWithVarDeclaration(JmmNode jmmNode) {
+        String name = jmmNode.get("varname");
+        Type type = dealWithType(jmmNode.getJmmChild(0));
+
+        return new Symbol(type, name);
     }
 }
