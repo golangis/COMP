@@ -42,9 +42,9 @@ varDeclaration
     ;
 
 type
-    : 'int' '[' ']' #TypeArray
-    | 'boolean' #TypeBoolean
-    | 'int' #TypeInt
+    : typename='int' '[' ']' #TypeArray
+    | typename='boolean' #TypeBoolean
+    | typename='int' #TypeInt
     | typename=ID #TypeID
     ;
 
