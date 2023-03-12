@@ -7,17 +7,18 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTable {
 
-    private List<String> imports;
+    private List<String> imports = new ArrayList<>();
     private String className;
     private String superClass;
-    private List<Symbol> fields;
-    private List<String> methods;
-    Map<String, MethodTable> methodTables;
+    private List<Symbol> fields = new ArrayList<>();
+    private List<String> methods = new ArrayList<>();
+    Map<String, MethodTable> methodTables = new HashMap<>();
 
     public MySymbolTable(JmmNode jmmNode) {
         this.visit(jmmNode);
@@ -79,7 +80,19 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
     }
 
     private Void dealWithMethod(JmmNode jmmNode, Void unused) {
-        //TODO
+        String name = jmmNode.get("methodname");
+        List<Symbol> parameters = dealWithMethodDeclarationParameters(jmmNode.getJmmChild(1));
+        List<Symbol> localVariables = dealWithLocalVars(jmmNode.getChildren());
+        Type returnType = dealWithType(jmmNode.getJmmChild(0));
+
+        MethodTable method = new MethodTable();
+        method.setName(name);
+        method.setParameters(parameters);
+        method.setLocalVariables(localVariables);
+        method.setReturnType(returnType);
+
+        methods.add(name);
+        methodTables.put(name, method);
         return null;
     }
 
