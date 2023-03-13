@@ -79,7 +79,11 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
 
     private Void dealWithClass(JmmNode jmmNode, Void unused) {
         this.className = jmmNode.get("classname");
-        this.superClass = jmmNode.get("superclass");
+        if(jmmNode.hasAttribute("superclass"))
+            this.superClass = jmmNode.get("superclass");
+
+        for (JmmNode child: jmmNode.getChildren())
+            visit(child);
         return null;
     }
 
@@ -90,8 +94,8 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
         Type returnType = dealWithType(jmmNode.getJmmChild(0));
 
         MethodTable method = new MethodTable(name, parameters, localVariables, returnType);
-        methods.add(name);
-        methodTables.put(name, method);
+        this.methods.add(name);
+        this.methodTables.put(name, method);
         return null;
     }
 
@@ -102,8 +106,8 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
         Type returnType = new Type("void", false);
 
         MethodTable method = new MethodTable(name, parameters, localVariables, returnType);
-        methods.add(name);
-        methodTables.put(name, method);
+        this.methods.add(name);
+        this.methodTables.put(name, method);
         return null;
     }
 
@@ -114,8 +118,8 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
         Type returnType = new Type("void", false);
 
         MethodTable method = new MethodTable(name, parameters, localVariables, returnType);
-        methods.add(name);
-        methodTables.put(name, method);
+        this.methods.add(name);
+        this.methodTables.put(name, method);
         return null;
     }
 
