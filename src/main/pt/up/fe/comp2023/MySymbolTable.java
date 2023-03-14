@@ -7,6 +7,7 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTable {
 
@@ -65,6 +66,7 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
     protected void buildVisitor() {
         System.out.println("This is the visitor");
         setDefaultVisit(this::setDefaultVisit);
+        addVisit("ImportDecl", this::dealWithImport);
         addVisit("ClassDecl", this::dealWithClass);
         addVisit ("MethodDecl", this::dealWithMethod);
         addVisit("VoidMethodDecl", this::dealWithVoidMethod);
@@ -74,6 +76,19 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
     private Void setDefaultVisit(JmmNode jmmNode, Void unused) {
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
+        return null;
+    }
+
+    private Void dealWithImport(JmmNode jmmNode, Void unused){
+        List<String> location = (List<String>) jmmNode.getObject("imports");
+        String finall = "";
+        for (int i = 0; i < location.size(); i++){
+            if (i==0)
+                finall += location.get(i);
+            else
+                finall += "." + location.get(i);
+        }
+        imports.add(finall);
         return null;
     }
 
