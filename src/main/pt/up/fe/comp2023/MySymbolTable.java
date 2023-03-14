@@ -81,14 +81,14 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
 
     private Void dealWithImport(JmmNode jmmNode, Void unused){
         List<String> location = (List<String>) jmmNode.getObject("imports");
-        String finall = "";
+        String final_loc = "";
         for (int i = 0; i < location.size(); i++){
             if (i==0)
-                finall += location.get(i);
+                final_loc += location.get(i);
             else
-                finall += "." + location.get(i);
+                final_loc += "." + location.get(i);
         }
-        imports.add(finall);
+        imports.add(final_loc);
         return null;
     }
 
@@ -99,6 +99,9 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
 
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
+
+        fields.addAll(dealWithLocalVars(jmmNode.getChildren()));
+
         return null;
     }
 
