@@ -8,7 +8,7 @@ INT : '0' | [1-9][0-9]* ;
 ID : [a-zA-Z_$][a-zA-Z_$0-9]* ;
 
 WS : [ \t\n\r\f]+ -> skip ;
-SINGLE_LINE_COMMENT : '//' (~'\n')* '\n' -> skip;
+SINGLE_LINE_COMMENT : '//' (~'\n')* -> skip;
 MULTI_LINE_COMMENT: '/*' .*? '*/' -> skip;
 
 program
@@ -66,7 +66,7 @@ expression
     | expression op='&&' expression #BinExpr
     | expression op='||' expression #BinExpr
     | expression '[' expression ']' #ArraySubscript
-    | expression '.' 'length' #MemberAccess
+    | expression '.' field='length' #LengthFieldAccess
     | expression '.' methodcall=ID '(' methodCallParameters ')' #MethodCall
     | 'new' 'int' '[' expression ']' #ArrayCreation
     | 'new' classname=ID '(' ')' #ObjectCreation
