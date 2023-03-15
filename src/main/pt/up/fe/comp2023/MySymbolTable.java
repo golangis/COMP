@@ -81,9 +81,10 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
 
     private Void dealWithImport(JmmNode jmmNode, Void unused){
         List<String> location = (List<String>) jmmNode.getObject("imports");
-        String final_loc = "";
-        final_loc = final_loc.join(".", location);
-        imports.add(final_loc);
+        String final_loc =  String.join(".", location);
+        if (final_loc.length() > 0) {
+            imports.add(final_loc);
+        }
         return null;
     }
 
