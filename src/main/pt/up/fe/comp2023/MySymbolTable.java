@@ -93,11 +93,14 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
         if(jmmNode.hasAttribute("superclass"))
             this.superClass = jmmNode.get("superclass");
 
-        for (JmmNode child: jmmNode.getChildren())
-            visit(child);
-
-        fields.addAll(dealWithLocalVars(jmmNode.getChildren()));
-
+        for (JmmNode child: jmmNode.getChildren()){
+            if(child.getKind().equals("VarDecl")) {
+                Symbol field = dealWithVarDeclaration(child);
+                this.fields.add(field);
+            }
+            else
+                visit(child);
+        }
         return null;
     }
 
