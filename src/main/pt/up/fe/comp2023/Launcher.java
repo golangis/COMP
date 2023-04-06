@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.up.fe.comp.TestUtils;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
@@ -48,6 +49,11 @@ public class Launcher {
 
         // Output Symbol Table
         System.out.println(symbolTable.print());
+
+        OllirResult arithmetics = new OllirResult(SpecsIo.getResource("/test/pt/up/fe/comp/cp2/jasmin/OllirToJasminArithmetics.ollir"), new HashMap<>());
+
+        JasminGenerator jasminGenerator = new JasminGenerator();
+        jasminGenerator.toJasmin(arithmetics);
 
         // ... add remaining stages
     }
