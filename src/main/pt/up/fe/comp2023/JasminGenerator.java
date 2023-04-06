@@ -9,6 +9,7 @@ import pt.up.fe.comp.jmm.report.Report;
 import java.util.ArrayList;
 
 public class JasminGenerator implements JasminBackend {
+
     @Override
     public JasminResult toJasmin(OllirResult ollirResult) {
         String jasminCode = generateJasminCode(ollirResult.getOllirClass());
@@ -22,7 +23,8 @@ public class JasminGenerator implements JasminBackend {
     }
 
     private String createHeader(ClassUnit classUnit) {
-        return "";
+        return JasminUtils.createClassDirective(classUnit)
+                + JasminUtils.createSuperDirective(classUnit);
     }
 
     private String createFieldDefinitions(ClassUnit classUnit) {
