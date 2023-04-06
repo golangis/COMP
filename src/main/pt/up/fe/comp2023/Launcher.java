@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.up.fe.comp.TestUtils;
+import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.specs.util.SpecsIo;
@@ -50,10 +51,31 @@ public class Launcher {
         // Output Symbol Table
         System.out.println(symbolTable.print());
 
-        OllirResult arithmetics = new OllirResult(SpecsIo.getResource("/test/pt/up/fe/comp/cp2/jasmin/OllirToJasminArithmetics.ollir"), new HashMap<>());
+        String ollirCode = "Test {\n" +
+            "\n" +
+            "\t.construct Test().V {\n" +
+            "\t\tinvokespecial(this, \"<init>\").V;\n" +
+            "\t}\n" +
+            "\n" +
+            "\t.method public static main(args.array.String).V {\n" +
+            "\t\tret.V;\n" +
+            "\t}\n" +
+            "\n" +
+            "\t\n" +
+            "\t.method public foo().i32 {\n" +
+            "\t\ta.i32 :=.i32 1.i32;\n" +
+            "\t\tb.i32 :=.i32 2.i32;\n" +
+            "\n" +
+            "\t\tc.i32 :=.i32 a.i32 +.i32 b.i32;\n" +
+            "\n" +
+            "\t\tret.i32 c.i32;\n" +
+            "\t}\n" +
+            "}";
+        OllirResult ollirResult = new OllirResult(ollirCode, new HashMap<>());
 
         JasminGenerator jasminGenerator = new JasminGenerator();
-        jasminGenerator.toJasmin(arithmetics);
+        JasminResult jasminResult = jasminGenerator.toJasmin(ollirResult);
+        System.out.println(jasminResult.getJasminCode());
 
         // ... add remaining stages
     }
