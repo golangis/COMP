@@ -16,7 +16,20 @@ public class JasminGenerator implements JasminBackend {
     }
 
     private String generateJasminCode(ClassUnit classUnit) {
-        String jasminCode = "";
-        return jasminCode;
+        return createHeader(classUnit)
+                + createFieldDefinitions(classUnit)
+                + createMethodDefinitions(classUnit);
+    }
+
+    private String createHeader(ClassUnit classUnit) {
+        return "";
+    }
+
+    private String createFieldDefinitions(ClassUnit classUnit) {
+        return "";
+    }
+
+    private String createMethodDefinitions(ClassUnit classUnit) {
+        return "";
     }
 }
