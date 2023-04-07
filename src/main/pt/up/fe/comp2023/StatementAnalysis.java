@@ -5,12 +5,15 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 
 public class StatementAnalysis extends AJmmVisitor<Void, Void> {
     private Analysis analysis;
+    private ExpressionAnalysis expressionAnalysis;
 
     public StatementAnalysis(JmmNode statementNode, Analysis analysis){
         this.analysis = analysis;
+        String methodName = statementNode.getJmmParent().get("methodname");
+        this.expressionAnalysis = new ExpressionAnalysis(methodName, analysis);
+
         visit(statementNode);
     }
-
 
     @Override
     protected void buildVisitor() {
