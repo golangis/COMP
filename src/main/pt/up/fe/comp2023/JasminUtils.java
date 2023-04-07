@@ -1,13 +1,26 @@
 package pt.up.fe.comp2023;
 
-import org.specs.comp.ollir.AccessModifiers;
-import org.specs.comp.ollir.ClassUnit;
-import org.specs.comp.ollir.Field;
-import org.specs.comp.ollir.Type;
+import org.specs.comp.ollir.*;
 
 public class JasminUtils {
 
+    // TODO: CLASS, THIS ?
     public static String getTypeDescriptor(Type type) {
+        System.out.println("Type: " + type.toString());
+        ElementType elementType = type.getTypeOfElement();
+        if (elementType.equals(ElementType.INT32))
+            return "I";
+        if (elementType.equals(ElementType.BOOLEAN))
+            return "Z";
+        if (elementType.equals(ElementType.VOID))
+            return "V";
+        if (elementType.equals(ElementType.STRING))
+            return "Ljava/lang/String;";
+        if (elementType.equals(ElementType.OBJECTREF))
+            return "L" + ((ClassType)type).getName();
+        if (elementType.equals(ElementType.ARRAYREF))
+            return "[".repeat(((ArrayType)type).getNumDimensions())
+                    + getTypeDescriptor(((ArrayType)type).getElementType());
         return "";
     }
 
