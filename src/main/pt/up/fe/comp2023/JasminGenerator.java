@@ -1,6 +1,7 @@
 package pt.up.fe.comp2023;
 
 import org.specs.comp.ollir.ClassUnit;
+import org.specs.comp.ollir.Field;
 import pt.up.fe.comp.jmm.jasmin.JasminBackend;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
@@ -28,7 +29,10 @@ public class JasminGenerator implements JasminBackend {
     }
 
     private String createFieldDefinitions(ClassUnit classUnit) {
-        return "";
+        String fieldDefinitions = "";
+        for (Field field: classUnit.getFields())
+            fieldDefinitions += JasminUtils.createFieldDirective(field);
+        return fieldDefinitions;
     }
 
     private String createMethodDefinitions(ClassUnit classUnit) {
