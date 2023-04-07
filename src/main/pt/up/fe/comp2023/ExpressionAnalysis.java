@@ -55,20 +55,18 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         return null;
     }
 
-    private Type dealWithArrayCreation(JmmNode jmmNode, Type type) {
-        return null;
-    }
-
     private Type dealWithObjectCreation(JmmNode jmmNode, Type type) {
         return null;
     }
 
     private Type dealWithInteger(JmmNode jmmNode, Type type) {
-        return null;
+        jmmNode.put("typename", "int");
+        return new Type("int", false);
     }
 
     private Type dealWithBoolean(JmmNode jmmNode, Type type) {
-        return null;
+        jmmNode.put("typename", "boolean");
+        return new Type("boolean", false);
     }
 
     private Type dealWithThis(JmmNode jmmNode, Type type) {
