@@ -17,7 +17,7 @@ public class Analysis implements JmmAnalysis {
         JmmNode root = parserResult.getRootNode();
         this.symbolTable = new MySymbolTable(parserResult.getRootNode());
 
-        ClassDeclAnalysis classDeclAnalysis = new ClassDeclAnalysis(root);
+        ClassDeclAnalysis classDeclAnalysis = new ClassDeclAnalysis(root, this);
         classDeclAnalysis.checkImportedSuperClass();
 
         List<JmmNode> methodNodes = classDeclAnalysis.getMethodNodes();
