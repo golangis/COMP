@@ -2,11 +2,12 @@ package pt.up.fe.comp2023;
 
 import org.specs.comp.ollir.*;
 
+import java.util.Locale;
+
 public class JasminUtils {
 
     // TODO: CLASS, THIS ?
     public static String getTypeDescriptor(Type type) {
-        System.out.println("Type: " + type.toString());
         ElementType elementType = type.getTypeOfElement();
         if (elementType.equals(ElementType.INT32))
             return "I";
@@ -26,8 +27,8 @@ public class JasminUtils {
 
     public static String createClassDirective(ClassUnit classUnit) {
         String classDirective = ".class ";
-        if (classUnit.getClassAccessModifier() == AccessModifiers.PUBLIC)
-            classDirective += "public ";
+        if (classUnit.getClassAccessModifier() != AccessModifiers.DEFAULT)
+            classDirective += classUnit.getClassAccessModifier().toString().toLowerCase() + " ";
         if (classUnit.isFinalClass())
             classDirective += "final ";
         if (classUnit.getPackage() != null)
@@ -49,7 +50,7 @@ public class JasminUtils {
 
     public static String createFieldDirective(Field field) {
         String fieldDirective = ".field ";
-        fieldDirective += field.getFieldAccessModifier().name() + " ";
+        fieldDirective += field.getFieldAccessModifier().toString().toLowerCase() + " ";
         if (field.isStaticField())
             fieldDirective += "static ";
         if (field.isFinalField())
