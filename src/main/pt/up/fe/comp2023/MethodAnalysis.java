@@ -2,9 +2,13 @@ package pt.up.fe.comp2023;
 
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MethodAnalysis extends AJmmVisitor<Void, Void> {
     private Analysis analysis;
@@ -33,6 +37,14 @@ public class MethodAnalysis extends AJmmVisitor<Void, Void> {
     }
 
     private Void checkMainMethodParameterType(JmmNode jmmNode, Void unused) {
+        String parameterType = jmmNode.get("parametertype");
+        if(!Objects.equals(parameterType, "String")) {
+            String message = "Main method expected a parameter of type 'String' but found '" + parameterType + "'.";
+            analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        }
+
+        for (JmmNode child: jmmNode.getChildren())
+            visit(child);
         return null;
     }
 
