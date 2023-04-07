@@ -71,9 +71,9 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type checkIntegerLength(JmmNode jmmNode, Type type) {
-        String lengthType = visit(jmmNode.getJmmChild(0)).getName();
+        Type lengthType = visit(jmmNode.getJmmChild(0));
 
-        if (Objects.equals(lengthType, "int")){
+        if (Objects.equals(lengthType.getName(), "int") && !lengthType.isArray()){
             jmmNode.put("typename", "array");
             return new Type("int", true);
         }
