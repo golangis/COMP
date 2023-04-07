@@ -33,7 +33,12 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithParenthesesExpr(JmmNode jmmNode, Type type) {
-        return null;
+        Type expressionType = visit(jmmNode.getJmmChild(0));
+        if(expressionType.isArray())
+            jmmNode.put("typename", "array");
+        else
+            jmmNode.put("typename", expressionType.getName());
+        return expressionType;
     }
 
     private Type checkBooleanExpression(JmmNode jmmNode, Type type) {
