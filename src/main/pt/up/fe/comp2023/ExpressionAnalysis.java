@@ -3,6 +3,11 @@ package pt.up.fe.comp2023;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
+
+import java.util.Objects;
 
 public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     private String methodName;
@@ -70,7 +75,18 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithThis(JmmNode jmmNode, Type type) {
-        return null;
+        if (Objects.equals(this.methodName, "main")) {
+            String message = "'this' expression cannot be used in a static method.";
+            this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            jmmNode.put("typename", "unknown");
+            return new Type("unknown", false);
+        }
+
+        else {
+            String className = analysis.getSymbolTable().getClassName();
+            jmmNode.put("typename", className);
+            return new Type(className, false);
+        }
     }
 
     private Type dealWithIdentifier(JmmNode jmmNode, Type type) {

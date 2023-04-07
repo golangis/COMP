@@ -41,7 +41,7 @@ public class MethodAnalysis extends AJmmVisitor<Void, Void> {
         String parameterType = jmmNode.get("parametertype");
         if(!Objects.equals(parameterType, "String")) {
             String message = "Main method expected a parameter of type 'String' but found '" + parameterType + "'.";
-            analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
 
         for (JmmNode child: jmmNode.getChildren())

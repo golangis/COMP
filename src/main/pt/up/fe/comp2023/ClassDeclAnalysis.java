@@ -32,7 +32,7 @@ public class ClassDeclAnalysis extends AJmmVisitor<Void, Void> {
 
         if(superClass != null && !findImport(superClass)){
             String message = "Cannot find super class '" + superClass + "'.";
-            analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
 
         for (JmmNode child: classDeclNode.getChildren())
