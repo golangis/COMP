@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MethodAnalysis extends AJmmVisitor<Void, Void> {
-    private Analysis analysis;
+    private final Analysis analysis;
     private final List<JmmNode> statementNodes = new ArrayList<>();
 
     public MethodAnalysis(JmmNode methodNode, Analysis analysis) {
@@ -21,6 +21,7 @@ public class MethodAnalysis extends AJmmVisitor<Void, Void> {
 
     @Override
     protected void buildVisitor() {
+        setDefaultVisit(this::setDefaultVisit);
         addVisit("MainMethodDecl", this::checkMainMethodParameterType);
         addVisit("CodeBlock", this::addStatement);
         addVisit("Condition", this::addStatement);
@@ -49,6 +50,7 @@ public class MethodAnalysis extends AJmmVisitor<Void, Void> {
     }
 
     private Void addStatement(JmmNode jmmNode, Void unused) {
+        this.statementNodes.add(jmmNode);
         return null;
     }
 

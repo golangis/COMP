@@ -8,6 +8,7 @@ import java.util.Map;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
+import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -55,6 +56,11 @@ public class Launcher {
 
         // Semantic Analysis Stage
         JmmSemanticsResult semanticsResult = analysis.semanticAnalysis(parserResult);
+
+        // Output Semantic Errors
+        for(Report report : analysis.getReports()){
+            System.out.println(report.toString());
+        }
 
         // Check if there are semantic errors
         TestUtils.noErrors(semanticsResult.getReports());

@@ -64,7 +64,6 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
 
     @Override
     protected void buildVisitor() {
-        System.out.println("This is the visitor");
         setDefaultVisit(this::setDefaultVisit);
         addVisit("ImportDecl", this::dealWithImport);
         addVisit("ClassDecl", this::dealWithClass);
