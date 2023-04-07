@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     private String methodName;
-    private Analysis analysis;
+    private final Analysis analysis;
     public ExpressionAnalysis (String methodName, Analysis analysis){
         this.analysis = analysis;
     }
@@ -37,7 +37,16 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type checkBooleanExpression(JmmNode jmmNode, Type type) {
-        return null;
+        String expressionType = visit(jmmNode.getJmmChild(0)).getName();
+
+        if(Objects.equals(expressionType, "boolean")){
+            jmmNode.put("typename", "boolean");
+            return new Type("boolean", false);
+        }
+        String message = "Expected expression of type 'boolean' but found '" + expressionType + "'.";
+        this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        jmmNode.put("typename", "unknown");
+        return new Type("unknown", false);
     }
 
     private Type checkOperandsType(JmmNode jmmNode, Type type) {
@@ -57,17 +66,16 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type checkIntegerLength(JmmNode jmmNode, Type type) {
-        String indexType = visit(jmmNode.getJmmChild(0)).getName();
-        if (!Objects.equals(indexType, "int")){
-            String message = "Expected array length to be 'int' but found '" + indexType + "'.";
-            this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        String lengthType = visit(jmmNode.getJmmChild(0)).getName();
 
-            jmmNode.put("typename", "unknown");
-            return new Type("unknown", false);
+        if (Objects.equals(lengthType, "int")){
+            jmmNode.put("typename", "array");
+            return new Type("int", true);
         }
-
-        jmmNode.put("typename", "array");
-        return new Type("int", true);
+        String message = "Expected array length to be 'int' but found '" + lengthType + "'.";
+        this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        jmmNode.put("typename", "unknown");
+        return new Type("unknown", false);
     }
 
     private Type dealWithObjectCreation(JmmNode jmmNode, Type type) {
@@ -91,12 +99,9 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
             jmmNode.put("typename", "unknown");
             return new Type("unknown", false);
         }
-
-        else {
-            String className = analysis.getSymbolTable().getClassName();
-            jmmNode.put("typename", className);
-            return new Type(className, false);
-        }
+        String className = analysis.getSymbolTable().getClassName();
+        jmmNode.put("typename", className);
+        return new Type(className, false);
     }
 
     private Type dealWithIdentifier(JmmNode jmmNode, Type type) {
