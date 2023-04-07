@@ -57,7 +57,17 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type checkIntegerLength(JmmNode jmmNode, Type type) {
-        return null;
+        String indexType = visit(jmmNode.getJmmChild(0)).getName();
+        if (!Objects.equals(indexType, "int")){
+            String message = "Expected array length to be 'int' but found '" + indexType + "'.";
+            this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+
+            jmmNode.put("typename", "unknown");
+            return new Type("unknown", false);
+        }
+
+        jmmNode.put("typename", "array");
+        return new Type("int", true);
     }
 
     private Type dealWithObjectCreation(JmmNode jmmNode, Type type) {
