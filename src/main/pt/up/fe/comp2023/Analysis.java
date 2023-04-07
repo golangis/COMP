@@ -23,7 +23,7 @@ public class Analysis implements JmmAnalysis {
         for (JmmNode methodNode : classDeclAnalysis.getMethodNodes()){
             MethodAnalysis methodAnalysis = new MethodAnalysis(methodNode,this);
             for (JmmNode statementNode : methodAnalysis.getStatementNodes()){
-                //TODO: validate each statement
+                new StatementAnalysis(statementNode, this);
             }
         }
         return new JmmSemanticsResult(parserResult, this.symbolTable, this.reports);
