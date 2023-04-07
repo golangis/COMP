@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Objects;
 
 public class ClassDeclAnalysis extends AJmmVisitor<Void, Void> {
-    private JmmNode classDeclNode;
-    private Analysis analysis;
+    private final JmmNode classDeclNode;
+    private final Analysis analysis;
     private final List<JmmNode> methodNodes = new ArrayList<>();
 
     public ClassDeclAnalysis(JmmNode rootNode, Analysis analysis){

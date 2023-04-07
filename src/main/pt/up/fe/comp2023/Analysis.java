@@ -20,11 +20,11 @@ public class Analysis implements JmmAnalysis {
         ClassDeclAnalysis classDeclAnalysis = new ClassDeclAnalysis(root, this);
         classDeclAnalysis.checkImportedSuperClass();
 
-        List<JmmNode> methodNodes = classDeclAnalysis.getMethodNodes();
-        for (JmmNode node : methodNodes){
-            //TODO: if (mainMethod), check parameter type == 'String'
-            //TODO: validate each statement
-            // ...
+        for (JmmNode methodNode : classDeclAnalysis.getMethodNodes()){
+            MethodAnalysis methodAnalysis = new MethodAnalysis(methodNode,this);
+            for (JmmNode statementNode : methodAnalysis.getStatementNodes()){
+                //TODO: validate each statement
+            }
         }
         return new JmmSemanticsResult(parserResult, this.symbolTable, this.reports);
     }
