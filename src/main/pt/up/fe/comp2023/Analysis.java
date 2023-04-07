@@ -26,7 +26,18 @@ public class Analysis implements JmmAnalysis {
             //TODO: validate each statement
             // ...
         }
-
         return new JmmSemanticsResult(parserResult, this.symbolTable, this.reports);
+    }
+
+    public MySymbolTable getSymbolTable(){
+        return this.symbolTable;
+    }
+
+    public List<Report> getReports(){
+        return this.reports;
+    }
+
+    public void addReport(Report report) {
+        this.reports.add(report);
     }
 }
