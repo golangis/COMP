@@ -130,7 +130,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
                 jmmNode.put("typename", "unknown");
         }
 
-        if(jmmNode.hasAttribute("typename"))    //Semantic errors were found
+        if(jmmNode.hasAttribute("typename")) //Semantic errors were found
             return new Type("unknown", false);
         return new Type ("int", false);
     }
@@ -149,7 +149,35 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithMethodCall(JmmNode jmmNode, Type type) {
-        //TODO
+        String method = jmmNode.get("methodcall");
+        String declaredClass = analysis.getSymbolTable().getClassName();
+
+        if(analysis.getSymbolTable().getMethods().contains(method)){
+            String expressionType = visit(jmmNode.getJmmChild(0)).getName();
+
+            if(!Objects.equals(expressionType, declaredClass)){
+                String message = "Expected expression of type '" + declaredClass + "' but found '" + expressionType + "'.";
+                analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+                jmmNode.put("typename", "unknown");
+            }
+
+            //TODO: check parameters
+
+            if(jmmNode.hasAttribute("typename")) //Semantic errors were found
+                return new Type("unknown", false);
+            else
+                return analysis.getSymbolTable().getReturnType(method);
+        }
+
+        //TODO: if the class extends another class:
+            //TODO: check if class is imported
+            //TODO: check if expression.type == classDeclared or superClass
+            //TODO: compute node type
+
+        //TODO: else (it is a method of a imported class)
+            //TODO: check if expression.type (=classname) is imported
+            //TODO: compute node type
+
         return null;
     }
 
@@ -180,6 +208,8 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
             return new Type(objectClassName, false);
         }
 
+        //TODO: create report
+        //TODO: set node typename
         return new Type("unknown", false);
     }
 
