@@ -11,14 +11,14 @@ public class SemanticUtils {
     public static final Type ARRAY_TYPE = new Type("int", true);
     public static final Type BOOLEAN_TYPE = new Type("boolean", false);
     public static final Type INT_TYPE = new Type("int", false);
-    public static final Type INVALID_TYPE = new Type("#invalid", false);
+    public static final Type UNKNOWN_TYPE = new Type("#unknown", false);
     public static final Type UNDEFINED_TYPE = new Type("#undefined", false);
 
     //Type names
     public static final String ARRAY = ARRAY_TYPE.print();
     public static final String BOOLEAN = BOOLEAN_TYPE.print();
     public static final String INT = INT_TYPE.print();
-    public static final String INVALID = INVALID_TYPE.print();
+    public static final String UNKNOWN = UNKNOWN_TYPE.print();
     public static final String UNDEFINED = UNDEFINED_TYPE.print();
 
     //Typename attribute
@@ -54,6 +54,6 @@ public class SemanticUtils {
 
         if(findImport(symbolTable.getImports(), identifier))
             return new Type(identifier, false);
-        return INVALID_TYPE;
+        return UNKNOWN_TYPE;
     }
 }
