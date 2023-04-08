@@ -7,7 +7,6 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTable {
 

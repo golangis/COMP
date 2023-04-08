@@ -8,7 +8,8 @@ import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
+import static pt.up.fe.comp2023.SemanticUtils.findImport;
 
 public class ClassDeclAnalysis extends AJmmVisitor<Void, Void> {
     private final JmmNode classDeclNode;
@@ -30,7 +31,7 @@ public class ClassDeclAnalysis extends AJmmVisitor<Void, Void> {
     public void checkImportedSuperClass() {
         String superClass = analysis.getSymbolTable().getSuper();
 
-        if(superClass != null && !findImport(superClass)){
+        if(superClass != null && !findImport(analysis.getSymbolTable().getImports(), superClass)){
             String message = "Cannot find super class '" + superClass + "'.";
             this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
@@ -46,16 +47,5 @@ public class ClassDeclAnalysis extends AJmmVisitor<Void, Void> {
 
     public List<JmmNode> getMethodNodes() {
         return this.methodNodes;
-    }
-
-    Boolean findImport (String string) {
-        List<String> imports = analysis.getSymbolTable().getImports();
-
-        for(String imported : imports){
-            List<String> splitImport = List.of(imported.split("\\."));
-            if (Objects.equals(splitImport.get(splitImport.size() - 1), string))
-                return true;
-        }
-        return false;
     }
 }
