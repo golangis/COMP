@@ -41,21 +41,18 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
 
     private Type dealWithParenthesesExpr(JmmNode jmmNode, Type type) {
         Type expressionType = visit(jmmNode.getJmmChild(0));
-        if(expressionType.isArray())
-            jmmNode.put("typename", "array");
-        else
-            jmmNode.put("typename", expressionType.getName());
+        jmmNode.put("typename", expressionType.print());
         return expressionType;
     }
 
     private Type checkBooleanExpression(JmmNode jmmNode, Type type) {
-        String expressionType = visit(jmmNode.getJmmChild(0)).getName();
+        Type expressionType = visit(jmmNode.getJmmChild(0));
 
-        if(Objects.equals(expressionType, "boolean")){
+        if(Objects.equals(expressionType.print(), "boolean")){
             jmmNode.put("typename", "boolean");
             return new Type("boolean", false);
         }
-        String message = "Expected expression of type 'boolean' but found '" + expressionType + "'.";
+        String message = "Expected expression of type 'boolean' but found '" + expressionType.print() + "'.";
         this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         jmmNode.put("typename", "unknown");
         return new Type("unknown", false);
@@ -65,14 +62,14 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         Type leftOperandType = visit(jmmNode.getJmmChild(0));
         Type rightOperandType = visit(jmmNode.getJmmChild(1));
 
-        if(!Objects.equals(leftOperandType.getName(), "int") || leftOperandType.isArray()) {
-            String message = "Expected operand of type 'int' but found '" + leftOperandType.getName() + "'.";
+        if(!Objects.equals(leftOperandType.print(), "int")) {
+            String message = "Expected operand of type 'int' but found '" + leftOperandType.print() + "'.";
             this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             jmmNode.put("typename", "unknown");
         }
 
-        if(!Objects.equals(rightOperandType.getName(), "int") || rightOperandType.isArray()) {
-            String message = "Expected operand of type 'int' but found '" + leftOperandType.getName() + "'.";
+        if(!Objects.equals(rightOperandType.print(), "int")) {
+            String message = "Expected operand of type 'int' but found '" + leftOperandType.print() + "'.";
             this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             if(!jmmNode.hasAttribute("typename"))
                 jmmNode.put("typename", "unknown");
@@ -94,14 +91,14 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         Type leftOperandType = visit(jmmNode.getJmmChild(0));
         Type rightOperandType = visit(jmmNode.getJmmChild(1));
 
-        if(!Objects.equals(leftOperandType.getName(), "boolean") || leftOperandType.isArray()) {
-            String message = "Expected operand of type 'boolean' but found '" + leftOperandType.getName() + "'.";
+        if(!Objects.equals(leftOperandType.print(), "boolean")) {
+            String message = "Expected operand of type 'boolean' but found '" + leftOperandType.print() + "'.";
             this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             jmmNode.put("typename", "unknown");
         }
 
-        if(!Objects.equals(rightOperandType.getName(), "boolean") || rightOperandType.isArray()) {
-            String message = "Expected operand of type 'boolean' but found '" + leftOperandType.getName() + "'.";
+        if(!Objects.equals(rightOperandType.print(), "boolean")) {
+            String message = "Expected operand of type 'boolean' but found '" + leftOperandType.print() + "'.";
             this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             if(!jmmNode.hasAttribute("typename"))
                 jmmNode.put("typename", "unknown");
@@ -117,14 +114,14 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         Type variableType = visit(jmmNode.getJmmChild(0));
         Type indexType = visit(jmmNode.getJmmChild(1));
 
-        if (!(Objects.equals(variableType.getName(), "int") && !variableType.isArray())) {
-            String message = "Expected array type but found '" + variableType.getName() + "'.";
+        if (!Objects.equals(variableType.print(), "int[]")) {
+            String message = "Expected 'int[]' type but found '" + variableType.print() + "'.";
             analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             jmmNode.put("typename", "unknown");
         }
 
-        if (!(Objects.equals(indexType.getName(), "int") && !indexType.isArray())) {
-            String message = "Expected index expression of type 'integer' but found '" + indexType.getName() + "'.";
+        if (!Objects.equals(indexType.print(), "int")) {
+            String message = "Expected index expression of type 'int' but found '" + indexType.print() + "'.";
             analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             if(!jmmNode.hasAttribute("typename"))
                 jmmNode.put("typename", "unknown");
@@ -153,7 +150,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         String declaredClass = analysis.getSymbolTable().getClassName();
 
         if(analysis.getSymbolTable().getMethods().contains(method)){
-            String expressionType = visit(jmmNode.getJmmChild(0)).getName();
+            String expressionType = visit(jmmNode.getJmmChild(0)).print();
 
             if(!Objects.equals(expressionType, declaredClass)){
                 String message = "Expected expression of type '" + declaredClass + "' but found '" + expressionType + "'.";
@@ -184,11 +181,11 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     private Type checkIntegerLength(JmmNode jmmNode, Type type) {
         Type lengthType = visit(jmmNode.getJmmChild(0));
 
-        if (Objects.equals(lengthType.getName(), "int") && !lengthType.isArray()){
-            jmmNode.put("typename", "array");
+        if (Objects.equals(lengthType.print(), "int")){
+            jmmNode.put("typename", "int[]");
             return new Type("int", true);
         }
-        String message = "Expected array length to be 'int' but found '" + lengthType + "'.";
+        String message = "Expected array length to be 'int' but found '" + lengthType.print() + "'.";
         this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         jmmNode.put("typename", "unknown");
         return new Type("unknown", false);
@@ -208,8 +205,9 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
             return new Type(objectClassName, false);
         }
 
-        //TODO: create report
-        //TODO: set node typename
+        String message = "Cannot find '" + objectClassName + "'.";
+        this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        jmmNode.put("typename", "unknown");
         return new Type("unknown", false);
     }
 
@@ -239,15 +237,12 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         String identifier = jmmNode.get("value");
         Type identifierType = getIdentifierType(this.methodName, identifier, analysis.getSymbolTable());
 
-        if(Objects.equals(identifierType.getName(), "unknown")){
+        if(Objects.equals(identifierType.print(), "unknown")){
             String message = "'" + identifier + "' is not declared.";
             this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             jmmNode.put("typename", "unknown");
         }
-        else if(identifierType.isArray())
-            jmmNode.put("typename", "array");
-        else
-            jmmNode.put("typename", identifierType.getName());
+        jmmNode.put("typename", identifierType.print());
         return identifierType;
     }
 }
