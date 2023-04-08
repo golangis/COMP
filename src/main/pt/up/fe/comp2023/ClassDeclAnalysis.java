@@ -13,12 +13,14 @@ import static pt.up.fe.comp2023.SemanticUtils.findImport;
 
 public class ClassDeclAnalysis extends AJmmVisitor<Void, Void> {
     private final JmmNode classDeclNode;
-    private final Analysis analysis;
+    private final MySymbolTable symbolTable;
+    private final List<Report> reports;
     private final List<JmmNode> methodNodes = new ArrayList<>();
 
-    public ClassDeclAnalysis(JmmNode rootNode, Analysis analysis){
+    public ClassDeclAnalysis(JmmNode rootNode, MySymbolTable symbolTable, List<Report> reports){
         this.classDeclNode = rootNode.getJmmChild(rootNode.getNumChildren() - 1);
-        this.analysis = analysis;
+        this.symbolTable = symbolTable;
+        this.reports = reports;
     }
 
     @Override
@@ -29,11 +31,11 @@ public class ClassDeclAnalysis extends AJmmVisitor<Void, Void> {
     }
 
     public void checkImportedSuperClass() {
-        String superClass = analysis.getSymbolTable().getSuper();
+        String superClass = this.symbolTable.getSuper();
 
-        if(superClass != null && !findImport(analysis.getSymbolTable().getImports(), superClass)){
+        if(superClass != null && !findImport(this.symbolTable.getImports(), superClass)){
             String message = "Cannot find super class '" + superClass + "'.";
-            this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
 
         for (JmmNode child: classDeclNode.getChildren())
