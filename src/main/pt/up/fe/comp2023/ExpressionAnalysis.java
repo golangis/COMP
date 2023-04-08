@@ -1,5 +1,6 @@
 package pt.up.fe.comp2023;
 
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
@@ -7,9 +8,11 @@ import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 
+import java.util.List;
 import java.util.Objects;
 
 import static pt.up.fe.comp2023.SemanticUtils.findImport;
+import static pt.up.fe.comp2023.SemanticUtils.getIdentifierType;
 
 public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     private String methodName;
@@ -203,7 +206,18 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithIdentifier(JmmNode jmmNode, Type type) {
-        //TODO
-        return null;
+        String identifier = jmmNode.get("value");
+        Type identifierType = getIdentifierType(this.methodName, identifier, analysis.getSymbolTable());
+
+        if(Objects.equals(identifierType.getName(), "unknown")){
+            String message = "'" + identifier + "' is not declared.";
+            this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            jmmNode.put("typename", "unknown");
+        }
+        else if(identifierType.isArray())
+            jmmNode.put("typename", "array");
+        else
+            jmmNode.put("typename", identifierType.getName());
+        return identifierType;
     }
 }
