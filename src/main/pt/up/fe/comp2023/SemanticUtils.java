@@ -7,6 +7,23 @@ import java.util.List;
 import java.util.Objects;
 
 public class SemanticUtils {
+    //Types
+    public static final Type ARRAY_TYPE = new Type("int", true);
+    public static final Type BOOLEAN_TYPE = new Type("boolean", false);
+    public static final Type INT_TYPE = new Type("int", false);
+    public static final Type INVALID_TYPE = new Type("#invalid", false);
+    public static final Type UNDEFINED_TYPE = new Type("#undefined", false);
+
+    //Type names
+    public static final String ARRAY = ARRAY_TYPE.print();
+    public static final String BOOLEAN = BOOLEAN_TYPE.print();
+    public static final String INT = INT_TYPE.print();
+    public static final String INVALID = INVALID_TYPE.print();
+    public static final String UNDEFINED = UNDEFINED_TYPE.print();
+
+    //Typename attribute
+    public static final String TYPENAME = "typename";
+
     public static boolean findImport(List<String> imports, String className) {
         for(String imported : imports){
             List<String> splitImport = List.of(imported.split("\\."));
@@ -37,7 +54,6 @@ public class SemanticUtils {
 
         if(findImport(symbolTable.getImports(), identifier))
             return new Type(identifier, false);
-
-        return new Type("unknown", false);
+        return new Type("#invalid", false);
     }
 }
