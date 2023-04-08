@@ -2,15 +2,20 @@ package pt.up.fe.comp2023;
 
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.report.Report;
+
+import java.util.List;
 
 public class StatementAnalysis extends AJmmVisitor<Void, Void> {
-    private Analysis analysis;
+    private final MySymbolTable symbolTable;
+    private final List<Report> reports;
     private ExpressionAnalysis expressionAnalysis;
 
-    public StatementAnalysis(JmmNode statementNode, Analysis analysis){
-        this.analysis = analysis;
+    public StatementAnalysis(JmmNode statementNode,  MySymbolTable symbolTable, List<Report> reports){
+        this.symbolTable = symbolTable;
+        this.reports = reports;
         String methodName = statementNode.getJmmParent().get("methodname");
-        this.expressionAnalysis = new ExpressionAnalysis(methodName, analysis);
+        this.expressionAnalysis = new ExpressionAnalysis(methodName, symbolTable, reports);
 
         visit(statementNode);
     }
