@@ -2,6 +2,7 @@ package pt.up.fe.comp2023;
 
 import org.specs.comp.ollir.ClassUnit;
 import org.specs.comp.ollir.Field;
+import org.specs.comp.ollir.Method;
 import pt.up.fe.comp.jmm.jasmin.JasminBackend;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
@@ -18,8 +19,8 @@ public class JasminGenerator implements JasminBackend {
     }
 
     private String generateJasminCode(ClassUnit classUnit) {
-        return createHeader(classUnit)
-                + createFieldDefinitions(classUnit)
+        return createHeader(classUnit) + '\n'
+                + createFieldDefinitions(classUnit) + '\n'
                 + createMethodDefinitions(classUnit);
     }
 
@@ -36,6 +37,9 @@ public class JasminGenerator implements JasminBackend {
     }
 
     private String createMethodDefinitions(ClassUnit classUnit) {
-        return "";
+        String methodDefinitions = "";
+        for (Method method: classUnit.getMethods())
+            methodDefinitions += JasminUtils.createMethodDirective(method);
+        return methodDefinitions;
     }
 }
