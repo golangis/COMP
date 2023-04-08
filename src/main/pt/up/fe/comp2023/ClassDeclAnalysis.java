@@ -12,25 +12,32 @@ import java.util.List;
 import static pt.up.fe.comp2023.SemanticUtils.findImport;
 
 public class ClassDeclAnalysis extends AJmmVisitor<Void, Void> {
-    private final JmmNode classDeclNode;
     private final MySymbolTable symbolTable;
     private final List<Report> reports;
     private final List<JmmNode> methodNodes = new ArrayList<>();
 
     public ClassDeclAnalysis(JmmNode rootNode, MySymbolTable symbolTable, List<Report> reports){
-        this.classDeclNode = rootNode.getJmmChild(rootNode.getNumChildren() - 1);
         this.symbolTable = symbolTable;
         this.reports = reports;
+        visit(rootNode);
     }
 
     @Override
     protected void buildVisitor() {
+        setDefaultVisit(this::setDefaultVisit);
+        addVisit("ClassDecl", this::checkImportedSuperClass);
         addVisit("MethodDecl", this::addMethodNode);
         addVisit("VoidMethodDecl", this::addMethodNode);
         addVisit("MainMethodDecl", this::addMethodNode);
     }
 
-    public void checkImportedSuperClass() {
+    private Void setDefaultVisit(JmmNode jmmNode, Void unused) {
+        for (JmmNode child: jmmNode.getChildren())
+            visit(child);
+        return null;
+    }
+
+    public Void checkImportedSuperClass(JmmNode jmmNode, Void unused) {
         String superClass = this.symbolTable.getSuper();
 
         if(superClass != null && !findImport(this.symbolTable.getImports(), superClass)){
@@ -38,8 +45,9 @@ public class ClassDeclAnalysis extends AJmmVisitor<Void, Void> {
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
 
-        for (JmmNode child: classDeclNode.getChildren())
+        for (JmmNode child: jmmNode.getChildren())
             visit(child);
+        return null;
     }
 
     private Void addMethodNode(JmmNode methodNode, Void unused) {
