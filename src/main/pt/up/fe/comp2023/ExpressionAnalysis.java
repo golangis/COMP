@@ -109,14 +109,17 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithArraySubscript(JmmNode jmmNode, Type type) {
+        //TODO
         return null;
     }
 
     private Type dealWithLengthFieldAccess(JmmNode jmmNode, Type type) {
+        //TODO
         return null;
     }
 
     private Type dealWithMethodCall(JmmNode jmmNode, Type type) {
+        //TODO
         return null;
     }
 
@@ -134,7 +137,17 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithObjectCreation(JmmNode jmmNode, Type type) {
-        return null;
+        String declaredClassName = analysis.getSymbolTable().getClassName();
+        String objectClassName = jmmNode.get("classname");
+
+        if(Objects.equals(objectClassName, declaredClassName)){
+            jmmNode.put("typename", declaredClassName);
+            return new Type(declaredClassName, false);
+        }
+
+        //TODO: check if objectClassName was imported
+
+        return new Type("unknown", false);
     }
 
     private Type dealWithInteger(JmmNode jmmNode, Type type) {
@@ -160,6 +173,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithIdentifier(JmmNode jmmNode, Type type) {
+        //TODO
         return null;
     }
 }

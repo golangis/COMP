@@ -32,18 +32,22 @@ public class StatementAnalysis extends AJmmVisitor<Void, Void> {
     }
 
     private Void checkBooleanCondition(JmmNode jmmNode, Void unused) {
+        //TODO
         return null;
     }
 
     private Void expressionVisitor(JmmNode jmmNode, Void unused) {
+        //TODO
         return null;
     }
 
     private Void checkCompatibleAssignment(JmmNode jmmNode, Void unused) {
+        //TODO
         return null;
     }
 
     private Void validateArrayAssignment(JmmNode jmmNode, Void unused) {
+        //TODO
         return null;
     }
 }
