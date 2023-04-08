@@ -21,7 +21,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         addVisit("ParenthesesExpr", this::dealWithParenthesesExpr);
         addVisit("NegationExpr", this::checkBooleanExpression);
         addVisit("ArithmeticExpr", this::checkIntegerOperands);
-        addVisit("ComparisonExpr", this::checkComparisonOperandsType);
+        addVisit("ComparisonExpr", this::checkIntegerOperands);
         addVisit("LogicalExpr", this::checkLogicalOperandsType);
         addVisit("ArraySubscript", this::dealWithArraySubscript);
         addVisit("LengthFieldAccess", this::dealWithLengthFieldAccess);
@@ -73,15 +73,16 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
                 jmmNode.put("typename", "unknown");
         }
 
-        if(!jmmNode.getAttributes().contains("typename")) { //left and right operands are integers
+        if(jmmNode.getAttributes().contains("typename"))    //Semantic errors were found
+            return new Type("unknown", false);
+
+        if(Objects.equals(jmmNode.getKind(), "ArithmeticExpr")) {
             jmmNode.put("typename", "int");
             return new Type("int", false);
         }
-        return new Type("unknown", false);
-    }
 
-    private Type checkComparisonOperandsType(JmmNode jmmNode, Type type) {
-        return null;
+        jmmNode.put("typename", "boolean");
+        return new Type("boolean", false);
     }
 
     private Type checkLogicalOperandsType(JmmNode jmmNode, Type type) {
