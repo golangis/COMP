@@ -133,8 +133,16 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithLengthFieldAccess(JmmNode jmmNode, Type type) {
-        //TODO
-        return null;
+        Type expressionType = visit(jmmNode.getJmmChild(0));
+
+        if(expressionType.isArray()){
+            jmmNode.put("typename", "int");
+            return new Type ("int", false);
+        }
+        String message = "Cannot resolve symbol 'length'.";
+        analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        jmmNode.put("typename", "unknown");
+        return new Type("unknown", false);
     }
 
     private Type dealWithMethodCall(JmmNode jmmNode, Type type) {
