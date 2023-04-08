@@ -71,11 +71,11 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         if(!Objects.equals(rightOperandType.getName(), "int") || rightOperandType.isArray()) {
             String message = "Expected operand of type 'int' but found '" + leftOperandType.getName() + "'.";
             this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
-            if(!jmmNode.getAttributes().contains("typename"))
+            if(!jmmNode.hasAttribute("typename"))
                 jmmNode.put("typename", "unknown");
         }
 
-        if(jmmNode.getAttributes().contains("typename"))    //Semantic errors were found
+        if(jmmNode.hasAttribute("typename"))    //Semantic errors were found
             return new Type("unknown", false);
 
         if(Objects.equals(jmmNode.getKind(), "ArithmeticExpr")) {
@@ -100,19 +100,36 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         if(!Objects.equals(rightOperandType.getName(), "boolean") || rightOperandType.isArray()) {
             String message = "Expected operand of type 'boolean' but found '" + leftOperandType.getName() + "'.";
             this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
-            if(!jmmNode.getAttributes().contains("typename"))
+            if(!jmmNode.hasAttribute("typename"))
                 jmmNode.put("typename", "unknown");
         }
 
-        if(jmmNode.getAttributes().contains("typename"))    //Semantic errors were found
+        if(jmmNode.hasAttribute("typename")) //Semantic errors were found
             return new Type("unknown", false);
         jmmNode.put("typename", "boolean");
         return new Type("boolean", false);
     }
 
     private Type dealWithArraySubscript(JmmNode jmmNode, Type type) {
-        //TODO
-        return null;
+        Type variableType = visit(jmmNode.getJmmChild(0));
+        Type indexType = visit(jmmNode.getJmmChild(1));
+
+        if (!(Objects.equals(variableType.getName(), "int") && !variableType.isArray())) {
+            String message = "Expected array type but found '" + variableType.getName() + "'.";
+            analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            jmmNode.put("typename", "unknown");
+        }
+
+        if (!(Objects.equals(indexType.getName(), "int") && !indexType.isArray())) {
+            String message = "Expected index expression of type 'integer' but found '" + indexType.getName() + "'.";
+            analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            if(!jmmNode.hasAttribute("typename"))
+                jmmNode.put("typename", "unknown");
+        }
+
+        if(jmmNode.hasAttribute("typename"))    //Semantic errors were found
+            return new Type("unknown", false);
+        return new Type ("int", false);
     }
 
     private Type dealWithLengthFieldAccess(JmmNode jmmNode, Type type) {
