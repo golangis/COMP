@@ -20,7 +20,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     protected void buildVisitor() {
         addVisit("ParenthesesExpr", this::dealWithParenthesesExpr);
         addVisit("NegationExpr", this::checkBooleanExpression);
-        addVisit("ArithmeticExpr", this::checkArithmeticOperandsType);
+        addVisit("ArithmeticExpr", this::checkIntegerOperands);
         addVisit("ComparisonExpr", this::checkComparisonOperandsType);
         addVisit("LogicalExpr", this::checkLogicalOperandsType);
         addVisit("ArraySubscript", this::dealWithArraySubscript);
@@ -56,7 +56,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         return new Type("unknown", false);
     }
 
-    private Type checkArithmeticOperandsType(JmmNode jmmNode, Type type) {
+    private Type checkIntegerOperands(JmmNode jmmNode, Type type) {
         Type leftOperandType = visit(jmmNode.getJmmChild(0));
         Type rightOperandType = visit(jmmNode.getJmmChild(1));
 
