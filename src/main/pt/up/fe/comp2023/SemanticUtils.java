@@ -54,6 +54,6 @@ public class SemanticUtils {
 
         if(findImport(symbolTable.getImports(), identifier))
             return new Type(identifier, false);
-        return new Type("#invalid", false);
+        return INVALID_TYPE;
     }
 }
