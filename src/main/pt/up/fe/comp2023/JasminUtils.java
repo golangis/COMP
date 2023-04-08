@@ -4,7 +4,7 @@ import org.specs.comp.ollir.*;
 
 public class JasminUtils {
 
-    // TODO: CLASS, THIS ?
+    // TODO: CLASS, THIS, (;)?
     public static String getTypeDescriptor(Type type) {
         ElementType elementType = type.getTypeOfElement();
         if (elementType.equals(ElementType.INT32))
@@ -16,7 +16,7 @@ public class JasminUtils {
         if (elementType.equals(ElementType.STRING))
             return "Ljava/lang/String;";
         if (elementType.equals(ElementType.OBJECTREF))
-            return "L" + ((ClassType)type).getName();
+            return "L" + ((ClassType)type).getName() + ";";
         if (elementType.equals(ElementType.ARRAYREF))
             return "[".repeat(((ArrayType)type).getNumDimensions())
                     + getTypeDescriptor(((ArrayType)type).getElementType());
@@ -60,5 +60,33 @@ public class JasminUtils {
             fieldDirective += " = " + field.getInitialValue();
 
         return fieldDirective + '\n';
+    }
+
+    public static String createMethodSignature(Method method) {
+        String methodDirective = "";
+        if (method.getMethodAccessModifier() != AccessModifiers.DEFAULT)
+            methodDirective += method.getMethodAccessModifier().toString().toLowerCase() + " ";
+        if (method.isStaticMethod())
+            methodDirective += "static ";
+        if (method.isFinalMethod())
+            methodDirective += "final ";
+        if (method.isConstructMethod())
+            methodDirective += "<init>(";
+        else
+            methodDirective += method.getMethodName() + "(";
+        for (Element parameter: method.getParams())
+            methodDirective += getTypeDescriptor(parameter.getType());
+        methodDirective += ")" + getTypeDescriptor(method.getReturnType()) + '\n';
+
+        return methodDirective;
+    }
+
+    public static String createMethodDirective(Method method) {
+        String methodDirective = ".method ";
+        methodDirective += createMethodSignature(method);
+
+        // TODO: method statements
+
+        return methodDirective + ".end method\n\n";
     }
 }
