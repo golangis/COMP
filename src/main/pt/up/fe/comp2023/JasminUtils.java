@@ -2,8 +2,6 @@ package pt.up.fe.comp2023;
 
 import org.specs.comp.ollir.*;
 
-import java.util.Locale;
-
 public class JasminUtils {
 
     // TODO: CLASS, THIS ?
@@ -50,7 +48,8 @@ public class JasminUtils {
 
     public static String createFieldDirective(Field field) {
         String fieldDirective = ".field ";
-        fieldDirective += field.getFieldAccessModifier().toString().toLowerCase() + " ";
+        if (field.getFieldAccessModifier() != AccessModifiers.DEFAULT)
+            fieldDirective += field.getFieldAccessModifier().toString().toLowerCase() + " ";
         if (field.isStaticField())
             fieldDirective += "static ";
         if (field.isFinalField())
