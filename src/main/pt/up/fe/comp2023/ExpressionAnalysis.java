@@ -22,7 +22,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         addVisit("NegationExpr", this::checkBooleanExpression);
         addVisit("ArithmeticExpr", this::checkIntegerOperands);
         addVisit("ComparisonExpr", this::checkIntegerOperands);
-        addVisit("LogicalExpr", this::checkLogicalOperandsType);
+        addVisit("LogicalExpr", this::checkBooleanOperands);
         addVisit("ArraySubscript", this::dealWithArraySubscript);
         addVisit("LengthFieldAccess", this::dealWithLengthFieldAccess);
         addVisit("MethodCall", this::dealWithMethodCall);
@@ -85,8 +85,27 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         return new Type("boolean", false);
     }
 
-    private Type checkLogicalOperandsType(JmmNode jmmNode, Type type) {
-        return null;
+    private Type checkBooleanOperands(JmmNode jmmNode, Type type) {
+        Type leftOperandType = visit(jmmNode.getJmmChild(0));
+        Type rightOperandType = visit(jmmNode.getJmmChild(1));
+
+        if(!Objects.equals(leftOperandType.getName(), "boolean") || leftOperandType.isArray()) {
+            String message = "Expected operand of type 'boolean' but found '" + leftOperandType.getName() + "'.";
+            this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            jmmNode.put("typename", "unknown");
+        }
+
+        if(!Objects.equals(rightOperandType.getName(), "boolean") || rightOperandType.isArray()) {
+            String message = "Expected operand of type 'boolean' but found '" + leftOperandType.getName() + "'.";
+            this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            if(!jmmNode.getAttributes().contains("typename"))
+                jmmNode.put("typename", "unknown");
+        }
+
+        if(jmmNode.getAttributes().contains("typename"))    //Semantic errors were found
+            return new Type("unknown", false);
+        jmmNode.put("typename", "boolean");
+        return new Type("boolean", false);
     }
 
     private Type dealWithArraySubscript(JmmNode jmmNode, Type type) {
