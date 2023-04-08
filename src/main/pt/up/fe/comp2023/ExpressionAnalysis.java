@@ -20,7 +20,9 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     protected void buildVisitor() {
         addVisit("ParenthesesExpr", this::dealWithParenthesesExpr);
         addVisit("NegationExpr", this::checkBooleanExpression);
-        addVisit("BinExpr", this::checkOperandsType);
+        addVisit("ArithmeticExpr", this::checkArithmeticOperandsType);
+        addVisit("ComparisonExpr", this::checkComparisonOperandsType);
+        addVisit("LogicalExpr", this::checkLogicalOperandsType);
         addVisit("ArraySubscript", this::dealWithArraySubscript);
         addVisit("LengthFieldAccess", this::dealWithLengthFieldAccess);
         addVisit("MethodCall", this::dealWithMethodCall);
@@ -54,7 +56,35 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         return new Type("unknown", false);
     }
 
-    private Type checkOperandsType(JmmNode jmmNode, Type type) {
+    private Type checkArithmeticOperandsType(JmmNode jmmNode, Type type) {
+        Type leftOperandType = visit(jmmNode.getJmmChild(0));
+        Type rightOperandType = visit(jmmNode.getJmmChild(1));
+
+        if(!Objects.equals(leftOperandType.getName(), "int") || leftOperandType.isArray()) {
+            String message = "Expected operand of type 'int' but found '" + leftOperandType.getName() + "'.";
+            this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            jmmNode.put("typename", "unknown");
+        }
+
+        if(!Objects.equals(rightOperandType.getName(), "int") || rightOperandType.isArray()) {
+            String message = "Expected operand of type 'int' but found '" + leftOperandType.getName() + "'.";
+            this.analysis.addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            if(!jmmNode.getAttributes().contains("typename"))
+                jmmNode.put("typename", "unknown");
+        }
+
+        if(!jmmNode.getAttributes().contains("typename")) { //left and right operands are integers
+            jmmNode.put("typename", "int");
+            return new Type("int", false);
+        }
+        return new Type("unknown", false);
+    }
+
+    private Type checkComparisonOperandsType(JmmNode jmmNode, Type type) {
+        return null;
+    }
+
+    private Type checkLogicalOperandsType(JmmNode jmmNode, Type type) {
         return null;
     }
 
