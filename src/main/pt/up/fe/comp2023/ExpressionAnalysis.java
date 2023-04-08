@@ -9,6 +9,8 @@ import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.Objects;
 
+import static pt.up.fe.comp2023.SemanticUtils.findImport;
+
 public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     private String methodName;
     private final Analysis analysis;
@@ -145,7 +147,10 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
             return new Type(declaredClassName, false);
         }
 
-        //TODO: check if objectClassName was imported
+        if(findImport(analysis.getSymbolTable().getImports(), objectClassName)){
+            jmmNode.put("typename", objectClassName);
+            return new Type(objectClassName, false);
+        }
 
         return new Type("unknown", false);
     }
