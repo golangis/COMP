@@ -14,12 +14,15 @@ import static pt.up.fe.comp2023.SemanticUtils.*;
 public class StatementAnalysis extends AJmmVisitor<Void, Void> {
     private final MySymbolTable symbolTable;
     private final List<Report> reports;
+    private final String methodName;
     private final ExpressionAnalysis expressionAnalysis;
+
 
     public StatementAnalysis(JmmNode statementNode,  MySymbolTable symbolTable, List<Report> reports){
         this.symbolTable = symbolTable;
         this.reports = reports;
         String methodName = statementNode.getJmmParent().get("methodname");
+        this.methodName = methodName;
         this.expressionAnalysis = new ExpressionAnalysis(methodName, symbolTable, reports);
 
         visit(statementNode);
@@ -57,12 +60,27 @@ public class StatementAnalysis extends AJmmVisitor<Void, Void> {
     }
 
     private Void expressionVisitor(JmmNode jmmNode, Void unused) {
-        //TODO
+        expressionAnalysis.visit(jmmNode);
         return null;
     }
 
     private Void checkCompatibleAssignment(JmmNode jmmNode, Void unused) {
-        //TODO
+        String varName = jmmNode.get("varname");
+        JmmNode expressionNode = jmmNode.getJmmChild(0);
+        Type left = getIdentifierType(this.methodName, varName, this.symbolTable);
+        Type right = expressionAnalysis.visit(expressionNode);
+
+        if(left.equals(UNKNOWN_TYPE)){
+            String message = "'" + varName + "' is not declared.";
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        }
+        else if (right.equals(UNDEFINED_TYPE)) {
+            expressionNode.put(TYPENAME, left.print());
+        }
+        else if (!right.equals(left)) {
+            String message = "Type of the assignee is not compatible with the assigned.";
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        }
         return null;
     }
 
