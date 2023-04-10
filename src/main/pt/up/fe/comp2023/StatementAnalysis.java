@@ -48,7 +48,7 @@ public class StatementAnalysis extends AJmmVisitor<Void, Void> {
         JmmNode expressionNode = jmmNode.getJmmChild(0);
 
         Type conditionType = expressionAnalysis.visit(expressionNode);
-        if(conditionType.equals(BOOLEAN_TYPE)) {
+        if(!conditionType.equals(BOOLEAN_TYPE)) {
             String message = "Expected condition of type '" + BOOLEAN + "' but found '" + conditionType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
