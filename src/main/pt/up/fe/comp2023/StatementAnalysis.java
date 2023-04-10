@@ -85,7 +85,28 @@ public class StatementAnalysis extends AJmmVisitor<Void, Void> {
     }
 
     private Void validateArrayAssignment(JmmNode jmmNode, Void unused) {
-        //TODO
+        String varName = jmmNode.get("arrayname");
+        JmmNode valueNode = jmmNode.getJmmChild(1);
+        Type varType = getIdentifierType(this.methodName, varName, this.symbolTable);
+        Type indexType = expressionAnalysis.visit(jmmNode.getJmmChild(0));
+        Type valueType = expressionAnalysis.visit(valueNode);
+
+        if(!valueType.isArray()){
+            String message = "'" + varName + "' must be an array.";
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message));
+        }
+        if(!indexType.equals(INT_TYPE)){
+            String message = "Expected index expression of type '" + INT +"' but found '" + indexType.print() + "'.";
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message));
+        }
+
+        if(valueType.equals(UNDEFINED_TYPE)){
+            valueNode.put(TYPENAME, INT);
+        }
+        else if(!valueType.equals(INT_TYPE)){
+            String message = "Type of the assignee is not compatible with the assigned.";
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        }
         return null;
     }
 }

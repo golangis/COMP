@@ -63,13 +63,13 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         Type leftOperandType = visit(jmmNode.getJmmChild(0));
         Type rightOperandType = visit(jmmNode.getJmmChild(1));
 
-        if(leftOperandType.equals(INT_TYPE)) {
+        if(!leftOperandType.equals(INT_TYPE)) {
             String message = "Expected operand of type '" + INT + "' but found '" + leftOperandType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             jmmNode.put(TYPENAME, UNKNOWN);
         }
 
-        if(rightOperandType.equals(INT_TYPE)) {
+        if(!rightOperandType.equals(INT_TYPE)) {
             String message = "Expected operand of type '" + INT + "' but found '" + leftOperandType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             if(!jmmNode.hasAttribute(TYPENAME))
@@ -90,13 +90,13 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         Type leftOperandType = visit(jmmNode.getJmmChild(0));
         Type rightOperandType = visit(jmmNode.getJmmChild(1));
 
-        if(leftOperandType.equals(BOOLEAN_TYPE)) {
+        if(!leftOperandType.equals(BOOLEAN_TYPE)) {
             String message = "Expected operand of type '" + BOOLEAN + "' but found '" + leftOperandType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             jmmNode.put(TYPENAME, UNKNOWN);
         }
 
-        if(rightOperandType.equals(BOOLEAN_TYPE)) {
+        if(!rightOperandType.equals(BOOLEAN_TYPE)) {
             String message = "Expected operand of type '" + BOOLEAN + "' but found '" + leftOperandType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             if(!jmmNode.hasAttribute(TYPENAME))
@@ -113,13 +113,13 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         Type variableType = visit(jmmNode.getJmmChild(0));
         Type indexType = visit(jmmNode.getJmmChild(1));
 
-        if (variableType.equals(ARRAY_TYPE)) {
+        if (!variableType.equals(ARRAY_TYPE)) {
             String message = "Expected '" + ARRAY_TYPE + "' type but found '" + variableType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             jmmNode.put(TYPENAME, UNKNOWN);
         }
 
-        if (indexType.equals(INT_TYPE)) {
+        if (!indexType.equals(INT_TYPE)) {
             String message = "Expected index expression of type '" + INT +"' but found '" + indexType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             if(!jmmNode.hasAttribute(TYPENAME))
@@ -128,6 +128,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
 
         if(jmmNode.hasAttribute(TYPENAME)) //Semantic errors were found
             return UNKNOWN_TYPE;
+        jmmNode.put(TYPENAME, INT);
         return INT_TYPE;
     }
 
