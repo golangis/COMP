@@ -4,7 +4,6 @@ import org.specs.comp.ollir.*;
 
 public class JasminUtils {
 
-    // TODO: CLASS, THIS, (;)?
     public static String getTypeDescriptor(Type type) {
         ElementType elementType = type.getTypeOfElement();
         if (elementType.equals(ElementType.INT32))
@@ -81,12 +80,41 @@ public class JasminUtils {
         return methodDirective;
     }
 
+    public static String handleMethodStatements(Method method) {
+        String statementList = "";
+
+        for (Instruction instruction: method.getInstructions()) {
+            System.out.println(instruction.toString());
+            switch (instruction.getInstType()) {
+                case ASSIGN:
+                    break;
+                case CALL:
+                    break;
+                case GOTO:
+                    break;
+                case BRANCH:
+                    break;
+                case RETURN:
+                    break;
+                case GETFIELD:
+                    break;
+                case PUTFIELD:
+                    break;
+                case UNARYOPER:
+                    break;
+                case BINARYOPER:
+                    break;
+                case NOPER:
+                    break;
+            }
+        }
+        return statementList + '\n';
+    }
+
     public static String createMethodDirective(Method method) {
         String methodDirective = ".method ";
         methodDirective += createMethodSignature(method);
-
-        // TODO: method statements
-
+        methodDirective += handleMethodStatements(method);
         return methodDirective + ".end method\n\n";
     }
 }
