@@ -1,10 +1,22 @@
 package pt.up.fe.comp2023;
 
-import org.specs.comp.ollir.ReturnInstruction;
+import org.specs.comp.ollir.*;
+
+import java.util.HashMap;
 
 public class JVMInstructionUtils {
 
-    public static String createReturnStatement(ReturnInstruction instruction) {
+    public static String getLoadInstruction(ElementType elementType, Element element, HashMap<String, Descriptor> varTable) {
+        switch (elementType) {
+            case THIS:
+                return "aload_0\n";
+            case STRING: case OBJECTREF: case ARRAYREF:
+                return "aload_" + varTable.get(((Operand)element).getName()) + '\n';
+        }
+        return "";
+    }
+
+    public static String createReturnStatement(ReturnInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statement = "";
         switch (instruction.getReturnType().getTypeOfElement()) {
             case VOID:
