@@ -84,7 +84,6 @@ public class JasminUtils {
         String statementList = "";
 
         for (Instruction instruction: method.getInstructions()) {
-            System.out.println(instruction.toString());
             switch (instruction.getInstType()) {
                 case ASSIGN:
                     break;
@@ -112,6 +111,9 @@ public class JasminUtils {
                     break;
             }
         }
+
+        if (method.isConstructMethod())
+            statementList += "return\n";
         return statementList;
     }
 
