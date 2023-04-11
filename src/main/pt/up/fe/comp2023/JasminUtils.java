@@ -95,6 +95,10 @@ public class JasminUtils {
                 case BRANCH:
                     break;
                 case RETURN:
+                    statementList += JVMInstructionUtils.createReturnStatement(
+                            (ReturnInstruction)instruction,
+                            method.getVarTable()
+                    );
                     break;
                 case GETFIELD:
                     break;
@@ -108,7 +112,7 @@ public class JasminUtils {
                     break;
             }
         }
-        return statementList + '\n';
+        return statementList;
     }
 
     public static String createMethodDirective(Method method) {
