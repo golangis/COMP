@@ -24,9 +24,9 @@ classDeclaration
     ;
 
 methodDeclaration
-    : ('public')? type methodname=ID '(' methodDeclarationParameters ')' '{' (varDeclaration | statement)* 'return' expression ';' '}' #MethodDecl
-    | ('public')? 'void' methodname=ID '(' methodDeclarationParameters ')' '{' (varDeclaration | statement)* ('return' ';')? '}' #VoidMethodDecl
-    | ('public')? 'static' 'void' methodname='main' '(' parametertype=ID '[' ']' parametername=ID ')' '{' (varDeclaration | statement)* '}' #MainMethodDecl
+    : ('public')? type methodname=ID '(' methodDeclarationParameters ')' '{' varDeclaration* statement* 'return' expression ';' '}' #MethodDecl
+    | ('public')? 'void' methodname=ID '(' methodDeclarationParameters ')' '{' varDeclaration* statement* ('return' ';')? '}' #VoidMethodDecl
+    | ('public')? 'static' 'void' methodname='main' '(' parametertype=ID '[' ']' parametername=ID ')' '{' varDeclaration* statement* '}' #MainMethodDecl
     ;
 
 methodDeclarationParameters
