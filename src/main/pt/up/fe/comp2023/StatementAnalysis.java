@@ -8,6 +8,7 @@ import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.List;
+import java.util.Objects;
 
 import static pt.up.fe.comp2023.SemanticUtils.*;
 
@@ -69,18 +70,27 @@ public class StatementAnalysis extends AJmmVisitor<Void, Void> {
         JmmNode expressionNode = jmmNode.getJmmChild(0);
         Type left = getIdentifierType(this.methodName, varName, this.symbolTable);
         Type right = expressionAnalysis.visit(expressionNode);
+        String superClass = this.symbolTable.getSuper();
+        String className = this.symbolTable.getClassName();
 
         if(left.equals(UNKNOWN_TYPE)){
             String message = "'" + varName + "' is not declared.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
-        else if (right.equals(UNDEFINED_TYPE)) {
+        else if (right.equals(UNDEFINED_TYPE))
             expressionNode.put(TYPENAME, left.print());
-        }
-        else if (!right.equals(left)) {
-            String message = "Type of the assignee is not compatible with the assigned.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
-        }
+
+        else if(right.equals(left))
+            return null;
+
+        else if (Objects.equals(left.print(), className) && Objects.equals(right.print(), superClass))
+            return null;
+
+        else if (findImport(symbolTable.getImports(), left.print()) && !right.equals(UNKNOWN_TYPE))
+            return null;
+
+        String message = "Type of the assignee is not compatible with the assigned.";
+        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         return null;
     }
 
