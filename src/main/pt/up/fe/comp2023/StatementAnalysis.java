@@ -83,10 +83,10 @@ public class StatementAnalysis extends AJmmVisitor<Void, Void> {
         else if(right.equals(left))
             return null;
 
-        else if (Objects.equals(left.print(), className) && Objects.equals(right.print(), superClass))
+        else if (Objects.equals(left.print(), superClass) && Objects.equals(right.print(), className))
             return null;
 
-        else if (findImport(symbolTable.getImports(), left.print()) && !right.equals(UNKNOWN_TYPE))
+        else if (findImport(symbolTable.getImports(), left.print()) && findImport(symbolTable.getImports(), left.print()))
             return null;
 
         String message = "Type of the assignee is not compatible with the assigned.";
