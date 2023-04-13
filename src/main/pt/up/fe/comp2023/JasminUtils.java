@@ -86,6 +86,10 @@ public class JasminUtils {
         String statementList = "";
         switch (instruction.getInstType()) {
             case ASSIGN:
+                statementList += JVMInstructionUtils.createAssignStatement(
+                        (AssignInstruction)instruction,
+                        varTable
+                );
                 break;
             case CALL:
                 break;
@@ -117,7 +121,7 @@ public class JasminUtils {
         String statementList = "";
 
         for (Instruction instruction: method.getInstructions())
-            handleInstruction(instruction, method.getVarTable());
+            statementList += handleInstruction(instruction, method.getVarTable());
 
         if (method.isConstructMethod())
             statementList += "return\n";

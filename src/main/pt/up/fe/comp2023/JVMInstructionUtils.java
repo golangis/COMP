@@ -36,22 +36,36 @@ public class JVMInstructionUtils {
         return "";
     }
 
+    public static String getStoreInstruction(Element element, HashMap<String, Descriptor> varTable) {
+        return "";
+    }
+
+    public static String createAssignStatement(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
+        Element assignElement = instruction.getDest();
+        String statementList = "";
+
+        statementList += JasminUtils.handleInstruction(instruction.getRhs(), varTable);
+        statementList += getStoreInstruction(assignElement, varTable);
+
+        return statementList;
+    }
+
     public static String createReturnStatement(ReturnInstruction instruction, HashMap<String, Descriptor> varTable) {
         ElementType returnType = instruction.getElementType();
         Element returnElement = instruction.getOperand();
-        String statement = "";
+        String statementList = "";
 
         switch (returnType) {
             case VOID:
                 return "return\n";
             case INT32: case BOOLEAN:
-                statement += getLoadInstruction(returnElement, varTable);
-                statement += "ireturn\n";
+                statementList += getLoadInstruction(returnElement, varTable);
+                statementList += "ireturn\n";
                 break;
             case STRING: case OBJECTREF: case ARRAYREF: case THIS:
-                statement += getLoadInstruction(returnElement, varTable);
-                statement += "areturn\n";
+                statementList += getLoadInstruction(returnElement, varTable);
+                statementList += "areturn\n";
         }
-        return statement;
+        return statementList;
     }
 }
