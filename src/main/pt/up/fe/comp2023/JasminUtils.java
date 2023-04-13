@@ -2,6 +2,8 @@ package pt.up.fe.comp2023;
 
 import org.specs.comp.ollir.*;
 
+import java.util.HashMap;
+
 public class JasminUtils {
 
     public static String getTypeDescriptor(Type type) {
@@ -80,37 +82,42 @@ public class JasminUtils {
         return methodDirective;
     }
 
+    public static String handleInstruction(Instruction instruction, HashMap<String, Descriptor> varTable) {
+        String statementList = "";
+        switch (instruction.getInstType()) {
+            case ASSIGN:
+                break;
+            case CALL:
+                break;
+            case GOTO:
+                break;
+            case BRANCH:
+                break;
+            case RETURN:
+                statementList += JVMInstructionUtils.createReturnStatement(
+                        (ReturnInstruction)instruction,
+                        varTable
+                );
+                break;
+            case GETFIELD:
+                break;
+            case PUTFIELD:
+                break;
+            case UNARYOPER:
+                break;
+            case BINARYOPER:
+                break;
+            case NOPER:
+                break;
+        }
+        return statementList;
+    }
+
     public static String handleMethodStatements(Method method) {
         String statementList = "";
 
-        for (Instruction instruction: method.getInstructions()) {
-            switch (instruction.getInstType()) {
-                case ASSIGN:
-                    break;
-                case CALL:
-                    break;
-                case GOTO:
-                    break;
-                case BRANCH:
-                    break;
-                case RETURN:
-                    statementList += JVMInstructionUtils.createReturnStatement(
-                            (ReturnInstruction)instruction,
-                            method.getVarTable()
-                    );
-                    break;
-                case GETFIELD:
-                    break;
-                case PUTFIELD:
-                    break;
-                case UNARYOPER:
-                    break;
-                case BINARYOPER:
-                    break;
-                case NOPER:
-                    break;
-            }
-        }
+        for (Instruction instruction: method.getInstructions())
+            handleInstruction(instruction, method.getVarTable());
 
         if (method.isConstructMethod())
             statementList += "return\n";
