@@ -37,6 +37,31 @@ public class JVMInstructionUtils {
     }
 
     public static String getStoreInstruction(Element element, HashMap<String, Descriptor> varTable) {
+        int virtualReg = varTable.get(((Operand)element).getName()).getVirtualReg();
+
+        if (element.isLiteral()) {
+            int literal = parseInt(((LiteralElement)element).getLiteral());
+            if (virtualReg >= 0 && virtualReg <= 4)
+                return "istore_" + virtualReg + '\n';
+            else
+                return  "istore " + virtualReg + '\n';
+        }
+
+        ElementType elementType = element.getType().getTypeOfElement();
+        switch (elementType) {
+            case THIS:
+                return "astore_0\n";
+            case STRING: case OBJECTREF: case ARRAYREF:
+                if (virtualReg >= 0 && virtualReg <= 4)
+                    return "astore_" + virtualReg + '\n';
+                else
+                    return  "astore " + virtualReg + '\n';
+            case INT32: case BOOLEAN:
+                if (virtualReg >= 0 && virtualReg <= 4)
+                    return "istore_" + virtualReg + '\n';
+                else
+                    return  "istore " + virtualReg + '\n';
+        }
         return "";
     }
 
