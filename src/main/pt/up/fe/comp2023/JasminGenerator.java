@@ -39,7 +39,10 @@ public class JasminGenerator implements JasminBackend {
     private String createMethodDefinitions(ClassUnit classUnit) {
         String methodDefinitions = "";
         for (Method method: classUnit.getMethods())
-            methodDefinitions += JasminUtils.createMethodDirective(method);
+            if (method.isConstructMethod())
+                methodDefinitions += JasminUtils.createConstructMethod(classUnit.getSuperClass());
+            else
+                methodDefinitions += JasminUtils.createMethodDirective(method);
         return methodDefinitions;
     }
 }

@@ -68,10 +68,7 @@ public class JasminUtils {
 
     public static String createMethodSignature(Method method) {
         String methodSignature = "";
-        if (method.isConstructMethod())
-            methodSignature += "<init>(";
-        else
-            methodSignature += method.getMethodName() + "(";
+        methodSignature += method.getMethodName() + "(";
         for (Element parameter: method.getParams())
             methodSignature += getTypeDescriptor(parameter.getType());
         methodSignature += ")" + getTypeDescriptor(method.getReturnType()) + '\n';
@@ -135,13 +132,22 @@ public class JasminUtils {
 
     public static String handleMethodStatements(Method method) {
         String statementList = "";
-
         for (Instruction instruction: method.getInstructions())
             statementList += handleInstruction(instruction, method.getVarTable());
-
-        if (method.isConstructMethod())
-            statementList += "return\n";
         return statementList;
+    }
+
+    public static String createConstructMethod(String superClassName) {
+        String methodDirective = ".method public <init>()V\n";
+        methodDirective += "aload_0\n";
+        methodDirective += "invokespecial ";
+        if (superClassName != null)
+            methodDirective += superClassName;
+        else
+            methodDirective += "java/lang/Object";
+        methodDirective += "/<init>()V\n";
+        methodDirective += "return\n";
+        return methodDirective + ".end method\n\n";
     }
 
     public static String createMethodDirective(Method method) {
