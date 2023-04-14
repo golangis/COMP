@@ -41,7 +41,7 @@ public class JVMInstructionUtils {
 
         if (element.isLiteral()) {
             int literal = parseInt(((LiteralElement)element).getLiteral());
-            if (virtualReg >= 0 && virtualReg <= 4)
+            if (virtualReg >= 0 && virtualReg <= 3)
                 return "istore_" + virtualReg + '\n';
             else
                 return  "istore " + virtualReg + '\n';
@@ -52,12 +52,12 @@ public class JVMInstructionUtils {
             case THIS:
                 return "astore_0\n";
             case STRING: case OBJECTREF: case ARRAYREF:
-                if (virtualReg >= 0 && virtualReg <= 4)
+                if (virtualReg >= 0 && virtualReg <= 3)
                     return "astore_" + virtualReg + '\n';
                 else
                     return  "astore " + virtualReg + '\n';
             case INT32: case BOOLEAN:
-                if (virtualReg >= 0 && virtualReg <= 4)
+                if (virtualReg >= 0 && virtualReg <= 3)
                     return "istore_" + virtualReg + '\n';
                 else
                     return  "istore " + virtualReg + '\n';
