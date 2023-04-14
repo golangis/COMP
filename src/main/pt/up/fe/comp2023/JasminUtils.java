@@ -2,6 +2,7 @@ package pt.up.fe.comp2023;
 
 import org.specs.comp.ollir.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class JasminUtils {
@@ -66,12 +67,12 @@ public class JasminUtils {
         return fieldDirective + '\n';
     }
 
-    public static String createMethodSignature(Method method) {
+    public static String createMethodSignature(String methodName, ArrayList<Element> listOfParameters, Type returnType) {
         String methodSignature = "";
-        methodSignature += method.getMethodName() + "(";
-        for (Element parameter: method.getParams())
+        methodSignature += methodName + "(";
+        for (Element parameter: listOfParameters)
             methodSignature += getTypeDescriptor(parameter.getType());
-        methodSignature += ")" + getTypeDescriptor(method.getReturnType()) + '\n';
+        methodSignature += ")" + getTypeDescriptor(returnType) + '\n';
         return methodSignature;
     }
 
@@ -83,7 +84,11 @@ public class JasminUtils {
             methodDirective += "static ";
         if (method.isFinalMethod())
             methodDirective += "final ";
-        methodDirective += createMethodSignature(method);
+        methodDirective += createMethodSignature(
+                method.getMethodName(),
+                method.getParams(),
+                method.getReturnType()
+        );
         return methodDirective;
     }
 
