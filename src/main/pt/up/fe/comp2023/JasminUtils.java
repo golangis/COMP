@@ -93,7 +93,8 @@ public class JasminUtils {
                 break;
             case CALL:
                 statementList += JVMInstructionUtils.createCallStatement(
-                        (CallInstruction)instruction
+                        (CallInstruction)instruction,
+                        varTable
                 );
                 break;
             case GOTO:

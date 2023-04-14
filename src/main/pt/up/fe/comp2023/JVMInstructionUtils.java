@@ -65,6 +65,13 @@ public class JVMInstructionUtils {
         return "";
     }
 
+    public static String getNewInstruction(Operand firstArg) {
+        String statementList = "";
+        statementList += "new " + firstArg.getName() + '\n';
+        statementList += "dup\n";
+        return statementList;
+    }
+
     public static String createInstructionRhs(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
         return getLoadInstruction(instruction.getSingleOperand(), varTable);
     }
@@ -84,6 +91,7 @@ public class JVMInstructionUtils {
 
         switch (instruction.getInvocationType()) {
             case NEW:
+                statementList += getNewInstruction((Operand)instruction.getFirstArg());
                 break;
             case invokespecial: case invokestatic: case invokevirtual:
                 break;
