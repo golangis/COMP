@@ -18,6 +18,9 @@ public class JasminUtils {
             return "Ljava/lang/String;";
         if (elementType.equals(ElementType.OBJECTREF))
             return "L" + ((ClassType)type).getName() + ";";
+        if (elementType.equals(ElementType.CLASS) ||
+            elementType.equals(ElementType.THIS))
+            return ((ClassType)type).getName();
         if (elementType.equals(ElementType.ARRAYREF))
             return "[".repeat(((ArrayType)type).getNumDimensions())
                     + getTypeDescriptor(((ArrayType)type).getElementType());
