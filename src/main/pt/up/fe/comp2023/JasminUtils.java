@@ -112,6 +112,10 @@ public class JasminUtils {
             case BINARYOPER:
                 break;
             case NOPER:
+                statementList += JVMInstructionUtils.createInstructionRhs(
+                        (SingleOpInstruction)instruction,
+                        varTable
+                );
                 break;
         }
         return statementList;

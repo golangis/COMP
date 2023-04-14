@@ -65,6 +65,10 @@ public class JVMInstructionUtils {
         return "";
     }
 
+    public static String createInstructionRhs(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
+        return getLoadInstruction(instruction.getSingleOperand(), varTable);
+    }
+
     public static String createAssignStatement(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
         Element assignElement = instruction.getDest();
         String statementList = "";
