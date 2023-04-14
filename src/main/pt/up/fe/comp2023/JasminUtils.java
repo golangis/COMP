@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class JasminUtils {
 
-    public static String getTypeDescriptor(Type type) {
+    public static String getTypeDescriptor(Type type, boolean isDeclaration) {
         ElementType elementType = type.getTypeOfElement();
         if (elementType.equals(ElementType.INT32))
             return "I";
@@ -16,15 +16,15 @@ public class JasminUtils {
         if (elementType.equals(ElementType.VOID))
             return "V";
         if (elementType.equals(ElementType.STRING))
-            return "Ljava/lang/String;";
+            return (isDeclaration) ? "Ljava/lang/String;" : "Ljava/lang/String";
         if (elementType.equals(ElementType.OBJECTREF))
-            return "L" + ((ClassType)type).getName() + ";";
+            return (isDeclaration) ? "L" + ((ClassType)type).getName() + ";" : ((ClassType)type).getName();
         if (elementType.equals(ElementType.CLASS) ||
             elementType.equals(ElementType.THIS))
             return ((ClassType)type).getName();
         if (elementType.equals(ElementType.ARRAYREF))
             return "[".repeat(((ArrayType)type).getNumDimensions())
-                    + getTypeDescriptor(((ArrayType)type).getElementType());
+                    + getTypeDescriptor(((ArrayType)type).getElementType(), isDeclaration);
         return "";
     }
 
@@ -60,19 +60,19 @@ public class JasminUtils {
         if (field.isFinalField())
             fieldDirective += "final ";
         fieldDirective += field.getFieldName() + " ";
-        fieldDirective += getTypeDescriptor(field.getFieldType());
+        fieldDirective += getTypeDescriptor(field.getFieldType(), true);
         if (field.isInitialized())
             fieldDirective += " = " + field.getInitialValue();
 
         return fieldDirective + '\n';
     }
 
-    public static String createMethodSignature(String methodName, ArrayList<Element> listOfParameters, Type returnType) {
+    public static String createMethodSignature(String methodName, ArrayList<Element> listOfParameters, Type returnType, boolean isDeclaration) {
         String methodSignature = "";
         methodSignature += methodName + "(";
         for (Element parameter: listOfParameters)
-            methodSignature += getTypeDescriptor(parameter.getType());
-        methodSignature += ")" + getTypeDescriptor(returnType) + '\n';
+            methodSignature += getTypeDescriptor(parameter.getType(), isDeclaration);
+        methodSignature += ")" + getTypeDescriptor(returnType, isDeclaration) + '\n';
         return methodSignature;
     }
 
@@ -87,7 +87,8 @@ public class JasminUtils {
         methodDirective += createMethodSignature(
                 method.getMethodName(),
                 method.getParams(),
-                method.getReturnType()
+                method.getReturnType(),
+                true
         );
         return methodDirective;
     }
