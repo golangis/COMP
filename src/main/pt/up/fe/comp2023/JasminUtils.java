@@ -67,6 +67,18 @@ public class JasminUtils {
     }
 
     public static String createMethodSignature(Method method) {
+        String methodSignature = "";
+        if (method.isConstructMethod())
+            methodSignature += "<init>(";
+        else
+            methodSignature += method.getMethodName() + "(";
+        for (Element parameter: method.getParams())
+            methodSignature += getTypeDescriptor(parameter.getType());
+        methodSignature += ")" + getTypeDescriptor(method.getReturnType()) + '\n';
+        return methodSignature;
+    }
+
+    public static String createMethodDeclaration(Method method) {
         String methodDirective = "";
         if (method.getMethodAccessModifier() != AccessModifiers.DEFAULT)
             methodDirective += method.getMethodAccessModifier().toString().toLowerCase() + " ";
@@ -74,14 +86,7 @@ public class JasminUtils {
             methodDirective += "static ";
         if (method.isFinalMethod())
             methodDirective += "final ";
-        if (method.isConstructMethod())
-            methodDirective += "<init>(";
-        else
-            methodDirective += method.getMethodName() + "(";
-        for (Element parameter: method.getParams())
-            methodDirective += getTypeDescriptor(parameter.getType());
-        methodDirective += ")" + getTypeDescriptor(method.getReturnType()) + '\n';
-
+        methodDirective += createMethodSignature(method);
         return methodDirective;
     }
 
@@ -141,7 +146,7 @@ public class JasminUtils {
 
     public static String createMethodDirective(Method method) {
         String methodDirective = ".method ";
-        methodDirective += createMethodSignature(method);
+        methodDirective += createMethodDeclaration(method);
         methodDirective += handleMethodStatements(method);
         return methodDirective + ".end method\n\n";
     }
