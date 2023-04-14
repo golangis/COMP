@@ -79,6 +79,20 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
+    public static String createCallStatement(CallInstruction instruction) {
+        String statementList = "";
+
+        switch (instruction.getInvocationType()) {
+            case NEW:
+                break;
+            case invokespecial: case invokestatic: case invokevirtual:
+                break;
+            case arraylength:
+                break;
+        }
+        return statementList;
+    }
+
     public static String createReturnStatement(ReturnInstruction instruction, HashMap<String, Descriptor> varTable) {
         ElementType returnType = instruction.getElementType();
         Element returnElement = instruction.getOperand();

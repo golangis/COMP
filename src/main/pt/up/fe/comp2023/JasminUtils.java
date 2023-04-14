@@ -92,6 +92,9 @@ public class JasminUtils {
                 );
                 break;
             case CALL:
+                statementList += JVMInstructionUtils.createCallStatement(
+                        (CallInstruction)instruction
+                );
                 break;
             case GOTO:
                 break;
