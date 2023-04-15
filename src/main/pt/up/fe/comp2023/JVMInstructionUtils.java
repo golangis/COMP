@@ -26,13 +26,20 @@ public class JVMInstructionUtils {
         }
 
         ElementType elementType = element.getType().getTypeOfElement();
+        int virtualReg = varTable.get(((Operand)element).getName()).getVirtualReg();
         switch (elementType) {
             case THIS:
                 return "aload_0\n";
             case STRING: case OBJECTREF: case ARRAYREF:
-                return "aload_" + varTable.get(((Operand)element).getName()).getVirtualReg()+ '\n';
+                if (virtualReg >= 0 && virtualReg <= 3)
+                    return "aload_" + virtualReg + '\n';
+                else
+                    return "aload " + virtualReg + '\n';
             case INT32: case BOOLEAN:
-                return "iload_" + varTable.get(((Operand)element).getName()).getVirtualReg() + '\n';
+                if (virtualReg >= 0 && virtualReg <= 3)
+                    return "iload_" + virtualReg + '\n';
+                else
+                    return "iload " + virtualReg + '\n';
         }
         return "";
     }
