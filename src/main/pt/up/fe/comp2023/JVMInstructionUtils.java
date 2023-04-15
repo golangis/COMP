@@ -66,9 +66,11 @@ public class JVMInstructionUtils {
         return "";
     }
 
-    // TODO
     public static String loadInvokeArguments(ArrayList<Element> listOfOperands, HashMap<String, Descriptor> varTable) {
-        return "";
+        String statementList = "";
+        for (Element argument: listOfOperands) {
+            statementList += getLoadInstruction(argument, varTable); }
+        return statementList;
     }
 
     public static String createInvokeInstructionArgument(CallInstruction instruction, boolean isStatic) {
