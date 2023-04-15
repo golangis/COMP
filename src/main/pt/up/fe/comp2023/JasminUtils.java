@@ -145,22 +145,22 @@ public class JasminUtils {
 
     public static String createConstructMethod(String superClassName) {
         String methodDirective = ".method public <init>()V\n";
-        methodDirective += "aload_0\n";
-        methodDirective += "invokespecial ";
+        methodDirective += "\taload_0\n";
+        methodDirective += "\tinvokespecial ";
         if (superClassName != null)
             methodDirective += superClassName;
         else
             methodDirective += "java/lang/Object";
         methodDirective += "/<init>()V\n";
-        methodDirective += "return\n";
+        methodDirective += "\treturn\n";
         return methodDirective + ".end method\n\n";
     }
 
     public static String createMethodDirective(Method method) {
         String methodDirective = ".method ";
         methodDirective += createMethodDeclaration(method);
-        methodDirective += ".limit stack 99\n";
-        methodDirective += ".limit locals 99\n";
+        methodDirective += "\t.limit stack 99\n";
+        methodDirective += "\t.limit locals 99\n";
         methodDirective += handleMethodStatements(method);
         return methodDirective + ".end method\n\n";
     }

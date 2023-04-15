@@ -15,31 +15,31 @@ public class JVMInstructionUtils {
         if (element.isLiteral()) {
             int literal = parseInt(((LiteralElement)element).getLiteral());
             if (literal >= 0 && literal <= 5)
-                return "iconst_" + literal + '\n';
+                return "\ticonst_" + literal + '\n';
             if (literal == -1)
-                return "iconst_m" + abs(literal) + '\n';
+                return "\ticonst_m" + abs(literal) + '\n';
             if (abs(literal) < pow(2, 7))
-                return "bipush " + literal + '\n';
+                return "\tbipush " + literal + '\n';
             if (abs(literal) < pow(2, 15))
-                return "sipush " + literal + '\n';
-            return "ldc " + literal + '\n';
+                return "\tsipush " + literal + '\n';
+            return "\tldc " + literal + '\n';
         }
 
         ElementType elementType = element.getType().getTypeOfElement();
         int virtualReg = varTable.get(((Operand)element).getName()).getVirtualReg();
         switch (elementType) {
             case THIS:
-                return "aload_0\n";
+                return "\taload_0\n";
             case STRING: case OBJECTREF: case ARRAYREF:
                 if (virtualReg >= 0 && virtualReg <= 3)
-                    return "aload_" + virtualReg + '\n';
+                    return "\taload_" + virtualReg + '\n';
                 else
-                    return "aload " + virtualReg + '\n';
+                    return "\taload " + virtualReg + '\n';
             case INT32: case BOOLEAN:
                 if (virtualReg >= 0 && virtualReg <= 3)
-                    return "iload_" + virtualReg + '\n';
+                    return "\tiload_" + virtualReg + '\n';
                 else
-                    return "iload " + virtualReg + '\n';
+                    return "\tiload " + virtualReg + '\n';
         }
         return "";
     }
@@ -50,25 +50,25 @@ public class JVMInstructionUtils {
         if (element.isLiteral()) {
             int literal = parseInt(((LiteralElement)element).getLiteral());
             if (virtualReg >= 0 && virtualReg <= 3)
-                return "istore_" + virtualReg + '\n';
+                return "\tistore_" + virtualReg + '\n';
             else
-                return  "istore " + virtualReg + '\n';
+                return  "\tistore " + virtualReg + '\n';
         }
 
         ElementType elementType = element.getType().getTypeOfElement();
         switch (elementType) {
             case THIS:
-                return "astore_0\n";
+                return "\tastore_0\n";
             case STRING: case OBJECTREF: case ARRAYREF:
                 if (virtualReg >= 0 && virtualReg <= 3)
-                    return "astore_" + virtualReg + '\n';
+                    return "\tastore_" + virtualReg + '\n';
                 else
-                    return  "astore " + virtualReg + '\n';
+                    return  "\tastore " + virtualReg + '\n';
             case INT32: case BOOLEAN:
                 if (virtualReg >= 0 && virtualReg <= 3)
-                    return "istore_" + virtualReg + '\n';
+                    return "\tistore_" + virtualReg + '\n';
                 else
-                    return  "istore " + virtualReg + '\n';
+                    return  "\tistore " + virtualReg + '\n';
         }
         return "";
     }
@@ -95,25 +95,25 @@ public class JVMInstructionUtils {
         String statementList = "";
         statementList += getLoadInstruction(instruction.getFirstArg(), varTable);
         statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
-        statementList += "invokevirtual " + createInvokeInstructionArgument(instruction, false);
+        statementList += "\tinvokevirtual " + createInvokeInstructionArgument(instruction, false);
         return statementList;
     }
 
     public static String getInvokeStaticInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
         statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
-        statementList += "invokestatic " + createInvokeInstructionArgument(instruction, true);
+        statementList += "\tinvokestatic " + createInvokeInstructionArgument(instruction, true);
         return statementList;
     }
 
     public static String getInvokeSpecialInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
-        return "invokespecial " + createInvokeInstructionArgument(instruction, false);
+        return "\tinvokespecial " + createInvokeInstructionArgument(instruction, false);
     }
 
     public static String getNewInstruction(Operand firstArg) {
         String statementList = "";
-        statementList += "new " + firstArg.getName() + '\n';
-        statementList += "dup\n";
+        statementList += "\tnew " + firstArg.getName() + '\n';
+        statementList += "\tdup\n";
         return statementList;
     }
 
@@ -160,14 +160,14 @@ public class JVMInstructionUtils {
 
         switch (returnType) {
             case VOID:
-                return "return\n";
+                return "\treturn\n";
             case INT32: case BOOLEAN:
                 statementList += getLoadInstruction(returnElement, varTable);
-                statementList += "ireturn\n";
+                statementList += "\tireturn\n";
                 break;
             case STRING: case OBJECTREF: case ARRAYREF: case THIS:
                 statementList += getLoadInstruction(returnElement, varTable);
-                statementList += "areturn\n";
+                statementList += "\tareturn\n";
         }
         return statementList;
     }
