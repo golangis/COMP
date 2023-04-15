@@ -71,28 +71,29 @@ public class JVMInstructionUtils {
         return "";
     }
 
-    public static String createInvokeInstructionArgument(CallInstruction instruction) {
-        return JasminUtils.getTypeDescriptor(instruction.getFirstArg().getType(), false) +
-               "." + JasminUtils.createMethodSignature(
-               ((LiteralElement)instruction.getSecondArg()).getLiteral().replace("\"", ""),
-               instruction.getListOfOperands(),
-               instruction.getReturnType(),
-               false
-        );
+    public static String createInvokeInstructionArgument(CallInstruction instruction, boolean isStatic) {
+        return (isStatic ? ((Operand)instruction.getFirstArg()).getName() :
+                JasminUtils.getTypeDescriptor(instruction.getFirstArg().getType(), false)) +
+                "/" + JasminUtils.createMethodSignature(
+                    ((LiteralElement)instruction.getSecondArg()).getLiteral().replace("\"", ""),
+                    instruction.getListOfOperands(),
+                     instruction.getReturnType(),
+                    true
+                );
     }
 
     public static String getInvokeVirtualInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
         statementList += getLoadInstruction(instruction.getFirstArg(), varTable);
         statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
-        statementList += "invokevirtual " + createInvokeInstructionArgument(instruction);
+        statementList += "invokevirtual " + createInvokeInstructionArgument(instruction, false);
         return statementList;
     }
 
     public static String getInvokeStaticInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
         statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
-        statementList += "invokestatic " + createInvokeInstructionArgument(instruction);
+        statementList += "invokestatic " + createInvokeInstructionArgument(instruction, true);
         return statementList;
     }
 
