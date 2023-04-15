@@ -71,18 +71,28 @@ public class JVMInstructionUtils {
         return "";
     }
 
+    public static String createInvokeInstructionArgument(CallInstruction instruction) {
+        return JasminUtils.getTypeDescriptor(instruction.getFirstArg().getType(), false) +
+               "." + JasminUtils.createMethodSignature(
+               ((LiteralElement)instruction.getSecondArg()).getLiteral().replace("\"", ""),
+               instruction.getListOfOperands(),
+               instruction.getReturnType(),
+               false
+        );
+    }
+
     public static String getInvokeVirtualInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
         statementList += getLoadInstruction(instruction.getFirstArg(), varTable);
         statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
-        statementList += "invokevirtual " +
-                JasminUtils.getTypeDescriptor(instruction.getFirstArg().getType(), false) +
-                "." + JasminUtils.createMethodSignature(
-                ((LiteralElement)instruction.getSecondArg()).getLiteral().replace("\"", ""),
-                instruction.getListOfOperands(),
-                instruction.getReturnType(),
-                false
-        );
+        statementList += "invokevirtual " + createInvokeInstructionArgument(instruction);
+        return statementList;
+    }
+
+    public static String getInvokeStaticInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
+        String statementList = "";
+        statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
+        statementList += "invokestatic " + createInvokeInstructionArgument(instruction);
         return statementList;
     }
 
@@ -117,6 +127,7 @@ public class JVMInstructionUtils {
             case invokespecial:
                 break;
             case invokestatic:
+                statementList += getInvokeStaticInstruction(instruction, varTable);
                 break;
             case invokevirtual:
                 statementList += getInvokeVirtualInstruction(instruction, varTable);
