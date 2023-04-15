@@ -159,6 +159,8 @@ public class JasminUtils {
     public static String createMethodDirective(Method method) {
         String methodDirective = ".method ";
         methodDirective += createMethodDeclaration(method);
+        methodDirective += ".limit stack 99\n";
+        methodDirective += ".limit locals 99\n";
         methodDirective += handleMethodStatements(method);
         return methodDirective + ".end method\n\n";
     }
