@@ -1,0 +1,23 @@
+Test {
+
+	.construct Test().V {
+		invokespecial(this, "<init>").V;
+	}
+
+	.method public static main(args.array.String).V {
+		ret.V;
+	}
+
+    .method public foo2().i32 {
+        ret.i32 33000.i32;
+    }
+
+	.method public foo1().i32 {
+		a.i32 :=.i32 1000.i32;
+		b.i32 :=.i32 2.i32;
+
+		c.i32 :=.i32 a.i32 +.i32 b.i32;
+
+		ret.i32 c.i32;
+	}
+}

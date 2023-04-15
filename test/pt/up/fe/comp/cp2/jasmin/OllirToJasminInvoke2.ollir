@@ -1,0 +1,29 @@
+import io;
+
+Test {
+
+	.construct Test().V {
+		invokespecial(this, "<init>").V;
+	}
+
+    .method public foo1().i32 {
+        ret.i32 33000.i32;
+    }
+
+    .method public foo2(arg1.i32).i32 {
+        ret.i32 arg1.i32;
+    }
+
+	.method public static main(args.array.String).V {
+		test.Test :=.Test new(Test).Test;
+		invokespecial(test.Test,"<init>").V;
+
+		var1.i32 :=.i32 invokevirtual(test.Test, "foo1").i32;
+		var2.i32 :=.i32 invokevirtual(test.Test, "foo2", 3.i32).i32;
+
+		s.String :=.String ldc("HelloWorld").String;
+		invokestatic(io, "println", s.String).V;
+
+		ret.V;
+	}
+}

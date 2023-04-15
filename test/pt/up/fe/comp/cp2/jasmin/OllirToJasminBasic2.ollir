@@ -5,17 +5,19 @@ SymbolTable extends Quicksort {
 
 	.field public intField.i32;
 	.field public boolField.bool;
-	.field public myArray1.array.array.i32;
-    .field public myArray2.array.String;
+	.field public myArray.array.array.i32;
+    .field public myArray.array.String;
     .field private static myObject.IOException;
 
 	.construct SymbolTable().V {
 		invokespecial(this, "<init>").V;
 	}
-	
-	.method public method1().i32 {
+
+    .method public method1(stringArg.String).i32 {
 		intLocal1.i32 :=.i32 0.i32;
 		boolLocal1.bool :=.bool 1.bool;
+		boolLocal2.bool :=.bool boolLocal1.bool;
+		stringVar.String :=.String stringArg.String;
 
 		ret.i32 0.i32;
 	}
