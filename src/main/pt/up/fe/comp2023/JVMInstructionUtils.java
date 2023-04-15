@@ -149,6 +149,9 @@ public class JVMInstructionUtils {
                 break;
             case arraylength:
                 break;
+            case ldc:
+                statementList += "\tldc " + ((LiteralElement)instruction.getFirstArg()).getLiteral() + '\n';
+                break;
         }
         return statementList;
     }
