@@ -97,6 +97,10 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
+    public static String getInvokeSpecialInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
+        return "invokespecial " + createInvokeInstructionArgument(instruction, false);
+    }
+
     public static String getNewInstruction(Operand firstArg) {
         String statementList = "";
         statementList += "new " + firstArg.getName() + '\n';
@@ -126,6 +130,7 @@ public class JVMInstructionUtils {
                 statementList += getNewInstruction((Operand)instruction.getFirstArg());
                 break;
             case invokespecial:
+                statementList += getInvokeSpecialInstruction(instruction, varTable);
                 break;
             case invokestatic:
                 statementList += getInvokeStaticInstruction(instruction, varTable);
