@@ -10,27 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Analysis implements JmmAnalysis {
-    private MySymbolTable symbolTable;
     private final ArrayList<Report> reports = new ArrayList<>();
     @Override
     public JmmSemanticsResult semanticAnalysis(JmmParserResult parserResult) {
         JmmNode root = parserResult.getRootNode();
-        this.symbolTable = new MySymbolTable(parserResult.getRootNode());
+        MySymbolTable symbolTable = new MySymbolTable(parserResult.getRootNode());
+        SemanticAnalysis semanticAnalysis = new SemanticAnalysis(root, symbolTable, this.reports);
 
-        SemanticAnalysis semanticAnalysis = new SemanticAnalysis(root, this.symbolTable, this.reports);
-
-        return new JmmSemanticsResult(parserResult, this.symbolTable, this.reports);
-    }
-
-    public MySymbolTable getSymbolTable(){
-        return this.symbolTable;
+        return new JmmSemanticsResult(parserResult, symbolTable, this.reports);
     }
 
     public List<Report> getReports(){
         return this.reports;
-    }
-
-    public void addReport(Report report) {
-        this.reports.add(report);
     }
 }
