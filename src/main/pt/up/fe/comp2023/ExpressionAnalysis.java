@@ -16,10 +16,16 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     private final String methodName;
     private final MySymbolTable symbolTable;
     private final List<Report> reports;
+    private final String className;
+    private final String superClass;
+    private final List<String> imports;
     public ExpressionAnalysis (String methodName, MySymbolTable symbolTable, List<Report> reports){
         this.methodName = methodName;
         this.symbolTable = symbolTable;
         this.reports = reports;
+        this.className = this.symbolTable.getClassName();
+        this.superClass = this.symbolTable.getSuper();
+        this.imports = this.symbolTable.getImports();
     }
 
     @Override
@@ -146,14 +152,12 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithMethodCall(JmmNode jmmNode, Type type) {
-        String declaredClass = this.symbolTable.getClassName();
-        String superClass = this.symbolTable.getSuper();
         String expressionType = visit(jmmNode.getJmmChild(0)).print();
         String method = jmmNode.get("methodcall");
 
         if(this.symbolTable.getMethods().contains(method)){
-            if(!Objects.equals(expressionType, declaredClass)){
-                String message = "Expected expression of type '" + declaredClass + "' but found '" + expressionType + "'.";
+            if(!Objects.equals(expressionType, this.className)){
+                String message = "Expected expression of type '" + this.className + "' but found '" + expressionType + "'.";
                 this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             }
             this.verifyArgumentTypes(jmmNode.getJmmChild(1), method);
@@ -161,14 +165,14 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
             return this.symbolTable.getReturnType(method);
         }
 
-        else if(Objects.equals(expressionType, declaredClass) || Objects.equals(expressionType, superClass)){
-            if(!findImport(this.symbolTable.getImports(), superClass)){
-                String message = "Cannot find super class '" + superClass + "'.";
+        else if(Objects.equals(expressionType, this.className) || Objects.equals(expressionType, this.superClass)){
+            if(!findImport(this.imports, this.superClass)){
+                String message = "Cannot find super class '" + this.superClass + "'.";
                 this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             }
         }
 
-        else if(!findImport(this.symbolTable.getImports(), expressionType)){
+        else if(!findImport(this.imports, expressionType)){
             String message = "'" + expressionType + "' is not declared.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
@@ -211,15 +215,14 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithObjectCreation(JmmNode jmmNode, Type type) {
-        String declaredClassName = this.symbolTable.getClassName();
         String objectClassName = jmmNode.get("classname");
 
-        if(Objects.equals(objectClassName, declaredClassName)){
-            jmmNode.put(TYPENAME, declaredClassName);
-            return new Type(declaredClassName, false);
+        if(Objects.equals(objectClassName, this.className)){
+            jmmNode.put(TYPENAME, this.className);
+            return new Type(this.className, false);
         }
 
-        if(findImport(this.symbolTable.getImports(), objectClassName)){
+        if(findImport(this.imports, objectClassName)){
             jmmNode.put(TYPENAME, objectClassName);
             return new Type(objectClassName, false);
         }
@@ -247,9 +250,8 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
             jmmNode.put(TYPENAME, UNKNOWN);
             return UNKNOWN_TYPE;
         }
-        String className = this.symbolTable.getClassName();
-        jmmNode.put(TYPENAME, className);
-        return new Type(className, false);
+        jmmNode.put(TYPENAME, this.className);
+        return new Type(this.className, false);
     }
 
     private Type dealWithIdentifier(JmmNode jmmNode, Type type) {

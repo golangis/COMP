@@ -16,12 +16,18 @@ import static pt.up.fe.comp2023.SemanticUtils.BOOLEAN;
 public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
     private final MySymbolTable symbolTable;
     private final List<Report> reports;
+    private final String className;
+    private final String superClass;
+    private final List<String> imports;
     private String currentMethodName;
     private ExpressionAnalysis expressionAnalysis;
 
     public SemanticAnalysis (JmmNode rootNode, MySymbolTable symbolTable, List<Report> reports){
         this.symbolTable = symbolTable;
         this.reports = reports;
+        this.className = this.symbolTable.getClassName();
+        this.superClass = this.symbolTable.getSuper();
+        this.imports = this.symbolTable.getImports();
         visit(rootNode);
     }
 
@@ -48,7 +54,7 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
     public Void checkImportedSuperClass(JmmNode jmmNode, Void unused) {
         String superClass = this.symbolTable.getSuper();
 
-        if(superClass != null && !findImport(this.symbolTable.getImports(), superClass)){
+        if(superClass != null && !findImport(this.imports, superClass)){
             String message = "Cannot find super class '" + superClass + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
@@ -124,8 +130,6 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
         JmmNode expressionNode = jmmNode.getJmmChild(0);
         Type left = getIdentifierType(this.currentMethodName, varName, this.symbolTable);
         Type right = expressionAnalysis.visit(expressionNode);
-        String superClass = this.symbolTable.getSuper();
-        String className = this.symbolTable.getClassName();
 
         if(left.equals(UNKNOWN_TYPE)){
             String message = "'" + varName + "' is not declared.";
@@ -137,10 +141,10 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
         else if(right.equals(left))
             return null;
 
-        else if (Objects.equals(left.print(), superClass) && Objects.equals(right.print(), className))
+        else if (Objects.equals(left.print(), this.superClass) && Objects.equals(right.print(), this.className))
             return null;
 
-        else if (findImport(symbolTable.getImports(), left.print()) && findImport(symbolTable.getImports(), right.print()))
+        else if (findImport(this.imports, left.print()) && findImport(this.imports, right.print()))
             return null;
 
         String message = "Type of the assignee is not compatible with the assigned.";
