@@ -17,14 +17,8 @@ public class Analysis implements JmmAnalysis {
         JmmNode root = parserResult.getRootNode();
         this.symbolTable = new MySymbolTable(parserResult.getRootNode());
 
-        ClassDeclAnalysis classDeclAnalysis = new ClassDeclAnalysis(root, this.symbolTable, this.reports);
+        SemanticAnalysis semanticAnalysis = new SemanticAnalysis(root, this.symbolTable, this.reports);
 
-        for (JmmNode methodNode : classDeclAnalysis.getMethodNodes()){
-            MethodAnalysis methodAnalysis = new MethodAnalysis(methodNode,this.symbolTable, this.reports);
-            for (JmmNode statementNode : methodAnalysis.getStatementNodes()){
-                new StatementAnalysis(statementNode, this.symbolTable, this.reports);
-            }
-        }
         return new JmmSemanticsResult(parserResult, this.symbolTable, this.reports);
     }
 
