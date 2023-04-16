@@ -146,19 +146,17 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithMethodCall(JmmNode jmmNode, Type type) {
-        String method = jmmNode.get("methodcall");
         String declaredClass = this.symbolTable.getClassName();
         String superClass = this.symbolTable.getSuper();
         String expressionType = visit(jmmNode.getJmmChild(0)).print();
+        String method = jmmNode.get("methodcall");
 
         if(this.symbolTable.getMethods().contains(method)){
             if(!Objects.equals(expressionType, declaredClass)){
                 String message = "Expected expression of type '" + declaredClass + "' but found '" + expressionType + "'.";
                 this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             }
-
-            //TODO: check parameters
-
+            this.verifyArgumentTypes(jmmNode.getJmmChild(1), method);
             jmmNode.put(TYPENAME, symbolTable.getReturnType(method).print());
             return this.symbolTable.getReturnType(method);
         }
@@ -174,9 +172,29 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
             String message = "'" + expressionType + "' is not declared.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
-
         jmmNode.put(TYPENAME, UNDEFINED);
         return UNDEFINED_TYPE;
+    }
+
+    private void verifyArgumentTypes(JmmNode jmmNode, String method) {
+        int numDeclaredParams = symbolTable.getParameters(method).size();
+        int numCallParams = jmmNode.getNumChildren();
+
+        if(numDeclaredParams != numCallParams){
+            String message = "Method '" + method + "' expected " + numDeclaredParams + " but found " + numCallParams + ".";
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        }
+
+        for(int i=0; i < numDeclaredParams && i < numCallParams; i++){
+            Type declaredParamType = symbolTable.getParameters(method).get(i).getType();
+            Type callParamType = visit(jmmNode.getJmmChild(i));
+
+            if(!declaredParamType.equals(callParamType)){
+                String declaredArgumentName = symbolTable.getParameters(method).get(i).getName();
+                String message = "Method '" + method + "' expected argument '" + declaredArgumentName + "' to be '" + declaredParamType.print() + "' but found '" + callParamType.print() + ".";
+                this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            }
+        }
     }
 
     private Type checkIntegerLength(JmmNode jmmNode, Type type) {

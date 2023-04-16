@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static pt.up.fe.comp2023.SemanticUtils.*;
+
 public class MethodAnalysis extends AJmmVisitor<Void, Void>  {
     private final MySymbolTable symbolTable;
     private final List<Report> reports;
@@ -60,7 +62,7 @@ public class MethodAnalysis extends AJmmVisitor<Void, Void>  {
         Type returnType = this.symbolTable.getReturnType(jmmNode.get("methodname"));
         Type returnNodeType = expressionAnalysis.visit(returnNode);
 
-        if(!returnType.equals(returnNodeType)){
+        if(!returnNodeType.equals(returnType) && !returnNodeType.equals(UNDEFINED_TYPE)){
             String message = "Make method '" + jmmNode.get("methodname") +"' return " + returnType.print() + ".";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
