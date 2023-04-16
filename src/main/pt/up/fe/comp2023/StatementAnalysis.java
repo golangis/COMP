@@ -61,7 +61,7 @@ public class StatementAnalysis extends AJmmVisitor<Void, Void> {
     }
 
     private Void expressionVisitor(JmmNode jmmNode, Void unused) {
-        expressionAnalysis.visit(jmmNode);
+        expressionAnalysis.visit(jmmNode.getJmmChild(0));
         return null;
     }
 

@@ -148,34 +148,35 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     private Type dealWithMethodCall(JmmNode jmmNode, Type type) {
         String method = jmmNode.get("methodcall");
         String declaredClass = this.symbolTable.getClassName();
+        String superClass = this.symbolTable.getSuper();
+        String expressionType = visit(jmmNode.getJmmChild(0)).print();
 
         if(this.symbolTable.getMethods().contains(method)){
-            String expressionType = visit(jmmNode.getJmmChild(0)).print();
-
             if(!Objects.equals(expressionType, declaredClass)){
                 String message = "Expected expression of type '" + declaredClass + "' but found '" + expressionType + "'.";
                 this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
-                jmmNode.put(TYPENAME, UNKNOWN);
             }
 
             //TODO: check parameters
 
-            if(jmmNode.hasAttribute(TYPENAME)) //Semantic errors were found
-                return UNKNOWN_TYPE;
-            else
-                return this.symbolTable.getReturnType(method);
+            jmmNode.put(TYPENAME, symbolTable.getReturnType(method).print());
+            return this.symbolTable.getReturnType(method);
         }
 
-        //TODO: if the class extends another class:
-            //TODO: check if class is imported
-                //TODO: check if expression.type == declaredClass or superClass
-                //TODO: compute node type(undefined)
+        else if(Objects.equals(expressionType, declaredClass) || Objects.equals(expressionType, superClass)){
+            if(!findImport(this.symbolTable.getImports(), superClass)){
+                String message = "Cannot find super class '" + superClass + "'.";
+                this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            }
+        }
 
-        //TODO: else (it is a method of a imported class)
-            //TODO: check if expression.type (=classname) is imported
-            //TODO: compute node type
+        else if(!findImport(this.symbolTable.getImports(), expressionType)){
+            String message = "'" + expressionType + "' is not declared.";
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        }
 
-        return null;
+        jmmNode.put(TYPENAME, UNDEFINED);
+        return UNDEFINED_TYPE;
     }
 
     private Type checkIntegerLength(JmmNode jmmNode, Type type) {
