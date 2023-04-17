@@ -63,7 +63,6 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
             String message = "Cannot find super class '" + superClass + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
-
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
         return null;
@@ -79,7 +78,6 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
             String message = "Make method '" + jmmNode.get("methodname") +"' return " + returnType.print() + ".";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
-
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
         return null;
@@ -101,7 +99,6 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
             String message = "Main method expected a parameter of type 'String[]' but found '" + parameterType + "[]'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
-
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
         return null;
@@ -109,8 +106,8 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
 
     private Void checkBooleanCondition(JmmNode jmmNode, Void unused) {
         JmmNode expressionNode = jmmNode.getJmmChild(0);
-
         Type conditionType = expressionAnalysis.visit(expressionNode);
+
         if(!conditionType.equals(BOOLEAN_TYPE)) {
             String message = "Expected condition of type '" + BOOLEAN + "' but found '" + conditionType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
@@ -160,7 +157,7 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
         Type indexType = expressionAnalysis.visit(jmmNode.getJmmChild(0));
         Type valueType = expressionAnalysis.visit(valueNode);
 
-        if(!valueType.isArray()){
+        if(!varType.isArray()){
             String message = "'" + varName + "' must be an array.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message));
         }
@@ -168,7 +165,6 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
             String message = "Expected index expression of type '" + INT +"' but found '" + indexType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message));
         }
-
         if(valueType.equals(UNDEFINED_TYPE)){
             valueNode.put(TYPENAME, INT);
         }

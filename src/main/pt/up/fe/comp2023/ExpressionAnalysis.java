@@ -88,12 +88,14 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
 
         if(jmmNode.hasAttribute(TYPENAME))    //Semantic errors were found
             return UNKNOWN_TYPE;
-        if(Objects.equals(jmmNode.getKind(), "ArithmeticExpr")) {
+        else if(Objects.equals(jmmNode.getKind(), "ArithmeticExpr")) {
             jmmNode.put(TYPENAME, INT);
             return INT_TYPE;
         }
-        jmmNode.put(TYPENAME, BOOLEAN);
-        return BOOLEAN_TYPE;
+        else {
+            jmmNode.put(TYPENAME, BOOLEAN);
+            return BOOLEAN_TYPE;
+        }
     }
 
     private Type checkBooleanOperands(JmmNode jmmNode, Type type) {
@@ -165,7 +167,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
                 this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             }
             this.verifyArgumentTypes(jmmNode.getJmmChild(1), method);
-            jmmNode.put(TYPENAME, symbolTable.getReturnType(method).print());
+            jmmNode.put(TYPENAME, this.symbolTable.getReturnType(method).print());
             return this.symbolTable.getReturnType(method);
         }
 
@@ -189,7 +191,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         int numCallParams = jmmNode.getNumChildren();
 
         if(numDeclaredParams != numCallParams){
-            String message = "Method '" + method + "' expected " + numDeclaredParams + " but found " + numCallParams + ".";
+            String message = "Method '" + method + "' expected " + numDeclaredParams + " arguments but found " + numCallParams + ".";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
 
@@ -226,7 +228,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
             return new Type(this.className, false);
         }
 
-        if(findImport(this.imports, objectClassName)){
+        else if(findImport(this.imports, objectClassName)){
             jmmNode.put(TYPENAME, objectClassName);
             return new Type(objectClassName, false);
         }
@@ -267,7 +269,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
             jmmNode.put(TYPENAME, UNKNOWN);
         }
-        jmmNode.put("typename", identifierType.print());
+        jmmNode.put(TYPENAME, identifierType.print());
         return identifierType;
     }
 }
