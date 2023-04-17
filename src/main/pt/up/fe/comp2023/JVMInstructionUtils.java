@@ -117,6 +117,18 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
+    public static String createUnaryOpStatement(UnaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
+        String statementList = "";
+        statementList += getLoadInstruction(instruction.getOperand(), varTable);
+
+        switch (instruction.getOperation().getOpType()) {
+            case NOT: case NOTB:
+                statementList += "\tineg\n";
+                break;
+        }
+        return statementList;
+    }
+
     public static String createInstructionRhs(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
         return getLoadInstruction(instruction.getSingleOperand(), varTable);
     }
