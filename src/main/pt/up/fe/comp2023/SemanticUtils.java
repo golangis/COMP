@@ -2,9 +2,12 @@ package pt.up.fe.comp2023;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
+import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import java.util.List;
 import java.util.Objects;
+
+import static java.lang.Integer.parseInt;
 
 public class SemanticUtils {
     //Types
@@ -55,5 +58,13 @@ public class SemanticUtils {
         if(findImport(symbolTable.getImports(), identifier))
             return new Type(identifier, false);
         return UNKNOWN_TYPE;
+    }
+
+    public static int getNodeLine(JmmNode jmmNode){
+        return parseInt(jmmNode.get("lineStart"));
+    }
+
+    public static int getNodeColumn(JmmNode jmmNode){
+        return parseInt(jmmNode.get("colStart"));
     }
 }
