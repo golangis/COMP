@@ -41,11 +41,10 @@ varDeclaration
     : type varname=ID ';' #VarDecl
     ;
 
-type
-    : typename='int' '[' ']' #TypeArray
-    | typename='boolean' #TypeBoolean
-    | typename='int' #TypeInt
-    | typename=ID #TypeID
+type locals[boolean isArray = false]
+    : typename='int' (('[' ']') { $isArray = true; })?
+    | typename='boolean'
+    | typename=ID
     ;
 
 statement
