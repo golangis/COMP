@@ -125,6 +125,10 @@ public class JasminUtils {
                 );
                 break;
             case PUTFIELD:
+                statementList += JVMInstructionUtils.createPutfieldStatement(
+                        (PutFieldInstruction)instruction,
+                        varTable
+                );
                 break;
             case UNARYOPER:
                 break;

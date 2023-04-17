@@ -159,8 +159,20 @@ public class JVMInstructionUtils {
     public static String createGetfieldStatement(GetFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
         statementList += getLoadInstruction(instruction.getFirstOperand(), varTable);
-        statementList += "\tgetfield " + ((Operand)instruction.getSecondOperand()).getName()
-                + " " + JasminUtils.getTypeDescriptor(instruction.getFieldType(), true) + '\n';
+        statementList += "\tgetfield " + ((Operand)instruction.getSecondOperand()).getName() + " "
+                + JasminUtils.getTypeDescriptor(instruction.getFieldType(), true) + '\n';
+        return statementList;
+    }
+
+    public static String createPutfieldStatement(PutFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
+        ArrayList<Element> aux = new ArrayList<>();
+        aux.add(instruction.getThirdOperand());
+
+        String statementList = "";
+        statementList += getLoadInstruction(instruction.getFirstOperand(), varTable);
+        statementList += loadInvokeArguments(aux, varTable);
+        statementList += "\tputfield " + ((Operand)instruction.getSecondOperand()).getName() + " "
+                + JasminUtils.getTypeDescriptor(instruction.getThirdOperand().getType(), true) + '\n';
         return statementList;
     }
 
