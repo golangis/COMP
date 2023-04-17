@@ -94,7 +94,6 @@ public class JasminUtils {
     }
 
     public static String handleInstruction(Instruction instruction, HashMap<String, Descriptor> varTable) {
-        instruction.show();
         String statementList = "";
         switch (instruction.getInstType()) {
             case ASSIGN:
@@ -138,6 +137,10 @@ public class JasminUtils {
                 );
                 break;
             case BINARYOPER:
+                statementList += JVMInstructionUtils.createBinaryOpInstruction(
+                        (BinaryOpInstruction)instruction,
+                        varTable
+                );
                 break;
             case NOPER:
                 statementList += JVMInstructionUtils.createInstructionRhs(

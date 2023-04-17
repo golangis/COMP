@@ -129,6 +129,38 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
+    public static String createBinaryOpInstruction(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
+        String statementList = "";
+        statementList += getLoadInstruction(instruction.getLeftOperand(), varTable);
+        statementList += getLoadInstruction(instruction.getRightOperand(), varTable);
+
+        switch (instruction.getOperation().getOpType()) {
+            case ADD:
+                statementList += "\tiadd\n";
+                break;
+            case SUB:
+                statementList += "\tisub\n";
+                break;
+            case MUL:
+                statementList += "\timul\n";
+                break;
+            case DIV:
+                statementList += "\tidiv\n";
+                break;
+            case AND: case ANDB:
+                statementList += "\tiand\n";
+                break;
+            case OR: case ORB:
+                statementList += "\tior\n";
+                break;
+            case LTH:
+                break;
+            case GTH:
+                break;
+        }
+        return statementList;
+    }
+
     public static String createInstructionRhs(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
         return getLoadInstruction(instruction.getSingleOperand(), varTable);
     }
