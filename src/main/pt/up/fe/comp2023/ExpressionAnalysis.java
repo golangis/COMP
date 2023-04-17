@@ -13,7 +13,7 @@ import java.util.Objects;
 import static pt.up.fe.comp2023.SemanticUtils.*;
 
 public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
-    private final String methodName;
+    private String methodName;
     private final MySymbolTable symbolTable;
     private final List<Report> reports;
     private final String className;
@@ -26,6 +26,10 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         this.className = this.symbolTable.getClassName();
         this.superClass = this.symbolTable.getSuper();
         this.imports = this.symbolTable.getImports();
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 
     @Override

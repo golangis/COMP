@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static pt.up.fe.comp2023.SemanticUtils.*;
-import static pt.up.fe.comp2023.SemanticUtils.BOOLEAN;
 
 public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
     private final MySymbolTable symbolTable;
@@ -20,7 +19,7 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
     private final String superClass;
     private final List<String> imports;
     private String currentMethodName;
-    private ExpressionAnalysis expressionAnalysis;
+    private final ExpressionAnalysis expressionAnalysis;
 
     public SemanticAnalysis (JmmNode rootNode, MySymbolTable symbolTable, List<Report> reports){
         this.symbolTable = symbolTable;
@@ -28,7 +27,13 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
         this.className = this.symbolTable.getClassName();
         this.superClass = this.symbolTable.getSuper();
         this.imports = this.symbolTable.getImports();
+        this.expressionAnalysis = new ExpressionAnalysis(this.currentMethodName, this.symbolTable, this.reports);
         visit(rootNode);
+    }
+
+    public void setCurrentMethodName(String currentMethodName) {
+        this.currentMethodName = currentMethodName;
+        this.expressionAnalysis.setMethodName(currentMethodName);
     }
 
     @Override
@@ -65,9 +70,7 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
     }
 
     private Void checkReturnType(JmmNode jmmNode, Void unused) {
-        this.currentMethodName = jmmNode.get("methodname");
-        this.expressionAnalysis = new ExpressionAnalysis(this.currentMethodName, this.symbolTable, this.reports);
-
+        setCurrentMethodName(jmmNode.get("methodname"));
         JmmNode returnNode = jmmNode.getJmmChild(jmmNode.getNumChildren() - 1);
         Type returnType = this.symbolTable.getReturnType(jmmNode.get("methodname"));
         Type returnNodeType = expressionAnalysis.visit(returnNode);
@@ -83,18 +86,17 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
     }
 
     public Void dealWithVoidMethod(JmmNode jmmNode, Void unused) {
-        this.currentMethodName = jmmNode.get("methodname");
-        this.expressionAnalysis = new ExpressionAnalysis(this.currentMethodName, this.symbolTable, this.reports);
+        setCurrentMethodName(jmmNode.get("methodname"));
+
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
         return null;
     }
 
     private Void checkMainMethodParameterType(JmmNode jmmNode, Void unused) {
-        this.currentMethodName = jmmNode.get("methodname");
-        this.expressionAnalysis = new ExpressionAnalysis(this.currentMethodName, this.symbolTable, this.reports);
-
+        setCurrentMethodName(jmmNode.get("methodname"));
         String parameterType = jmmNode.get("parametertype");
+
         if(!Objects.equals(parameterType, "String")) {
             String message = "Main method expected a parameter of type 'String[]' but found '" + parameterType + "[]'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
@@ -113,7 +115,6 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
             String message = "Expected condition of type '" + BOOLEAN + "' but found '" + conditionType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
         }
-
         for(int i= 1; i < jmmNode.getNumChildren(); i++){
             visit(jmmNode.getJmmChild(i));
         }
