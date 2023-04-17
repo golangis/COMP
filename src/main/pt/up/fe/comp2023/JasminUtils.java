@@ -119,6 +119,10 @@ public class JasminUtils {
                 );
                 break;
             case GETFIELD:
+                statementList += JVMInstructionUtils.createGetfieldStatement(
+                        (GetFieldInstruction)instruction,
+                        varTable
+                );
                 break;
             case PUTFIELD:
                 break;

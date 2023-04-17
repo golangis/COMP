@@ -156,6 +156,14 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
+    public static String createGetfieldStatement(GetFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
+        String statementList = "";
+        statementList += getLoadInstruction(instruction.getFirstOperand(), varTable);
+        statementList += "\tgetfield " + ((Operand)instruction.getSecondOperand()).getName()
+                + " " + JasminUtils.getTypeDescriptor(instruction.getFieldType(), true) + '\n';
+        return statementList;
+    }
+
     public static String createReturnStatement(ReturnInstruction instruction, HashMap<String, Descriptor> varTable) {
         ElementType returnType = instruction.getElementType();
         Element returnElement = instruction.getOperand();
