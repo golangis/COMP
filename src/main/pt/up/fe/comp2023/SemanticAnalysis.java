@@ -129,9 +129,6 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
         Type left = getIdentifierType(this.currentMethodName, varName, this.symbolTable);
         Type right = expressionAnalysis.visit(expressionNode);
 
-        if(right.equals(UNKNOWN_TYPE))
-            return null;
-
         if(left.equals(UNKNOWN_TYPE)){
             String message = "'" + varName + "' is not declared.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
@@ -146,6 +143,9 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
             return null;
 
         else if (findImport(this.imports, left.print()) && findImport(this.imports, right.print()))
+            return null;
+
+        else if (right.equals(UNKNOWN_TYPE))
             return null;
 
         String message = "Type of the assignee is not compatible with the assigned.";
