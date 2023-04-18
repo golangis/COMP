@@ -6,10 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import pt.up.fe.comp.TestUtils;
-import pt.up.fe.comp.jmm.jasmin.JasminResult;
-import pt.up.fe.comp.jmm.ollir.OllirResult;
-import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
+import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
+import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp2023.jasmin.JasminGenerator;
+import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
@@ -60,12 +61,14 @@ public class Launcher {
         JmmSemanticsResult semanticsResult = analysis.semanticAnalysis(parserResult);
 
         // Output Semantic Errors
-        for(Report report : analysis.getReports()){
+        for (Report report : analysis.getReports()) {
             System.out.println(report.toString());
         }
 
         // Check if there are semantic errors
         TestUtils.noErrors(semanticsResult.getReports());
+
+        // TODO: Add Ollir
 
         JasminGenerator jasminGenerator = new JasminGenerator();
         // JasminResult jasminResult = jasminGenerator.toJasmin(ollirResult);
