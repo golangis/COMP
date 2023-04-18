@@ -7,7 +7,6 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTable {
 
@@ -64,7 +63,6 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
 
     @Override
     protected void buildVisitor() {
-        System.out.println("This is the visitor");
         setDefaultVisit(this::setDefaultVisit);
         addVisit("ImportDecl", this::dealWithImport);
         addVisit("ClassDecl", this::dealWithClass);
@@ -142,7 +140,7 @@ public class MySymbolTable extends AJmmVisitor<Void, Void> implements SymbolTabl
 
     private Type dealWithType(JmmNode jmmNode) {
         String name = jmmNode.get("typename");
-        boolean isArray = jmmNode.getKind().equals("TypeArray");
+        boolean isArray = Boolean.parseBoolean(jmmNode.get("isArray"));
 
         return new Type(name, isArray);
     }
