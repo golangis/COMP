@@ -93,7 +93,7 @@ public class JasminUtils {
         return methodDirective;
     }
 
-    public static String handleInstruction(Instruction instruction, HashMap<String, Descriptor> varTable) {
+    public static String handleInstruction(Instruction instruction, HashMap<String, Descriptor> varTable, boolean isRhs) {
         String statementList = "";
         switch (instruction.getInstType()) {
             case ASSIGN:
@@ -107,6 +107,8 @@ public class JasminUtils {
                         (CallInstruction)instruction,
                         varTable
                 );
+                if (!isRhs && ((CallInstruction) instruction).getReturnType().getTypeOfElement() != ElementType.VOID)
+                    statementList += "\tpop\n";
                 break;
             case GOTO:
                 break;
@@ -155,7 +157,7 @@ public class JasminUtils {
     public static String handleMethodStatements(Method method) {
         String statementList = "";
         for (Instruction instruction: method.getInstructions())
-            statementList += handleInstruction(instruction, method.getVarTable());
+            statementList += handleInstruction(instruction, method.getVarTable(), false);
         return statementList;
     }
 
