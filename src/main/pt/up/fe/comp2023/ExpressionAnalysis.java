@@ -57,31 +57,34 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type checkBooleanExpression(JmmNode jmmNode, Type type) {
-        Type expressionType = visit(jmmNode.getJmmChild(0));
+        JmmNode expressionNode = jmmNode.getJmmChild(0);
+        Type expressionType = visit(expressionNode);
 
         if(expressionType.equals(BOOLEAN_TYPE)){
             jmmNode.put(TYPENAME, BOOLEAN);
             return BOOLEAN_TYPE;
         }
         String message = "Expected expression of type '" +  BOOLEAN + "' but found '" + expressionType.print() + "'.";
-        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(expressionNode), getNodeColumn(expressionNode), message));
         jmmNode.put(TYPENAME, UNKNOWN);
         return UNKNOWN_TYPE;
     }
 
     private Type checkIntegerOperands(JmmNode jmmNode, Type type) {
-        Type leftOperandType = visit(jmmNode.getJmmChild(0));
-        Type rightOperandType = visit(jmmNode.getJmmChild(1));
+        JmmNode leftNode = jmmNode.getJmmChild(0);
+        JmmNode rightNode = jmmNode.getJmmChild(1);
+        Type leftOperandType = visit(leftNode);
+        Type rightOperandType = visit(rightNode);
 
         if(!leftOperandType.equals(INT_TYPE)) {
             String message = "Expected operand of type '" + INT + "' but found '" + leftOperandType.print() + "'.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(leftNode), getNodeColumn(leftNode), message));
             jmmNode.put(TYPENAME, UNKNOWN);
         }
 
         if(!rightOperandType.equals(INT_TYPE)) {
             String message = "Expected operand of type '" + INT + "' but found '" + leftOperandType.print() + "'.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(rightNode), getNodeColumn(rightNode), message));
             if(!jmmNode.hasAttribute(TYPENAME))
                 jmmNode.put(TYPENAME, UNKNOWN);
         }
@@ -99,18 +102,20 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type checkBooleanOperands(JmmNode jmmNode, Type type) {
-        Type leftOperandType = visit(jmmNode.getJmmChild(0));
-        Type rightOperandType = visit(jmmNode.getJmmChild(1));
+        JmmNode leftNode = jmmNode.getJmmChild(0);
+        JmmNode rightNode = jmmNode.getJmmChild(1);
+        Type leftOperandType = visit(leftNode);
+        Type rightOperandType = visit(rightNode);
 
         if(!leftOperandType.equals(BOOLEAN_TYPE)) {
             String message = "Expected operand of type '" + BOOLEAN + "' but found '" + leftOperandType.print() + "'.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(leftNode), getNodeColumn(leftNode), message));
             jmmNode.put(TYPENAME, UNKNOWN);
         }
 
         if(!rightOperandType.equals(BOOLEAN_TYPE)) {
             String message = "Expected operand of type '" + BOOLEAN + "' but found '" + leftOperandType.print() + "'.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(rightNode), getNodeColumn(rightNode), message));
             if(!jmmNode.hasAttribute(TYPENAME))
                 jmmNode.put(TYPENAME, UNKNOWN);
         }
@@ -122,18 +127,20 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     }
 
     private Type dealWithArraySubscript(JmmNode jmmNode, Type type) {
-        Type variableType = visit(jmmNode.getJmmChild(0));
-        Type indexType = visit(jmmNode.getJmmChild(1));
+        JmmNode variableNode = jmmNode.getJmmChild(0);
+        JmmNode indexNode = jmmNode.getJmmChild(1);
+        Type variableType = visit(variableNode);
+        Type indexType = visit(indexNode);
 
         if (!variableType.equals(ARRAY_TYPE)) {
             String message = "Expected '" + ARRAY_TYPE + "' type but found '" + variableType.print() + "'.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(variableNode), getNodeColumn(variableNode), message));
             jmmNode.put(TYPENAME, UNKNOWN);
         }
 
         if (!indexType.equals(INT_TYPE)) {
             String message = "Expected index expression of type '" + INT +"' but found '" + indexType.print() + "'.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(indexNode), getNodeColumn(indexNode), message));
             if(!jmmNode.hasAttribute(TYPENAME))
                 jmmNode.put(TYPENAME, UNKNOWN);
         }
@@ -152,7 +159,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
             return INT_TYPE;
         }
         String message = "Cannot resolve symbol 'length'.";
-        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         jmmNode.put(TYPENAME, UNKNOWN);
         return UNKNOWN_TYPE;
     }
@@ -164,7 +171,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         if(this.symbolTable.getMethods().contains(method)){
             if(!Objects.equals(expressionType, this.className)){
                 String message = "Expected expression of type '" + this.className + "' but found '" + expressionType + "'.";
-                this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+                this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
             }
             this.verifyArgumentTypes(jmmNode.getJmmChild(1), method);
             jmmNode.put(TYPENAME, this.symbolTable.getReturnType(method).print());
@@ -174,13 +181,13 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         else if(Objects.equals(expressionType, this.className) || Objects.equals(expressionType, this.superClass)){
             if(!findImport(this.imports, this.superClass)){
                 String message = "Cannot find super class '" + this.superClass + "'.";
-                this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+                this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
             }
         }
 
         else if(!findImport(this.imports, expressionType)){
             String message = "'" + expressionType + "' is not declared.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         }
         jmmNode.put(TYPENAME, UNDEFINED);
         return UNDEFINED_TYPE;
@@ -192,30 +199,32 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
 
         if(numDeclaredParams != numCallParams){
             String message = "Method '" + method + "' expected " + numDeclaredParams + " arguments but found " + numCallParams + ".";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         }
 
         for(int i=0; i < numDeclaredParams && i < numCallParams; i++){
+            JmmNode callParamNode = jmmNode.getJmmChild(i);
             Type declaredParamType = symbolTable.getParameters(method).get(i).getType();
-            Type callParamType = visit(jmmNode.getJmmChild(i));
+            Type callParamType = visit(callParamNode);
 
             if(!declaredParamType.equals(callParamType)){
                 String declaredArgumentName = symbolTable.getParameters(method).get(i).getName();
                 String message = "Method '" + method + "' expected argument '" + declaredArgumentName + "' to be '" + declaredParamType.print() + "' but found '" + callParamType.print() + ".";
-                this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+                this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(callParamNode), getNodeColumn(callParamNode), message));
             }
         }
     }
 
     private Type checkIntegerLength(JmmNode jmmNode, Type type) {
-        Type lengthType = visit(jmmNode.getJmmChild(0));
+        JmmNode lengthNode = jmmNode.getJmmChild(0);
+        Type lengthType = visit(lengthNode);
 
         if (lengthType.equals(INT_TYPE)){
             jmmNode.put(TYPENAME, ARRAY);
             return ARRAY_TYPE;
         }
         String message = "Expected array length to be '" + INT + "' but found '" + lengthType.print() + "'.";
-        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(lengthNode), getNodeColumn(lengthNode), message));
         jmmNode.put(TYPENAME, UNKNOWN);
         return UNKNOWN_TYPE;
     }
@@ -234,7 +243,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         }
 
         String message = "Cannot find '" + objectClassName + "'.";
-        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message)); //TODO: use column of 'classname'
         jmmNode.put(TYPENAME, UNKNOWN);
         return UNKNOWN_TYPE;
     }
@@ -252,7 +261,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
     private Type dealWithThis(JmmNode jmmNode, Type type) {
         if (Objects.equals(this.methodName, "main")) {
             String message = "'this' expression cannot be used in a static method.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
             jmmNode.put(TYPENAME, UNKNOWN);
             return UNKNOWN_TYPE;
         }
@@ -266,7 +275,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
 
         if(Objects.equals(identifierType.print(), UNKNOWN)){
             String message = "'" + identifier + "' is not declared.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
             jmmNode.put(TYPENAME, UNKNOWN);
         }
         jmmNode.put(TYPENAME, identifierType.print());
