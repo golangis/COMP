@@ -1,4 +1,4 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.jasmin;
 
 import org.specs.comp.ollir.ClassUnit;
 import org.specs.comp.ollir.Field;
