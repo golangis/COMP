@@ -146,6 +146,9 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
         else if (Objects.equals(left.print(), this.superClass) && Objects.equals(right.print(), this.className))
             return null;
 
+        else if (Objects.equals(left.print(), this.className) && !Objects.equals(right.print(), this.superClass) && findImport(this.imports, right.print()))
+            return null;
+
         else if (findImport(this.imports, left.print()) && findImport(this.imports, right.print()))
             return null;
 
