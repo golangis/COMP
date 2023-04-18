@@ -148,8 +148,10 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
         else if (right.equals(UNKNOWN_TYPE))
             return null;
 
-        String message = "Type of the assignee is not compatible with the assigned.";
-        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(expressionNode), getNodeColumn(expressionNode), message));
+        else {
+            String message = "Type of the assignee is not compatible with the assigned.";
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(expressionNode), getNodeColumn(expressionNode), message));
+        }
         return null;
     }
 
