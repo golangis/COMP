@@ -133,23 +133,29 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
             String message = "'" + varName + "' is not declared.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         }
+
+        else if (right.equals(UNKNOWN_TYPE))
+            return null;
+
         else if (right.equals(UNDEFINED_TYPE))
             expressionNode.put(TYPENAME, left.print());
 
-        else if(right.equals(left))
+        else if (right.equals(left))
             return null;
 
         else if (Objects.equals(left.print(), this.superClass) && Objects.equals(right.print(), this.className))
             return null;
 
+        else if (Objects.equals(left.print(), this.className) && !Objects.equals(right.print(), this.superClass) && findImport(this.imports, right.print()))
+            return null;
+
         else if (findImport(this.imports, left.print()) && findImport(this.imports, right.print()))
             return null;
 
-        else if (right.equals(UNKNOWN_TYPE))
-            return null;
-
-        String message = "Type of the assignee is not compatible with the assigned.";
-        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(expressionNode), getNodeColumn(expressionNode), message));
+        else {
+            String message = "Type of the assignee is not compatible with the assigned.";
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(expressionNode), getNodeColumn(expressionNode), message));
+        }
         return null;
     }
 
@@ -161,7 +167,7 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
         Type indexType = expressionAnalysis.visit(indexNode);
         Type valueType = expressionAnalysis.visit(valueNode);
 
-        if(!varType.isArray()){
+        if(!varType.equals(ARRAY_TYPE)){
             String message = "'" + varName + "' must be an array.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         }
