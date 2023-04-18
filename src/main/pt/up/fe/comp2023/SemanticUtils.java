@@ -49,10 +49,12 @@ public class SemanticUtils {
                 return parameter.getType();
         }
 
-        List<Symbol> fields = symbolTable.getFields();
-        for (Symbol field : fields) {
-            if(Objects.equals(field.getName(), identifier))
-                return field.getType();
+        if (!Objects.equals(methodName, "main")){
+            List<Symbol> fields = symbolTable.getFields();
+            for (Symbol field : fields) {
+                if(Objects.equals(field.getName(), identifier))
+                    return field.getType();
+            }
         }
 
         if(findImport(symbolTable.getImports(), identifier))

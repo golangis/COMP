@@ -129,6 +129,9 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
         Type left = getIdentifierType(this.currentMethodName, varName, this.symbolTable);
         Type right = expressionAnalysis.visit(expressionNode);
 
+        if(right.equals(UNKNOWN_TYPE))
+            return null;
+
         if(left.equals(UNKNOWN_TYPE)){
             String message = "'" + varName + "' is not declared.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
