@@ -133,19 +133,20 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
             String message = "'" + varName + "' is not declared.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         }
+
+        else if (right.equals(UNKNOWN_TYPE))
+            return null;
+
         else if (right.equals(UNDEFINED_TYPE))
             expressionNode.put(TYPENAME, left.print());
 
-        else if(right.equals(left))
+        else if (right.equals(left))
             return null;
 
         else if (Objects.equals(left.print(), this.superClass) && Objects.equals(right.print(), this.className))
             return null;
 
         else if (findImport(this.imports, left.print()) && findImport(this.imports, right.print()))
-            return null;
-
-        else if (right.equals(UNKNOWN_TYPE))
             return null;
 
         else {

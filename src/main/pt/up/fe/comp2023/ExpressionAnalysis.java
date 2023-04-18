@@ -169,8 +169,8 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         String method = jmmNode.get("methodcall");
 
         if(this.symbolTable.getMethods().contains(method)){
-            if(!Objects.equals(expressionType, this.className)){
-                String message = "Expected expression of type '" + this.className + "' but found '" + expressionType + "'.";
+            if(!Objects.equals(expressionType, this.className) && !Objects.equals(expressionType, this.superClass)){
+                String message = "Expected expression of type '" + this.className + "' or '" + this.superClass + "' but found '" + expressionType + "'.";
                 this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
             }
             this.verifyArgumentTypes(jmmNode.getJmmChild(1), method);
