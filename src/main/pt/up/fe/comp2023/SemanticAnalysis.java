@@ -61,7 +61,7 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
 
         if(superClass != null && !findImport(this.imports, superClass)){
             String message = "Cannot find super class '" + superClass + "'.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         }
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
@@ -76,7 +76,7 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
 
         if(!returnNodeType.equals(returnType) && !returnNodeType.equals(UNDEFINED_TYPE)){
             String message = "Make method '" + jmmNode.get("methodname") +"' return " + returnType.print() + ".";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(returnNode), getNodeColumn(returnNode), message));
         }
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
@@ -97,7 +97,7 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
 
         if(!Objects.equals(parameterType, "String")) {
             String message = "Main method expected a parameter of type 'String[]' but found '" + parameterType + "[]'.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         }
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
@@ -110,7 +110,7 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
 
         if(!conditionType.equals(BOOLEAN_TYPE)) {
             String message = "Expected condition of type '" + BOOLEAN + "' but found '" + conditionType.print() + "'.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(expressionNode), getNodeColumn(expressionNode), message));
         }
         for(int i= 1; i < jmmNode.getNumChildren(); i++){
             visit(jmmNode.getJmmChild(i));
@@ -131,7 +131,7 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
 
         if(left.equals(UNKNOWN_TYPE)){
             String message = "'" + varName + "' is not declared.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         }
         else if (right.equals(UNDEFINED_TYPE))
             expressionNode.put(TYPENAME, left.print());
@@ -146,31 +146,32 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
             return null;
 
         String message = "Type of the assignee is not compatible with the assigned.";
-        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(expressionNode), getNodeColumn(expressionNode), message));
         return null;
     }
 
     private Void validateArrayAssignment(JmmNode jmmNode, Void unused) {
         String varName = jmmNode.get("arrayname");
         JmmNode valueNode = jmmNode.getJmmChild(1);
+        JmmNode indexNode = jmmNode.getJmmChild(0);
         Type varType = getIdentifierType(this.currentMethodName, varName, this.symbolTable);
-        Type indexType = expressionAnalysis.visit(jmmNode.getJmmChild(0));
+        Type indexType = expressionAnalysis.visit(indexNode);
         Type valueType = expressionAnalysis.visit(valueNode);
 
         if(!varType.isArray()){
             String message = "'" + varName + "' must be an array.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message));
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         }
         if(!indexType.equals(INT_TYPE)){
             String message = "Expected index expression of type '" + INT +"' but found '" + indexType.print() + "'.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message));
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(indexNode), getNodeColumn(indexNode), message));
         }
         if(valueType.equals(UNDEFINED_TYPE)){
             valueNode.put(TYPENAME, INT);
         }
         else if(!valueType.equals(INT_TYPE)){
             String message = "Type of the assignee is not compatible with the assigned.";
-            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, 1, 1, message)); //TODO: change line and column values
+            this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(valueNode), getNodeColumn(valueNode), message));
         }
         return null;
     }
