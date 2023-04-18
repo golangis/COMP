@@ -164,7 +164,7 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
         Type indexType = expressionAnalysis.visit(indexNode);
         Type valueType = expressionAnalysis.visit(valueNode);
 
-        if(!varType.isArray()){
+        if(!varType.equals(ARRAY_TYPE)){
             String message = "'" + varName + "' must be an array.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         }
