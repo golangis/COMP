@@ -86,7 +86,7 @@ public class JVMInstructionUtils {
                 "/" + JasminUtils.createMethodSignature(
                     ((LiteralElement)instruction.getSecondArg()).getLiteral().replace("\"", ""),
                     instruction.getListOfOperands(),
-                     instruction.getReturnType(),
+                    instruction.getReturnType(),
                     true
                 );
     }
@@ -169,7 +169,7 @@ public class JVMInstructionUtils {
         Element assignElement = instruction.getDest();
         String statementList = "";
 
-        statementList += JasminUtils.handleInstruction(instruction.getRhs(), varTable);
+        statementList += JasminUtils.handleInstruction(instruction.getRhs(), varTable, true);
         statementList += getStoreInstruction(assignElement, varTable);
 
         return statementList;
