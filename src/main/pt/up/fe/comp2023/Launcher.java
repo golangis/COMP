@@ -69,6 +69,8 @@ public class Launcher {
         TestUtils.noErrors(semanticsResult.getReports());
 
         // TODO: Add Ollir
+         Optimization optimization = new Optimization();
+         OllirResult ollirResult = optimization.toOllir(semanticsResult);
 
         JasminGenerator jasminGenerator = new JasminGenerator();
         // JasminResult jasminResult = jasminGenerator.toJasmin(ollirResult);
