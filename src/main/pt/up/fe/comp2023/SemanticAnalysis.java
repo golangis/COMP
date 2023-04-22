@@ -161,8 +161,8 @@ public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
 
     private Void validateArrayAssignment(JmmNode jmmNode, Void unused) {
         String varName = jmmNode.get("arrayname");
-        JmmNode valueNode = jmmNode.getJmmChild(1);
         JmmNode indexNode = jmmNode.getJmmChild(0);
+        JmmNode valueNode = jmmNode.getJmmChild(1);
         Type varType = getIdentifierType(this.currentMethodName, varName, this.symbolTable);
         Type indexType = expressionAnalysis.visit(indexNode);
         Type valueType = expressionAnalysis.visit(valueNode);

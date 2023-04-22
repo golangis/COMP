@@ -57,16 +57,16 @@ statement
     ;
 
 expression
-    : '(' expression ')' #ParenthesesExpr
+    : expression '[' expression ']' #ArraySubscript
+    | expression '.' field='length' #LengthFieldAccess
+    | expression '.' methodcall=ID '(' methodCallParameters ')' #MethodCall
+    | '(' expression ')' #ParenthesesExpr
     | '!' expression #NegationExpr
     | expression op=('*' | '/') expression #ArithmeticExpr
     | expression op=('+' | '-') expression #ArithmeticExpr
     | expression op=('<' | '>') expression #ComparisonExpr
     | expression op='&&' expression #LogicalExpr
     | expression op='||' expression #LogicalExpr
-    | expression '[' expression ']' #ArraySubscript
-    | expression '.' field='length' #LengthFieldAccess
-    | expression '.' methodcall=ID '(' methodCallParameters ')' #MethodCall
     | 'new' 'int' '[' expression ']' #ArrayCreation
     | 'new' classname=ID '(' ')' #ObjectCreation
     | value=INT #Integer

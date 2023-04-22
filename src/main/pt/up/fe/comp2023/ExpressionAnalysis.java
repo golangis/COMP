@@ -80,7 +80,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(leftNode), getNodeColumn(leftNode), message));
         }
         if(!rightOperandType.equals(INT_TYPE)) {
-            String message = "Expected operand of type '" + INT + "' but found '" + leftOperandType.print() + "'.";
+            String message = "Expected operand of type '" + INT + "' but found '" + rightOperandType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(rightNode), getNodeColumn(rightNode), message));
         }
 
@@ -106,7 +106,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         }
 
         if(!rightOperandType.equals(BOOLEAN_TYPE)) {
-            String message = "Expected operand of type '" + BOOLEAN + "' but found '" + leftOperandType.print() + "'.";
+            String message = "Expected operand of type '" + BOOLEAN + "' but found '" + rightOperandType.print() + "'.";
             this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(rightNode), getNodeColumn(rightNode), message));
         }
 
