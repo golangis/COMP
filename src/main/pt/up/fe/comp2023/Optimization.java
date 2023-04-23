@@ -254,8 +254,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
     private Void dealWithMethod(JmmNode jmmNode, Void unused) {
         code += "\t.method public " + jmmNode.get("methodname") + "(";
-
-        // Params
+        // Parameters
         List<Symbol> parameters = table.getParameters(jmmNode.get("methodname"));
         for (int i = 0; i< parameters.size(); i++){
             Symbol parameter = parameters.get(i);
@@ -265,13 +264,18 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         }
         code += ")";
         // Return Type of Method
-        code += OllirUtils.ollirTypes(table.getReturnType(jmmNode.get("methodname"))) + " {\n";
+        String returnType = OllirUtils.ollirTypes(table.getReturnType(jmmNode.get("methodname")));
+        code += returnType + " {\n";
 
-        for (var child : jmmNode.getChildren())
-            visit(child);
+        for (int i = 0; i < jmmNode.getChildren().size() - 1; i++ )
+            visit(jmmNode.getChildren().get(i));
 
-        code += "\t}\n";
+        // Return
+        int indexReturn = jmmNode.getChildren().size() - 1;
 
+        code += "\t\tret" + returnType + " ";
+        visit(jmmNode.getChildren().get(indexReturn));  // Visit the expression after "return" keyword
+        code += ";\n\t}\n";
         return null;
     }
 
@@ -283,6 +287,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         code += "\t}\n";
         return null;
     }
+
     private Void dealWithClass(JmmNode jmmNode, Void unused) {
         // Imports
         List<String> imports = table.getImports();
