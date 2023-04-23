@@ -165,9 +165,54 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithAssignment(JmmNode jmmNode, Void unused) {
+        Symbol var = null;
+        boolean isField = false;
+
+        /*
+            Grammar distributes method declarations into 3 categories:
+                - main method;
+                - void method;
+                - method with return type
+
+        Because of that, it's needed to check if the parent of the assignment function corresponds
+        to any of these types of methods to check if it is either a local variable or a parameter.
+        */
+
+        // Main Method
+        if (jmmNode.getJmmParent().getKind().equals("MainMethodDecl")){
+            // Local Var
+            for (Symbol v : table.getLocalVariables("main"))
+                if (v.getName().equals(jmmNode.get("varname")))
+                    var = v;
+
+        }
+        // Void Method OR Method with Return Type
+        else if (jmmNode.getJmmParent().getKind().equals("VoidMethodDecl") || jmmNode.getJmmParent().getKind().equals("MethodDecl")) {
+            // Local Var
+            for (Symbol v : table.getLocalVariables(jmmNode.getJmmParent().get("methodname")))
+                if (v.getName().equals(jmmNode.get("varname")))
+                    var = v;
+            // Parameter
+            if (var == null)
+                for (Symbol v : table.getParameters(jmmNode.getJmmParent().get("methodname")))
+                    if (v.getName().equals(jmmNode.get("varname")))
+                        var = v;
+        }
+        // Field
+        if (var == null)
+            for (Symbol s : this.table.getFields())
+                if (s.getName().equals(jmmNode.get("varname"))) {
+                    var = s;
+                    isField = true;
+                }
+        // Throw error
+        if (var == null)
+            throw new NullPointerException("Variable 'var' is not a LOCAL VAR or a PARAMETER or a FIELD  ");
+
+
         String left = jmmNode.get("varname");
         JmmNode right = jmmNode.getChildren().get(0);
-        code += "//" + OllirUtils.ollirTypes(jmmNode.)+ left +  " := ";
+        code += "\t\t" + left + OllirUtils.ollirTypes(var.getType()) + " := ";
         visit(right);
         code += ";\n";
         return null;
