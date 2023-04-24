@@ -241,7 +241,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
         String left = jmmNode.get("varname");
         JmmNode right = jmmNode.getChildren().get(0);
-        code += "\t\t" + left + OllirUtils.ollirTypes(var.getType()) + " := ";
+        code += "\t\t" + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
         visit(right);
         code += ";\n";
         return null;
