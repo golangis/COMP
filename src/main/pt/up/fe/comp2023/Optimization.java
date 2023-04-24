@@ -65,8 +65,37 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithIdentifier(JmmNode jmmNode, Void unused) {
-        for (var child : jmmNode.getChildren())
-            visit(child);
+        var method = jmmNode.getAncestor("MethodDecl");
+        Symbol var = null;
+
+        if (method.isPresent()) {
+            List<Symbol> localVarClass = table.getLocalVariables(method.get().get("methodname"));
+            List<Symbol> paramsOnClass = table.getParameters(method.get().get("methodname"));
+
+            // If it's not any of the above, then consider it's in an import
+            // Check if local var
+            for (Symbol lv : localVarClass)
+                if (lv.getName().equals(jmmNode.get("value")))
+                    var = lv;
+
+            // If not local var, then check if param
+            if (var == null)
+                for (Symbol p : paramsOnClass)
+                    if (p.getName().equals(jmmNode.get("value")))
+                        var = p;
+
+
+        }
+
+        List<Symbol> fields = table.getFields();
+        // If not local nor param, check if field
+        if (var == null)
+            for (Symbol f : fields)
+                if (f.getName().equals(jmmNode.get("value")))
+                    var = f;
+        if (var != null)
+            code += jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
+
         return null;
     }
 
