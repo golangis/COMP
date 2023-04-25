@@ -72,7 +72,6 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             List<Symbol> localVarClass = table.getLocalVariables(method.get().get("methodname"));
             List<Symbol> paramsOnClass = table.getParameters(method.get().get("methodname"));
 
-            // If it's not any of the above, then consider it's in an import
             // Check if local var
             for (Symbol lv : localVarClass)
                 if (lv.getName().equals(jmmNode.get("value")))
@@ -93,16 +92,17 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             for (Symbol f : fields)
                 if (f.getName().equals(jmmNode.get("value")))
                     var = f;
+        // If found, send it with its type
         if (var != null)
             code += jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
-
+        // If it's not any of the above, then consider it's in an import
+        else
+            code += jmmNode.get("value");
         return null;
     }
 
     private Void dealWithThis(JmmNode jmmNode, Void unused) {
-        for (var child : jmmNode.getChildren())
-            visit(child);
-
+        code += "this";
         return null;
     }
 
@@ -130,8 +130,43 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithMethodCall(JmmNode jmmNode, Void unused) {
-        for (var child : jmmNode.getChildren())
+        JmmNode left =  jmmNode.getJmmChild(0);
+        String methodName = jmmNode.get("methodcall");
+        String returnType = ".V";
+
+        if (table.getMethods().contains(methodName))
+            for (String m : table.getMethods())
+                if (m == methodName)
+                    returnType = OllirUtils.ollirTypes(table.getReturnType(m));
+                else
+                    returnType = ".V";
+
+        if (left.getKind().equals("This")){
+            code += "\t\tinvokevirtual(";
+
+            }
+        else {
+            if (table.getImports().contains(left.get("value")))
+                code += "\t\tinvokestatic(" ;
+            else
+                code += "\t\tinvokevirtual(" ;
+        }
+
+        // The first arg is the object that calls the method and the second is the name of the method called
+        code += left.get("value") + " , \"" + methodName +"\"";
+
+        // The following arguments can exist or not they are the arguments of the method called
+        JmmNode params = jmmNode.getJmmChild(1);
+        for (var child : params.getChildren()) {
+            code += " , ";
             visit(child);
+        }
+
+        code += ")\n";
+
+        // Type of method
+        code += returnType + ";";
+
 
         return null;
     }
@@ -236,7 +271,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
                 }
         // Throw error
         if (var == null)
-            throw new NullPointerException("Variable 'var' is not a LOCAL VAR or a PARAMETER or a FIELD  ");
+            throw new NullPointerException("Variable 'var' is not a LOCAL VAR or a PARAMETER or a FIELD");
 
 
         String left = jmmNode.get("varname");
@@ -269,6 +304,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithMethodCallParam(JmmNode jmmNode, Void unused) {
+
         for (var child : jmmNode.getChildren())
             visit(child);
 

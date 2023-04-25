@@ -68,13 +68,12 @@ public class Launcher {
         // Check if there are semantic errors
         TestUtils.noErrors(semanticsResult.getReports());
 
-        // TODO: Add Ollir
-         Optimization optimization = new Optimization();
-         OllirResult ollirResult = optimization.toOllir(semanticsResult);
+        Optimization optimization = new Optimization();
+        OllirResult ollirResult = optimization.toOllir(semanticsResult);
 
         JasminGenerator jasminGenerator = new JasminGenerator();
-        // JasminResult jasminResult = jasminGenerator.toJasmin(ollirResult);
-        // System.out.println(jasminResult.getJasminCode());
+        JasminResult jasminResult = jasminGenerator.toJasmin(ollirResult);
+        System.out.println(jasminResult.getJasminCode());
 
         // TestUtils.runJasmin(jasminResult.getJasminCode());
 
