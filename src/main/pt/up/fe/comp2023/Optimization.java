@@ -136,7 +136,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
         if (table.getMethods().contains(methodName))
             for (String m : table.getMethods())
-                if (m == methodName)
+                if (m.equals(methodName))
                     returnType = OllirUtils.ollirTypes(table.getReturnType(m));
                 else
                     returnType = ".V";
