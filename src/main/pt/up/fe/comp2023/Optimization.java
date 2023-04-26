@@ -4,6 +4,7 @@ import org.specs.comp.ollir.Ollir;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PostorderJmmVisitor;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
@@ -133,6 +134,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         JmmNode left =  jmmNode.getJmmChild(0);
         String methodName = jmmNode.get("methodcall");
         String returnType = ".V";
+        boolean isStatic = false;
 
         if (table.getMethods().contains(methodName))
             for (String m : table.getMethods())
@@ -146,14 +148,18 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
             }
         else {
-            if (table.getImports().contains(left.get("value")))
-                code += "\t\tinvokestatic(" ;
+            if (table.getImports().contains(left.get("value"))) {
+                code += "\t\tinvokestatic(" + left.get("value") + " , \"" + methodName + "\"";  // The first arg is the object that calls the method and the second is the name of the method called
+                isStatic = true;
+            }
             else
                 code += "\t\tinvokevirtual(" ;
         }
 
-        // The first arg is the object that calls the method and the second is the name of the method called
-        code += left.get("value") + " , \"" + methodName +"\"";
+        // Case the invocation is not static
+        if (!isStatic){
+            code += left.get("value") + OllirUtils.ollirTypes(new Type(left.get("typename"), false))+ " , \"" + methodName + "\"";
+        }
 
         // The following arguments can exist or not they are the arguments of the method called
         JmmNode params = jmmNode.getJmmChild(1);
@@ -162,10 +168,10 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             visit(child);
         }
 
-        code += ")\n";
+        code += ")";
 
         // Type of method
-        code += returnType + ";";
+        code += returnType + ";\n";
 
 
         return null;
@@ -304,7 +310,6 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithMethodCallParam(JmmNode jmmNode, Void unused) {
-
         for (var child : jmmNode.getChildren())
             visit(child);
 
