@@ -118,6 +118,18 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithObjectCreation(JmmNode jmmNode, Void unused) {
+        JmmNode father = jmmNode.getJmmParent(); // see the father to see the whole expression
+        String leftString = "", rightString = "";
+
+        if (father.getKind().equals("Assignment")){ // or ARRAY ASSIGNMENT (LATER IMPLEMENT)
+            leftString = father.get("varname");
+            rightString = jmmNode.get("classname");
+        }
+
+        code += "new(" + rightString + ")." + rightString + ";\n";
+        code += "\t\tinvokespecial(" + leftString + "." + rightString + ",\"<init>\").V";
+
+
         for (var child : jmmNode.getChildren())
             visit(child);
         return null;
