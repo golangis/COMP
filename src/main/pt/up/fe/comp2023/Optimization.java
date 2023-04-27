@@ -164,6 +164,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         String methodName = jmmNode.get("methodcall");
         String returnType = ".V";
         boolean isStatic = false;
+        boolean makeTemp = !jmmNode.getJmmParent().getKind().equals("Expr");
 
         if (table.getMethods().contains(methodName))
             for (String m : table.getMethods())
@@ -178,7 +179,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         }
 
         String temp = "t" + tempVarId++ + returnType;
-        if (!returnType.equals(".V"))
+        if (makeTemp)
             code += temp + " :=" + returnType + " ";
 
         if (left.getKind().equals("This")) {
@@ -206,7 +207,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         // Type of method
         code += returnType;
 
-        if (!returnType.equals(".V"))
+        if (makeTemp)
             code += ";\n";
 
         jmmNode.put("valueOl", temp);
