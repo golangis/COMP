@@ -225,15 +225,35 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithLogicalExpr(JmmNode jmmNode, Void unused) {
-        for (var child : jmmNode.getChildren())
-            visit(child);
+        JmmNode leftSon = jmmNode.getJmmChild(0);
+        JmmNode rightSon = jmmNode.getJmmChild(1);
+
+        visit(leftSon);
+        visit(rightSon);
+
+        String left = leftSon.get("valueOl");
+        String right = rightSon.get("valueOl");
+        String temp = "t" + tempVarId++ + ".bool";
+
+        code += temp + ":=.bool " +  left + " " + jmmNode.get("op") + ".bool " + right + ";\n";
+        jmmNode.put("valueOl", temp);
 
         return null;
     }
 
     private Void dealWithComparison(JmmNode jmmNode, Void unused) {
-        for (var child : jmmNode.getChildren())
-            visit(child);
+        JmmNode leftSon = jmmNode.getJmmChild(0);
+        JmmNode rightSon = jmmNode.getJmmChild(1);
+
+        visit(leftSon);
+        visit(rightSon);
+
+        String left = leftSon.get("valueOl");
+        String right = rightSon.get("valueOl");
+        String temp = "t" + tempVarId++ + ".bool";
+
+        code += temp + ":=.bool " +  left + " " + jmmNode.get("op") + ".i32 " + right + ";\n";
+        jmmNode.put("valueOl", temp);
 
         return null;
     }
