@@ -68,6 +68,8 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     private Void dealWithIdentifier(JmmNode jmmNode, Void unused) {
         var method = jmmNode.getAncestor("MethodDecl");
         Symbol var = null;
+        boolean isLocal = false, isParam = false, isField = false;
+        int idParam = 0;
 
         if (method.isPresent()) {
             List<Symbol> localVarClass = table.getLocalVariables(method.get().get("methodname"));
@@ -75,27 +77,40 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
             // Check if local var
             for (Symbol lv : localVarClass)
-                if (lv.getName().equals(jmmNode.get("value")))
+                if (lv.getName().equals(jmmNode.get("value"))) {
                     var = lv;
+                    isLocal = true;
+                }
 
             // If not local var, then check if param
             if (var == null)
-                for (Symbol p : paramsOnClass)
-                    if (p.getName().equals(jmmNode.get("value")))
-                        var = p;
-
-
+                for (int p = 0; p < paramsOnClass.size(); p++)
+                    if (paramsOnClass.get(p).getName().equals(jmmNode.get("value"))) {
+                        var = paramsOnClass.get(p);
+                        isParam = true;
+                        idParam = p + 1;
+                    }
         }
 
         List<Symbol> fields = table.getFields();
+
         // If not local nor param, check if field
         if (var == null)
             for (Symbol f : fields)
-                if (f.getName().equals(jmmNode.get("value")))
+                if (f.getName().equals(jmmNode.get("value"))) {
                     var = f;
+                    isField = true;
+                }
+
         // If found, send it with its type
         if (var != null)
-            code += jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
+            if (isLocal)
+                code += jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
+            else if (isParam)
+                code += "$" + idParam + "." + jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
+            else if (isField)
+                code += code += jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
+
         // If it's not any of the above, then consider it's in an import
         else
             code += jmmNode.get("value");
@@ -219,6 +234,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithArithmetic(JmmNode jmmNode, Void unused) {
+
         for (var child : jmmNode.getChildren())
             visit(child);
 
