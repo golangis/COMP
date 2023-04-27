@@ -295,9 +295,8 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithParenthesesExpr(JmmNode jmmNode, Void unused) {
-        for (var child : jmmNode.getChildren())
-            visit(child);
-
+        visit(jmmNode.getJmmChild(0));
+        jmmNode.put("valueOl", jmmNode.getJmmChild(0).get("valueOl"));
         return null;
     }
 
