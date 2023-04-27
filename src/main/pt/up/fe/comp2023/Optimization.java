@@ -22,8 +22,6 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     List<Report> reports = new ArrayList<>();
     private SymbolTable table;
 
-   // private class PostOrdOptm extends PostorderJmmVisitor<Void, Void>{}
-
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
         table = semanticsResult.getSymbolTable();
@@ -144,7 +142,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             rightString = jmmNode.get("classname");
         }
 
-        code += "\t\tnew(" + rightString + ")." + rightString + ";\n";
+        code += "new(" + rightString + ")." + rightString + ";\n";
         code += "\t\tinvokespecial(" + leftString + "." + rightString + ",\"<init>\").V";
 
 
@@ -174,16 +172,16 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
                     returnType = ".V";
 
         if (left.getKind().equals("This")){
-            code += "\t\tinvokevirtual(";
+            code += "invokevirtual(";
 
             }
         else {
             if (table.getImports().contains(left.get("value"))) {
-                code += "\t\tinvokestatic(" + left.get("value") + " , \"" + methodName + "\"";  // The first arg is the object that calls the method and the second is the name of the method called
+                code += "invokestatic(" + left.get("value") + " , \"" + methodName + "\"";  // The first arg is the object that calls the method and the second is the name of the method called
                 isStatic = true;
             }
             else
-                code += "\t\tinvokevirtual(" ;
+                code += "invokevirtual(" ;
         }
 
         // Case the invocation is not static
@@ -201,7 +199,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         code += ")";
 
         // Type of method
-        code += returnType + ";\n";
+        code += returnType;
 
         return null;
     }
@@ -337,14 +335,15 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             code += "\t\tputfield(this, " + left + OllirUtils.ollirTypes(var.getType()) + ", ";
 
         visit(right);
-        code += isField ? ");\n" : ";\n";
+        code += isField ? ").V;\n" : ";\n";
         return null;
     }
 
     private Void dealWithExpr(JmmNode jmmNode, Void unused) {
+        code += "\t\t";
         for (var child : jmmNode.getChildren())
             visit(child);
-
+        code += ";\n";
         return null;
     }
 
@@ -421,7 +420,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         for (int i = 0; i < jmmNode.getChildren().size() ; i++ )
             visit(jmmNode.getChildren().get(i));
 
-        code += ";\n\t}\n";
+        code += "\t\tret.V;\n\t}\n";
         return null;
     }
 
@@ -430,7 +429,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         code += "\t.method public static main(" + jmmNode.get("parametername") + ".array.String).V{\n";
         for (var child : jmmNode.getChildren())
             visit(child);
-        code += "\t}\n";
+        code += "\t\tret.V;\n\t}\n";
         return null;
     }
 
