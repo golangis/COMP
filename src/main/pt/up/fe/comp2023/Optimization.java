@@ -139,20 +139,15 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithObjectCreation(JmmNode jmmNode, Void unused) {
-        JmmNode father = jmmNode.getJmmParent(); // see the father to see the whole expression
-        String leftString = "", rightString = "";
+        String rightString = jmmNode.get("classname");
 
-        if (father.getKind().equals("Assignment")) { // or ARRAY ASSIGNMENT (LATER IMPLEMENT)
-            leftString = father.get("varname");
-            rightString = jmmNode.get("classname");
-        }
+        String temp = "t" + tempVarId++ + "." + rightString;
 
-        code += "new(" + rightString + ")." + rightString + ";\n";
-        code += "\t\tinvokespecial(" + leftString + "." + rightString + ",\"<init>\").V";
+        code += temp + " :=." + rightString + " new(" + rightString + ")." + rightString + ";\n";
+        code += "\t\tinvokespecial(" + temp + ",\"<init>\").V;\n";
 
+        jmmNode.put("valueOl", temp);
 
-        for (var child : jmmNode.getChildren())
-            visit(child);
         return null;
     }
 
@@ -165,6 +160,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
     private Void dealWithMethodCall(JmmNode jmmNode, Void unused) {
         JmmNode left = jmmNode.getJmmChild(0);
+        visit(left);
         String methodName = jmmNode.get("methodcall");
         String returnType = ".V";
         boolean isStatic = false;
@@ -197,7 +193,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
         // Case the invocation is not static
         if (!isStatic) {
-            code += left.get("value") + OllirUtils.ollirTypes(new Type(left.get("typename"), false)) + " , \"" + methodName + "\"";
+            code += left.get("valueOl") + " , \"" + methodName + "\"";
         }
 
         // The following arguments can exist or not they are the arguments of the method called
@@ -306,71 +302,49 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithAssignment(JmmNode jmmNode, Void unused) {
+        var method = jmmNode.getAncestor("MethodDecl");
+        var voidMethod = jmmNode.getAncestor("VoidMethodDecl");
+        var mainMethod = jmmNode.getAncestor("MainMethodDecl");
         Symbol var = null;
-        boolean isField = false;
-        boolean isParam = false;
-        boolean isLocal = false;
+        boolean isLocal = false, isParam = false, isField = false;
         int idParam = 0;
-        List<Symbol> t = table.getParameters(jmmNode.getJmmParent().get("methodname"));
+        String left = jmmNode.get("varname");
 
-        /*
-            Grammar distributes method declarations into 3 categories:
-                - main method;
-                - void method;
-                - method with return type
+        if (method.isPresent() || voidMethod.isPresent() || mainMethod.isPresent()) {
+            var methodName = mainMethod.isPresent() ? "main" : method.orElseGet(voidMethod::get).get("methodname");
+            List<Symbol> localVarClass = table.getLocalVariables(methodName);
+            List<Symbol> paramsOnClass = table.getParameters(methodName);
 
-        Because of that, it's needed to check if the parent of the assignment function corresponds
-        to any of these types of methods to check if it is either a local variable or a parameter.
-        */
-
-        // Main Method
-        if (jmmNode.getJmmParent().getKind().equals("MainMethodDecl")) {
-            // Local Var
-            for (Symbol v : table.getLocalVariables("main"))
-                if (v.getName().equals(jmmNode.get("varname")))
-                    var = v;
-
-        }
-        // Void Method OR Method with Return Type
-        else if (jmmNode.getJmmParent().getKind().equals("VoidMethodDecl") || jmmNode.getJmmParent().getKind().equals("MethodDecl")) {
-            // Local Var
-            for (Symbol v : table.getLocalVariables(jmmNode.getJmmParent().get("methodname")))
-                if (v.getName().equals(jmmNode.get("varname"))) {
-                    var = v;
+            // Check if local var
+            for (Symbol lv : localVarClass)
+                if (lv.getName().equals(left)) {
+                    var = lv;
                     isLocal = true;
                 }
-            // Parameter
-            if (var == null)
-                for (Symbol v : table.getParameters(jmmNode.getJmmParent().get("methodname")))
-                    if (v.getName().equals(jmmNode.get("varname"))) {
-                        var = v;
-                        isParam = true;
-                    }
 
-            // Parameter
+            // If not local var, then check if param
             if (var == null)
-                for (int i = 0; i < t.size(); i++)
-                    if (t.get(i).getName().equals(jmmNode.get("varname"))) {
-                        var = t.get(i);
+                for (int p = 0; p < paramsOnClass.size(); p++)
+                    if (paramsOnClass.get(p).getName().equals(left)) {
+                        var = paramsOnClass.get(p);
                         isParam = true;
-                        idParam = 1 + i;
+                        idParam = p + 1;
                     }
         }
-        // Field
+
+        List<Symbol> fields = table.getFields();
+
+        // If not local nor param, check if field
         if (var == null)
-            for (Symbol s : this.table.getFields())
-                if (s.getName().equals(jmmNode.get("varname"))) {
-                    var = s;
+            for (Symbol f : fields)
+                if (f.getName().equals(left)) {
+                    var = f;
                     isField = true;
                 }
-        // Throw error
-        if (var == null)
-            throw new NullPointerException("Variable 'var' is not a LOCAL VAR or a PARAMETER or a FIELD");
 
         JmmNode right = jmmNode.getChildren().get(0);
         visit(right);
 
-        String left = jmmNode.get("varname");
         if (isLocal)
             code += "\t\t" + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
         else if (isParam)
