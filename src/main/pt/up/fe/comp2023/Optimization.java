@@ -166,12 +166,10 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         boolean isStatic = false;
         boolean makeTemp = !jmmNode.getJmmParent().getKind().equals("Expr");
 
-        if (table.getMethods().contains(methodName))
-            for (String m : table.getMethods())
-                if (m.equals(methodName))
-                    returnType = OllirUtils.ollirTypes(table.getReturnType(m));
-                else
-                    returnType = ".V";
+        for (String m : table.getMethods())
+            if (m.equals(methodName))
+                returnType = OllirUtils.ollirTypes(table.getReturnType(m));
+
 
         JmmNode params = jmmNode.getJmmChild(1);
         for (var child : params.getChildren()) {
