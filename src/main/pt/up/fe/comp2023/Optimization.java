@@ -21,6 +21,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     String code = "";
     List<Report> reports = new ArrayList<>();
     private SymbolTable table;
+    int tempVarId = 0;
 
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
@@ -104,32 +105,36 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
                 }
 
         // If found, send it with its type
-        if (var != null)
+        if (var != null) {
+            String ttype = OllirUtils.ollirTypes(var.getType());
             if (isLocal)
-                code += jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
+                jmmNode.put("valueOl", jmmNode.get("value") + ttype);
             else if (isParam)
-                code += "$" + idParam + "." + jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
-            else if (isField)
-                code += jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
-
+                jmmNode.put("valueOl", "$" + idParam + "." + jmmNode.get("value") + ttype);
+            else if (isField) {
+                String temp = "t" + tempVarId++ + ttype;
+                jmmNode.put("valueOl", temp);
+                code += temp + " :=" + ttype + " getfield(this , " + jmmNode.get("value") + ttype + ")" + ttype + ";";
+            }
+        }
         // If it's not any of the above, then consider it's in an import
         else
-            code += jmmNode.get("value");
+            jmmNode.put("valueOl", jmmNode.get("value"));
         return null;
     }
 
     private Void dealWithThis(JmmNode jmmNode, Void unused) {
-        code += "this";
+        jmmNode.put("valueOl", "this");
         return null;
     }
 
     private Void dealWithBoolean(JmmNode jmmNode, Void unused) {
-        code += jmmNode.get("value") + ".bool";
+        jmmNode.put("valueOl", jmmNode.get("value") + ".bool");
         return null;
     }
 
     private Void dealWithInteger(JmmNode jmmNode, Void unused) {
-        code += jmmNode.get("value") + ".i32";
+        jmmNode.put("valueOl", jmmNode.get("value") + ".i32" );
         return null;
     }
 
@@ -234,9 +239,18 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithArithmetic(JmmNode jmmNode, Void unused) {
+        JmmNode leftSon = jmmNode.getJmmChild(0);
+        JmmNode rightSon = jmmNode.getJmmChild(1);
 
-        for (var child : jmmNode.getChildren())
-            visit(child);
+        visit(leftSon);
+        visit(rightSon);
+
+        String left = leftSon.get("valueOl");
+        String right = rightSon.get("valueOl");
+        String temp = "t" + tempVarId++ + ".i32";
+
+        code += temp + ":=.i32 " +  left + " " + jmmNode.get("op") + ".i32 " + right + ";\n";
+        jmmNode.put("valueOl", temp);
 
         return null;
     }
@@ -324,9 +338,10 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         if (var == null)
             throw new NullPointerException("Variable 'var' is not a LOCAL VAR or a PARAMETER or a FIELD");
 
+        JmmNode right = jmmNode.getChildren().get(0);
+        visit(right);
 
         String left = jmmNode.get("varname");
-        JmmNode right = jmmNode.getChildren().get(0);
         if (isLocal)
             code += "\t\t" + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
         else if (isParam)
@@ -334,7 +349,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         else if (isField)
             code += "\t\tputfield(this, " + left + OllirUtils.ollirTypes(var.getType()) + ", ";
 
-        visit(right);
+        code += right.get("valueOl");
         code += isField ? ").V;\n" : ";\n";
         return null;
     }
@@ -395,11 +410,10 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             visit(jmmNode.getChildren().get(i));
 
         // Return
-        int indexReturn = jmmNode.getChildren().size() - 1;
+        JmmNode returnNode = jmmNode.getJmmChild(jmmNode.getNumChildren() - 1);
 
-        code += "\t\tret" + returnType + " ";
-        visit(jmmNode.getChildren().get(indexReturn));  // Visit the expression after "return" keyword
-        code += ";\n\t}\n";
+        visit(returnNode);  // Visit the expression after "return" keyword
+        code += "\t\tret" + returnType + " " + returnNode.get("valueOl") + ";\n\t}\n";
         return null;
     }
 
