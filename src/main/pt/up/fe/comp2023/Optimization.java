@@ -265,6 +265,10 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     private Void dealWithAssignment(JmmNode jmmNode, Void unused) {
         Symbol var = null;
         boolean isField = false;
+        boolean isParam = false;
+        boolean isLocal = false;
+        int idParam = 0;
+        List<Symbol> t = table.getParameters(jmmNode.getJmmParent().get("methodname"));
 
         /*
             Grammar distributes method declarations into 3 categories:
@@ -288,13 +292,26 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         else if (jmmNode.getJmmParent().getKind().equals("VoidMethodDecl") || jmmNode.getJmmParent().getKind().equals("MethodDecl")) {
             // Local Var
             for (Symbol v : table.getLocalVariables(jmmNode.getJmmParent().get("methodname")))
-                if (v.getName().equals(jmmNode.get("varname")))
+                if (v.getName().equals(jmmNode.get("varname"))) {
                     var = v;
+                    isLocal = true;
+                }
             // Parameter
             if (var == null)
                 for (Symbol v : table.getParameters(jmmNode.getJmmParent().get("methodname")))
-                    if (v.getName().equals(jmmNode.get("varname")))
+                    if (v.getName().equals(jmmNode.get("varname"))){
                         var = v;
+                        isParam = true;
+                    }
+
+            // Parameter
+            if (var == null)
+                for (int i = 0; i < t.size(); i++)
+                    if (t.get(i).getName().equals(jmmNode.get("varname"))){
+                        var = t.get(i);
+                        isParam = true;
+                        idParam = 1 + i;
+                    }
         }
         // Field
         if (var == null)
@@ -310,9 +327,15 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
         String left = jmmNode.get("varname");
         JmmNode right = jmmNode.getChildren().get(0);
-        code += "\t\t" + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
+        if (isLocal)
+            code += "\t\t" + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
+        else if (isParam)
+            code += "\t\t$" + idParam  + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
+        else if (isField)
+            code += "\t\tputfield(this, " + left + OllirUtils.ollirTypes(var.getType()) + ", ";
+
         visit(right);
-        code += ";\n";
+        code += isField ? ");\n" : ";\n";
         return null;
     }
 
