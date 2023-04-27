@@ -38,7 +38,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         setDefaultVisit(this::visitAllChildren);
         addVisit("ClassDecl", this::dealWithClass); // Dealing with imports in here
         addVisit("MethodDecl", this::dealWithMethod);
-        addVisit("VoidMethodDecl", this::dealWithMethod);
+        addVisit("VoidMethodDecl", this::dealWithVoidMethod);
         addVisit("MainMethodDecl", this::dealWithMainMethod);
         addVisit("MethodDeclParameters", this::dealWithParamDecl);
         addVisit("MethodParameters", this::dealWithMethodCallParam);
@@ -67,13 +67,16 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
     private Void dealWithIdentifier(JmmNode jmmNode, Void unused) {
         var method = jmmNode.getAncestor("MethodDecl");
+        var voidMethod = jmmNode.getAncestor("VoidMethodDecl");
+        var mainMethod = jmmNode.getAncestor("MainMethodDecl");
         Symbol var = null;
         boolean isLocal = false, isParam = false, isField = false;
         int idParam = 0;
 
-        if (method.isPresent()) {
-            List<Symbol> localVarClass = table.getLocalVariables(method.get().get("methodname"));
-            List<Symbol> paramsOnClass = table.getParameters(method.get().get("methodname"));
+        if (method.isPresent() || voidMethod.isPresent() || mainMethod.isPresent()) {
+            var methodName = mainMethod.isPresent() ? "main" : method.orElseGet(voidMethod::get).get("methodname");
+            List<Symbol> localVarClass = table.getLocalVariables(methodName);
+            List<Symbol> paramsOnClass = table.getParameters(methodName);
 
             // Check if local var
             for (Symbol lv : localVarClass)
@@ -109,7 +112,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             else if (isParam)
                 code += "$" + idParam + "." + jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
             else if (isField)
-                code += code += jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
+                code += jmmNode.get("value") + OllirUtils.ollirTypes(var.getType());
 
         // If it's not any of the above, then consider it's in an import
         else
@@ -141,7 +144,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             rightString = jmmNode.get("classname");
         }
 
-        code += "new(" + rightString + ")." + rightString + ";\n";
+        code += "\t\tnew(" + rightString + ")." + rightString + ";\n";
         code += "\t\tinvokespecial(" + leftString + "." + rightString + ",\"<init>\").V";
 
 
@@ -199,7 +202,6 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
         // Type of method
         code += returnType + ";\n";
-
 
         return null;
     }
@@ -373,6 +375,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
         return null;
     }
+
     private Void dealWithMethod(JmmNode jmmNode, Void unused) {
         code += "\t.method public " + jmmNode.get("methodname") + "(";
         // Parameters
@@ -384,6 +387,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
                 code += ", ";
         }
         code += ")";
+
         // Return Type of Method
         String returnType = OllirUtils.ollirTypes(table.getReturnType(jmmNode.get("methodname")));
         code += returnType + " {\n";
@@ -396,6 +400,27 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
         code += "\t\tret" + returnType + " ";
         visit(jmmNode.getChildren().get(indexReturn));  // Visit the expression after "return" keyword
+        code += ";\n\t}\n";
+        return null;
+    }
+
+    private Void dealWithVoidMethod(JmmNode jmmNode, Void unused) {
+        code += "\t.method public " + jmmNode.get("methodname") + "(";
+        // Parameters
+        List<Symbol> parameters = table.getParameters(jmmNode.get("methodname"));
+        for (int i = 0; i< parameters.size(); i++){
+            Symbol parameter = parameters.get(i);
+            code += parameter.getName() + OllirUtils.ollirTypes(parameter.getType());
+            if ( i + 1 < parameters.size())
+                code += ", ";
+        }
+        code += ")";
+
+        code += ".V{\n";
+
+        for (int i = 0; i < jmmNode.getChildren().size() ; i++ )
+            visit(jmmNode.getChildren().get(i));
+
         code += ";\n\t}\n";
         return null;
     }
