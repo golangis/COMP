@@ -224,13 +224,22 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
-    public static String createBranchStatement(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
+    public static String createSingleOpConditionStatement(SingleOpCondInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
-        if (instruction instanceof OpCondInstruction)
-            System.out.println("OpCondInstruction");
-        if (instruction instanceof SingleOpCondInstruction)
-            System.out.println("SingleOpCondInstruction");
         return statementList;
+    }
+
+    public static String createOpConditionStatement(OpCondInstruction instruction, HashMap<String, Descriptor> varTable) {
+        String statementList = "";
+        return statementList;
+    }
+
+    public static String createBranchStatement(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
+        if (instruction instanceof SingleOpCondInstruction)
+            return createSingleOpConditionStatement((SingleOpCondInstruction)instruction, varTable);
+        if (instruction instanceof OpCondInstruction)
+            return createOpConditionStatement((OpCondInstruction)instruction, varTable);
+        return "";
     }
 
     public static String createReturnStatement(ReturnInstruction instruction, HashMap<String, Descriptor> varTable) {
