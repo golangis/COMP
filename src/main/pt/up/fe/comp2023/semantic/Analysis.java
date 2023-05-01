@@ -1,4 +1,4 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.semantic;
 
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;

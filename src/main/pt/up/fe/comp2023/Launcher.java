@@ -12,6 +12,9 @@ import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp2023.jasmin.JasminGenerator;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp2023.ollir.Optimization;
+import pt.up.fe.comp2023.semantic.Analysis;
+import pt.up.fe.comp2023.semantic.MySymbolTable;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
@@ -76,8 +79,6 @@ public class Launcher {
         System.out.println(jasminResult.getJasminCode());
 
         // TestUtils.runJasmin(jasminResult.getJasminCode());
-
-        // ... add remaining stages
     }
 
     private static Map<String, String> parseArgs(String[] args) {

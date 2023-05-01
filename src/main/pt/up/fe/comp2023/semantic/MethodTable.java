@@ -1,11 +1,11 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.semantic;
 
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MethodTable {
+
     private final String name;
     private final List<Symbol> parameters;
     private final List<Symbol> localVariables;
@@ -33,5 +33,4 @@ public class MethodTable {
     public Type getReturnType() {
         return returnType;
     }
-
 }
