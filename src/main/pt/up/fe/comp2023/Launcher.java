@@ -78,7 +78,7 @@ public class Launcher {
         JasminResult jasminResult = jasminGenerator.toJasmin(ollirResult);
         System.out.println(jasminResult.getJasminCode());
 
-        // TestUtils.runJasmin(jasminResult.getJasminCode());
+        TestUtils.runJasmin(jasminResult.getJasminCode());
     }
 
     private static Map<String, String> parseArgs(String[] args) {
