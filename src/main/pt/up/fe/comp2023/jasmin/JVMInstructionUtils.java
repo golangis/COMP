@@ -224,6 +224,15 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
+    public static String createBranchStatement(CondBranchInstruction instruction, HashMap<String, Descriptor> varTable) {
+        String statementList = "";
+        if (instruction instanceof OpCondInstruction)
+            System.out.println("OpCondInstruction");
+        if (instruction instanceof SingleOpCondInstruction)
+            System.out.println("SingleOpCondInstruction");
+        return statementList;
+    }
+
     public static String createReturnStatement(ReturnInstruction instruction, HashMap<String, Descriptor> varTable) {
         ElementType returnType = instruction.getElementType();
         Element returnElement = instruction.getOperand();

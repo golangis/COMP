@@ -94,6 +94,8 @@ public class JasminUtils {
     }
 
     public static String handleInstruction(Instruction instruction, HashMap<String, Descriptor> varTable, boolean isRhs) {
+        instruction.show();
+
         String statementList = "";
         switch (instruction.getInstType()) {
             case ASSIGN:
@@ -113,6 +115,10 @@ public class JasminUtils {
             case GOTO:
                 break;
             case BRANCH:
+                statementList += JVMInstructionUtils.createBranchStatement(
+                        (CondBranchInstruction)instruction,
+                        varTable
+                );
                 break;
             case RETURN:
                 statementList += JVMInstructionUtils.createReturnStatement(
