@@ -1,21 +1,17 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.ollir;
 
-import org.specs.comp.ollir.Ollir;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
-import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
-import pt.up.fe.comp.jmm.ast.PostorderJmmVisitor;
-import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
+import pt.up.fe.comp2023.ollir.OllirUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimization {
     String code = "";

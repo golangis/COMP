@@ -1,6 +1,5 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.ollir;
 
-import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 
 public class OllirUtils {
@@ -22,5 +21,4 @@ public class OllirUtils {
 
         return typeS;
     }
-
 }

@@ -1,4 +1,4 @@
-package pt.up.fe.comp2023;
+package pt.up.fe.comp2023.semantic;
 
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
@@ -10,7 +10,7 @@ import pt.up.fe.comp.jmm.report.Stage;
 import java.util.List;
 import java.util.Objects;
 
-import static pt.up.fe.comp2023.SemanticUtils.*;
+import static pt.up.fe.comp2023.semantic.SemanticUtils.*;
 
 public class SemanticAnalysis extends AJmmVisitor<Void, Void> {
     private final MySymbolTable symbolTable;
