@@ -154,8 +154,10 @@ public class JVMInstructionUtils {
                 statementList += "\tior\n";
                 break;
             case LTH:
+                statementList += "\tif_icmplt ";
                 break;
             case GTH:
+                statementList += "\tif_icmpgt ";
                 break;
         }
         return statementList;
