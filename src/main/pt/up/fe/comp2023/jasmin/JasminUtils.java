@@ -94,8 +94,6 @@ public class JasminUtils {
     }
 
     public static String handleInstruction(Instruction instruction, HashMap<String, Descriptor> varTable, boolean isRhs) {
-        instruction.show();
-
         String statementList = "";
         switch (instruction.getInstType()) {
             case ASSIGN:
@@ -162,8 +160,13 @@ public class JasminUtils {
 
     public static String handleMethodStatements(Method method) {
         String statementList = "";
-        for (Instruction instruction: method.getInstructions())
+        for (Instruction instruction: method.getInstructions()) {
+            for (String label: method.getLabels(instruction))
+                statementList += label + ": ";
+            if (!method.getLabels(instruction).isEmpty())
+                statementList += "\n";
             statementList += handleInstruction(instruction, method.getVarTable(), false);
+        }
         return statementList;
     }
 
