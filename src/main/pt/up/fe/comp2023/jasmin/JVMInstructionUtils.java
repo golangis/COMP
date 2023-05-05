@@ -228,7 +228,7 @@ public class JVMInstructionUtils {
     public static String createSingleOpConditionStatement(SingleOpCondInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
         statementList += createInstructionRhs(instruction.getCondition(), varTable);
-        statementList += "\tifneq " + instruction.getLabel() + "\n";
+        statementList += "\tifne " + instruction.getLabel() + "\n";
         return statementList;
     }
 

@@ -166,9 +166,7 @@ public class JasminUtils {
         String statementList = "";
         for (Instruction instruction: method.getInstructions()) {
             for (String label: method.getLabels(instruction))
-                statementList += label + ": ";
-            if (!method.getLabels(instruction).isEmpty())
-                statementList += "\n";
+                statementList += "\t" + label + ":\n";
             statementList += handleInstruction(instruction, method.getVarTable(), false);
         }
         return statementList;
