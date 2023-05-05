@@ -154,10 +154,10 @@ public class JVMInstructionUtils {
                 statementList += "\tior\n";
                 break;
             case LTH:
-                statementList += "\tif_icmplt ";
+                statementList += "\tif_icmpgt ";
                 break;
             case GTH:
-                statementList += "\tif_icmpgt ";
+                statementList += "\tif_icmplt ";
                 break;
         }
         return statementList;
@@ -228,7 +228,7 @@ public class JVMInstructionUtils {
     public static String createSingleOpConditionStatement(SingleOpCondInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
         statementList += createInstructionRhs(instruction.getCondition(), varTable);
-        statementList += "\tifeq " + instruction.getLabel() + "\n";
+        statementList += "\tifneq " + instruction.getLabel() + "\n";
         return statementList;
     }
 
