@@ -169,11 +169,10 @@ public class JVMInstructionUtils {
 
     public static String createAssignStatement(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
         Element assignElement = instruction.getDest();
-        String statementList = "";
 
+        String statementList = "";
         statementList += JasminUtils.handleInstruction(instruction.getRhs(), varTable, true);
         statementList += getStoreInstruction(assignElement, varTable);
-
         return statementList;
     }
 
@@ -235,6 +234,11 @@ public class JVMInstructionUtils {
 
     public static String createOpConditionStatement(OpCondInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
+        if (instruction.getCondition() instanceof BinaryOpInstruction)
+            statementList += createBinaryOpInstruction((BinaryOpInstruction)instruction.getCondition(), varTable);
+        else
+            statementList += createUnaryOpStatement((UnaryOpInstruction)instruction.getCondition(), varTable);
+        statementList += instruction.getLabel() + "\n";
         return statementList;
     }
 
