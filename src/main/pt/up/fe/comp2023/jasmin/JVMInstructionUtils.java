@@ -250,6 +250,10 @@ public class JVMInstructionUtils {
         return "";
     }
 
+    public static String createGotoStatement(GotoInstruction instruction, HashMap<String, Descriptor> varTable) {
+        return "\tgoto " + instruction.getLabel() + "\n";
+    }
+
     public static String createReturnStatement(ReturnInstruction instruction, HashMap<String, Descriptor> varTable) {
         ElementType returnType = instruction.getElementType();
         Element returnElement = instruction.getOperand();

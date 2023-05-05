@@ -111,6 +111,10 @@ public class JasminUtils {
                     statementList += "\tpop\n";
                 break;
             case GOTO:
+                statementList += JVMInstructionUtils.createGotoStatement(
+                        (GotoInstruction)instruction,
+                        varTable
+                );
                 break;
             case BRANCH:
                 statementList += JVMInstructionUtils.createBranchStatement(
