@@ -71,8 +71,29 @@ public class Launcher {
         // Check if there are semantic errors
         TestUtils.noErrors(semanticsResult.getReports());
 
-        Optimization optimization = new Optimization();
-        OllirResult ollirResult = optimization.toOllir(semanticsResult);
+        // Optimization optimization = new Optimization();
+        // OllirResult ollirResult = optimization.toOllir(semanticsResult);
+        String ollirCode = "import io;\n" +
+                "Arithmetic_and {\n" +
+                "\n" +
+                "    .construct Arithmetic_and().V {\n" +
+                "        invokespecial(this, \"<init>\").V;\n" +
+                "    }\n" +
+                "\n" +
+                "    .method public static main(args.array.String).V {\n" +
+                "        a.bool :=.bool true.bool &&.bool false.bool;\n" +
+                "\n" +
+                "        if (a.bool) goto ifbody_0;\n" +
+                "            invokestatic(io, \"print\", 0.i32).V;\n" +
+                "        goto endif_0;\n" +
+                "        ifbody_0:\n" +
+                "            invokestatic(io, \"print\", 1.i32).V;\n" +
+                "        endif_0:\n" +
+                "\n" +
+                "        ret.V;\n" +
+                "    }\n" +
+                "}";
+        OllirResult ollirResult = new OllirResult(ollirCode, new HashMap<>());
 
         JasminGenerator jasminGenerator = new JasminGenerator();
         JasminResult jasminResult = jasminGenerator.toJasmin(ollirResult);
