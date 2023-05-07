@@ -125,7 +125,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithBoolean(JmmNode jmmNode, Void unused) {
-        jmmNode.put("valueOl", jmmNode.get("value") + ".bool");
+        jmmNode.put("valueOl", jmmNode.get("value").equals("true") ? "1.bool" : "0.bool");
         return null;
     }
 
