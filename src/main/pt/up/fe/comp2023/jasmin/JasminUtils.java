@@ -7,6 +7,8 @@ import java.util.HashMap;
 
 public class JasminUtils {
 
+    public static int customLabelCounter = 0;
+
     public static String getTypeDescriptor(Type type, boolean isDeclaration) {
         ElementType elementType = type.getTypeOfElement();
         if (elementType.equals(ElementType.INT32))
