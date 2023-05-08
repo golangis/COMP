@@ -154,12 +154,12 @@ public class JVMInstructionUtils {
                 statementList += "\tior\n";
                 break;
             case LTH:
-                statementList += "\tif_icmpge ";
+                statementList += "\tif_icmplt ";
                 if (!isBranchCond)
                     statementList += createAuxBranchStatement();
                 break;
             case GTH:
-                statementList += "\tif_icmple ";
+                statementList += "\tif_icmpgt ";
                 if (!isBranchCond)
                     statementList += createAuxBranchStatement();
                 break;
@@ -260,20 +260,20 @@ public class JVMInstructionUtils {
 
     public static String createAuxBranchStatement() {
         String statementList = "";
-        // goto false section
-        statementList += "false_" + JasminUtils.customLabelCounter + "\n";
+        // goto true section
+        statementList += "true_" + JasminUtils.customLabelCounter + "\n";
         JasminUtils.customLabelCounter++;
-        // if condition is true
-        statementList += "\ticonst_1\n";
-        // skip false section
-        statementList += "\tgoto true_" + JasminUtils.customLabelCounter + "\n";
-        JasminUtils.customLabelCounter++;
-        // false section
-        statementList += "\tfalse_" + (JasminUtils.customLabelCounter - 2) + ":\n";
         // if condition is false
         statementList += "\ticonst_0\n";
-        // true section (for skipping false section)
-        statementList += "\ttrue_" + (JasminUtils.customLabelCounter - 1) + ":\n";
+        // skip true section
+        statementList += "\tgoto false_" + JasminUtils.customLabelCounter + "\n";
+        JasminUtils.customLabelCounter++;
+        // true section
+        statementList += "\ttrue_" + (JasminUtils.customLabelCounter - 2) + ":\n";
+        // if condition is true
+        statementList += "\ticonst_1\n";
+        // false section (for skipping true section)
+        statementList += "\tfalse_" + (JasminUtils.customLabelCounter - 1) + ":\n";
         return statementList;
     }
 
