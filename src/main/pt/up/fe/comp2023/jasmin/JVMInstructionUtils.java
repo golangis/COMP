@@ -129,7 +129,7 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
-    public static String createBinaryOpInstruction(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
+    public static String createBinaryOpInstruction(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable, boolean isBranchCond) {
         String statementList = "";
         statementList += getLoadInstruction(instruction.getLeftOperand(), varTable);
         statementList += getLoadInstruction(instruction.getRightOperand(), varTable);
@@ -155,9 +155,13 @@ public class JVMInstructionUtils {
                 break;
             case LTH:
                 statementList += "\tif_icmpgt ";
+                if (!isBranchCond)
+                    statementList += createAuxBranchStatement();
                 break;
             case GTH:
                 statementList += "\tif_icmplt ";
+                if (!isBranchCond)
+                    statementList += createAuxBranchStatement();
                 break;
         }
         return statementList;
@@ -235,7 +239,7 @@ public class JVMInstructionUtils {
     public static String createOpConditionStatement(OpCondInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
         if (instruction.getCondition() instanceof BinaryOpInstruction)
-            statementList += createBinaryOpInstruction((BinaryOpInstruction)instruction.getCondition(), varTable);
+            statementList += createBinaryOpInstruction((BinaryOpInstruction)instruction.getCondition(), varTable, true);
         else
             statementList += createUnaryOpStatement((UnaryOpInstruction)instruction.getCondition(), varTable);
         statementList += instruction.getLabel() + "\n";
@@ -252,6 +256,25 @@ public class JVMInstructionUtils {
 
     public static String createGotoStatement(GotoInstruction instruction, HashMap<String, Descriptor> varTable) {
         return "\tgoto " + instruction.getLabel() + "\n";
+    }
+
+    public static String createAuxBranchStatement() {
+        String statementList = "";
+        // goto false section
+        statementList += "false_" + JasminUtils.customLabelCounter + "\n";
+        JasminUtils.customLabelCounter++;
+        // if condition is true
+        statementList += "\ticonst_1\n";
+        // skip false section
+        statementList += "\tgoto true_" + JasminUtils.customLabelCounter + "\n";
+        JasminUtils.customLabelCounter++;
+        // false section
+        statementList += "\tfalse_" + (JasminUtils.customLabelCounter - 2) + ":\n";
+        // if condition is false
+        statementList += "\ticonst_0\n";
+        // true section (for skipping false section)
+        statementList += "\ttrue_" + (JasminUtils.customLabelCounter - 1) + ":\n";
+        return statementList;
     }
 
     public static String createReturnStatement(ReturnInstruction instruction, HashMap<String, Descriptor> varTable) {

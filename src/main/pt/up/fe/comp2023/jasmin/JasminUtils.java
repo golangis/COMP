@@ -151,7 +151,8 @@ public class JasminUtils {
             case BINARYOPER:
                 statementList += JVMInstructionUtils.createBinaryOpInstruction(
                         (BinaryOpInstruction)instruction,
-                        varTable
+                        varTable,
+                        false
                 );
                 break;
             case NOPER:
