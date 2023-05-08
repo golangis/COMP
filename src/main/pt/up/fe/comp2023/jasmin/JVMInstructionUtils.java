@@ -123,7 +123,8 @@ public class JVMInstructionUtils {
 
         switch (instruction.getOperation().getOpType()) {
             case NOT: case NOTB:
-                statementList += "\tineg\n";
+                statementList += "\tifeq ";
+                statementList += createAuxBranchStatement();
                 break;
         }
         return statementList;
