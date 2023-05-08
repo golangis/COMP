@@ -163,7 +163,7 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
-    public static String createInstructionRhs(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
+    public static String createNoperInstruction(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
         return getLoadInstruction(instruction.getSingleOperand(), varTable);
     }
 
@@ -227,7 +227,7 @@ public class JVMInstructionUtils {
 
     public static String createSingleOpConditionStatement(SingleOpCondInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
-        statementList += createInstructionRhs(instruction.getCondition(), varTable);
+        statementList += createNoperInstruction(instruction.getCondition(), varTable);
         statementList += "\tifne " + instruction.getLabel() + "\n";
         return statementList;
     }

@@ -155,7 +155,7 @@ public class JasminUtils {
                 );
                 break;
             case NOPER:
-                statementList += JVMInstructionUtils.createInstructionRhs(
+                statementList += JVMInstructionUtils.createNoperInstruction(
                         (SingleOpInstruction)instruction,
                         varTable
                 );
