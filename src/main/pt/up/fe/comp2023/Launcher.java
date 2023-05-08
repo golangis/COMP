@@ -81,7 +81,7 @@ public class Launcher {
                 "    }\n" +
                 "\n" +
                 "    .method public static main(args.array.String).V {\n" +
-                "        a.bool :=.bool true.bool &&.bool false.bool;\n" +
+                "        a.bool :=.bool 1.bool &&.bool 0.bool;\n" +
                 "\n" +
                 "        if (a.bool) goto ifbody_0;\n" +
                 "            invokestatic(io, \"print\", 0.i32).V;\n" +

@@ -154,12 +154,12 @@ public class JVMInstructionUtils {
                 statementList += "\tior\n";
                 break;
             case LTH:
-                statementList += "\tif_icmpgt ";
+                statementList += "\tif_icmpge ";
                 if (!isBranchCond)
                     statementList += createAuxBranchStatement();
                 break;
             case GTH:
-                statementList += "\tif_icmplt ";
+                statementList += "\tif_icmple ";
                 if (!isBranchCond)
                     statementList += createAuxBranchStatement();
                 break;
