@@ -42,12 +42,7 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
         visit(jmmNode.getJmmChild(0));
         JmmNode exprNode = jmmNode.getJmmChild(0);
 
-        if(exprNode.getKind().equals("Integer")){
-            this.codeModified = true;
-            jmmNode.replace(exprNode);
-        }
-
-        else if(exprNode.getKind().equals("Boolean")){
+        if(exprNode.getKind().equals("Integer") || exprNode.getKind().equals("Boolean")){
             this.codeModified = true;
             jmmNode.replace(exprNode);
         }
