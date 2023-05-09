@@ -9,6 +9,7 @@ import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp2023.ollir.OllirUtils;
+import pt.up.fe.comp2023.semantic.MySymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +17,26 @@ import java.util.List;
 public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimization {
     String code = "";
     List<Report> reports = new ArrayList<>();
-    private SymbolTable table;
+    private final SymbolTable table;
     int tempVarId = 0;
+
+
+    public Optimization(JmmSemanticsResult semanticsResult){
+        this.table = semanticsResult.getSymbolTable();
+    }
 
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
-        table = semanticsResult.getSymbolTable();
         visit(semanticsResult.getRootNode());
         code += "} \n";
         System.out.println(code);
         return new OllirResult(semanticsResult, code, reports);
+    }
+
+    @Override
+    public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
+        //TODO
+        return JmmOptimization.super.optimize(semanticsResult);
     }
 
     @Override

@@ -76,7 +76,7 @@ public class Launcher {
             //TODO: apply optimizations (constant propagation and constant folding)
         }
 
-        Optimization optimization = new Optimization();
+        Optimization optimization = new Optimization(semanticsResult);
         OllirResult ollirResult = optimization.toOllir(semanticsResult);
 
         JasminGenerator jasminGenerator = new JasminGenerator();
