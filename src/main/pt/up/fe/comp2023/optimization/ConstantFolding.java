@@ -38,7 +38,20 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
     }
 
     private Void computeParenthesesExprResult(JmmNode jmmNode, Void unused) {
-        //TODO
+        System.out.println("Parentheses Expr");
+        visit(jmmNode.getJmmChild(0));
+        JmmNode exprNode = jmmNode.getJmmChild(0);
+
+        if(exprNode.getKind().equals("Integer")){
+            this.codeModified = true;
+            jmmNode.replace(exprNode);
+        }
+
+        else if(exprNode.getKind().equals("Boolean")){
+            this.codeModified = true;
+            jmmNode.replace(exprNode);
+        }
+
         return null;
     }
 

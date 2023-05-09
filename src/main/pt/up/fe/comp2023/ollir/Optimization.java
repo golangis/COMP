@@ -19,16 +19,12 @@ import java.util.List;
 public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimization {
     String code = "";
     List<Report> reports = new ArrayList<>();
-    private final SymbolTable table;
+    private SymbolTable table;
     int tempVarId = 0;
-
-
-    public Optimization(JmmSemanticsResult semanticsResult){
-        this.table = semanticsResult.getSymbolTable();
-    }
 
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
+        this.table = semanticsResult.getSymbolTable();
         visit(semanticsResult.getRootNode());
         code += "} \n";
         System.out.println(code);
@@ -44,7 +40,6 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         while(codeModified){
             codeModified = constantFolding.apply(); //TODO: change to constantPropagation.aplly() || constantFolding.apply()
         }
-
         return semanticsResult;
     }
 

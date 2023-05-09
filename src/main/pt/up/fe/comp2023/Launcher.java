@@ -71,12 +71,17 @@ public class Launcher {
         // Check if there are semantic errors
         TestUtils.noErrors(semanticsResult.getReports());
 
+        Optimization optimization = new Optimization();
+
         if(Boolean.parseBoolean(config.get("optimize"))){
             System.out.println("Applying optimizations...");
-            //TODO: apply optimizations (constant propagation and constant folding)
+
+            optimization.optimize(semanticsResult);
+
+            // Output AST after optimizations
+            System.out.println(semanticsResult.getRootNode().toTree());
         }
 
-        Optimization optimization = new Optimization(semanticsResult);
         OllirResult ollirResult = optimization.toOllir(semanticsResult);
 
         JasminGenerator jasminGenerator = new JasminGenerator();
