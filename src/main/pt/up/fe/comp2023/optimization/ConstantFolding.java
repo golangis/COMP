@@ -6,7 +6,7 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
 public class ConstantFolding extends AJmmVisitor<Void, Void> {
-    private JmmSemanticsResult semanticsResult;
+    private final JmmSemanticsResult semanticsResult;
     private SymbolTable symbolTable;
     private String currentMethodName;
     private boolean codeModified;
@@ -51,7 +51,16 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
     }
 
     private Void negateBooleanExpr(JmmNode jmmNode, Void unused) {
-        //TODO
+        visit(jmmNode.getJmmChild(0));
+        JmmNode exprNode = jmmNode.getJmmChild(0);
+
+        if (exprNode.getKind().equals("Boolean")) {
+            this.codeModified = true;
+            boolean exprValue = Boolean.parseBoolean(exprNode.get("value"));
+            exprNode.put("value", String.valueOf(!exprValue));
+            jmmNode.replace(exprNode);
+        }
+
         return null;
     }
 
