@@ -63,19 +63,20 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
     private Void dealWithCondition(JmmNode jmmNode, Void unused) {
         code += "\t\t"; visit(jmmNode.getJmmChild(0)); code += ";\n";
+        var ifId = tempVarId++;
 
         // Condition statement
-        code += "\t\tif (" + temp + ") goto ifz;\n";
+        code += "\t\tif (" + temp + ") goto if" + ifId + ";\n";
 
         // What occurs if the condition isn't met
         code += "\t\t\t"; visit(jmmNode.getJmmChild(2));
-        code += "\t\t\tgoto endif;\n";
+        code += "\t\t\tgoto endif" + ifId + ";\n";
 
         // What occurs if the condition is met
-        code += "\t\tifz:\n\t"; visit(jmmNode.getJmmChild(1));
+        code += "\t\tif" + ifId + ":\n\t"; visit(jmmNode.getJmmChild(1));
 
         // End of If
-        code +="\t\tendif:\n\t";
+        code +="\t\tendif" + ifId + ":\n\t";
 
 
         return null;
