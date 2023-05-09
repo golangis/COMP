@@ -62,7 +62,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithCondition(JmmNode jmmNode, Void unused) {
-        code += "\t"; visit(jmmNode.getJmmChild(0)); code += ";\n";
+        code += "\t\t"; visit(jmmNode.getJmmChild(0)); code += ";\n";
 
         // Condition statement
         code += "\t\tif (" + temp + ") goto ifz;\n";
@@ -239,6 +239,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithArraySubscript(JmmNode jmmNode, Void unused) {
+
         for (var child : jmmNode.getChildren())
             visit(child);
 
