@@ -71,6 +71,11 @@ public class Launcher {
         // Check if there are semantic errors
         TestUtils.noErrors(semanticsResult.getReports());
 
+        if(Boolean.parseBoolean(config.get("optimize"))){
+            System.out.println("Applying optimizations...");
+            //TODO: apply optimizations (constant propagation and constant folding)
+        }
+
         Optimization optimization = new Optimization();
         OllirResult ollirResult = optimization.toOllir(semanticsResult);
 
@@ -85,16 +90,20 @@ public class Launcher {
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
 
         // Check if there is at least one argument
-        if (args.length != 1) {
-            throw new RuntimeException("Expected a single argument, a path to an existing input file.");
+        if (args.length < 1) {
+            throw new RuntimeException("Usage: ./jmm <file_path> [-o]");
         }
 
         // Create config
         Map<String, String> config = new HashMap<>();
         config.put("inputFile", args[0]);
-        config.put("optimize", "false");
         config.put("registerAllocation", "-1");
         config.put("debug", "false");
+
+        if (Arrays.asList(args).contains("-o"))
+            config.put("optimize", "true");
+        else
+            config.put("optimize", "false");
 
         return config;
     }
