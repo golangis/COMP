@@ -3,6 +3,7 @@ package pt.up.fe.comp2023.optimization;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 
 public class ConstantFolding extends AJmmVisitor<Void, Void> {
     private final JmmSemanticsResult semanticsResult;
@@ -91,14 +92,14 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
             this.codeModified = true;
             int leftValue = Integer.parseInt(leftExpr.get("value"));
             int rightValue = Integer.parseInt(rightExpr.get("value"));
+            JmmNodeImpl newNode = new JmmNodeImpl("Boolean");
 
             if (operator.equals("<"))
-                leftExpr.put("value", String.valueOf(leftValue < rightValue));
+                newNode.put("value", String.valueOf(leftValue < rightValue));
             else
-                leftExpr.put("value", String.valueOf(leftValue > rightValue));
+                newNode.put("value", String.valueOf(leftValue > rightValue));
 
-            //TODO: Change kind of leftExpr to a boolean
-            jmmNode.replace(leftExpr);
+            jmmNode.replace(newNode);
         }
         return null;
     }
