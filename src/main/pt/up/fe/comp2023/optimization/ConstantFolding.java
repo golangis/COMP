@@ -70,7 +70,25 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
     }
 
     private Void computeComparisonResult(JmmNode jmmNode, Void unused) {
-        //TODO
+        visit(jmmNode.getJmmChild(0));
+        visit(jmmNode.getJmmChild(1));
+        JmmNode leftExpr = jmmNode.getJmmChild(0);
+        JmmNode rightExpr = jmmNode.getJmmChild(1);
+        String operator = jmmNode.get("op");
+
+        if (leftExpr.getKind().equals("Integer") && rightExpr.getKind().equals("Integer")){
+            this.codeModified = true;
+            int leftValue = Integer.parseInt(leftExpr.get("value"));
+            int rightValue = Integer.parseInt(rightExpr.get("value"));
+
+            if (operator.equals("<"))
+                leftExpr.put("value", String.valueOf(leftValue < rightValue));
+            else
+                leftExpr.put("value", String.valueOf(leftValue > rightValue));
+            
+            //TODO: Change kind of leftExpr to a boolean
+            jmmNode.replace(leftExpr);
+        }
         return null;
     }
 
