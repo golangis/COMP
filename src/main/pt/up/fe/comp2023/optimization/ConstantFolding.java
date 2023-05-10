@@ -1,18 +1,14 @@
 package pt.up.fe.comp2023.optimization;
 
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
-import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
 public class ConstantFolding extends AJmmVisitor<Void, Void> {
     private final JmmSemanticsResult semanticsResult;
-    private SymbolTable symbolTable;
-    private String currentMethodName;
     private boolean codeModified;
     public ConstantFolding (JmmSemanticsResult semanticsResult){
         this.semanticsResult = semanticsResult;
-        this.symbolTable = semanticsResult.getSymbolTable();
     }
 
     public boolean apply(){
