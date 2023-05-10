@@ -35,10 +35,10 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
         ConstantPropagation constantPropagation = new ConstantPropagation(semanticsResult);
         ConstantFolding constantFolding = new ConstantFolding(semanticsResult);
-        boolean codeModified = constantFolding.apply(); //TODO: change to constantPropagation.aplly() || constantFolding.apply()
+        boolean codeModified = constantPropagation.apply() || constantFolding.apply();
 
         while(codeModified){
-            codeModified = constantFolding.apply(); //TODO: change to constantPropagation.aplly() || constantFolding.apply()
+            codeModified = constantPropagation.apply() || constantFolding.apply();
         }
         return semanticsResult;
     }
