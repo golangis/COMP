@@ -38,7 +38,6 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
     }
 
     private Void computeParenthesesExprResult(JmmNode jmmNode, Void unused) {
-        System.out.println("Parentheses Expr");
         visit(jmmNode.getJmmChild(0));
         JmmNode exprNode = jmmNode.getJmmChild(0);
 
@@ -46,7 +45,6 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
             this.codeModified = true;
             jmmNode.replace(exprNode);
         }
-
         return null;
     }
 
@@ -60,12 +58,29 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
             exprNode.put("value", String.valueOf(!exprValue));
             jmmNode.replace(exprNode);
         }
-
         return null;
     }
 
     private Void computeArithmeticExprResult(JmmNode jmmNode, Void unused) {
-        //TODO
+        visit(jmmNode.getJmmChild(0));
+        visit(jmmNode.getJmmChild(1));
+        JmmNode leftExpr = jmmNode.getJmmChild(0);
+        JmmNode rightExpr = jmmNode.getJmmChild(1);
+        String operator = jmmNode.get("op");
+
+        if (leftExpr.getKind().equals("Integer") && rightExpr.getKind().equals("Integer")){
+            this.codeModified = true;
+            int leftValue = Integer.parseInt(leftExpr.get("value"));
+            int rightValue = Integer.parseInt(rightExpr.get("value"));
+
+            switch (operator) {
+                case "+" -> leftExpr.put("value", String.valueOf(leftValue + rightValue));
+                case "-" -> leftExpr.put("value", String.valueOf(leftValue - rightValue));
+                case "*" -> leftExpr.put("value", String.valueOf(leftValue * rightValue));
+                case "/" -> leftExpr.put("value", String.valueOf(leftValue / rightValue));
+            }
+            jmmNode.replace(leftExpr);
+        }
         return null;
     }
 
@@ -85,7 +100,7 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
                 leftExpr.put("value", String.valueOf(leftValue < rightValue));
             else
                 leftExpr.put("value", String.valueOf(leftValue > rightValue));
-            
+
             //TODO: Change kind of leftExpr to a boolean
             jmmNode.replace(leftExpr);
         }
