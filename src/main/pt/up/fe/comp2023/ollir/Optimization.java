@@ -298,7 +298,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         temp = "t" + tempVarId++ + ".bool";
 
         code += temp + ":=.bool " + left + " " + jmmNode.get("op") + ".bool " + right;
-        if (condition.isEmpty() || cycle.isEmpty())
+        //if (condition.isEmpty() || cycle.isEmpty())
             code += ";\n";
         jmmNode.put("valueOl", temp);
 
