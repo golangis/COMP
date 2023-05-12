@@ -74,16 +74,13 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
         String constant = constants.get(identifierName);
 
         if(constant != null) {
-            if(constant.equals("true") || constant.equals("false")) {  //Boolean constant
-                JmmNode newNode = new JmmNodeImpl("Boolean");
-                jmmNode.replace(newNode);
-                this.codeModified = true;
-            }
-            else {  //Integer constant
-                JmmNode newNode = new JmmNodeImpl("Integer");
-                jmmNode.replace(newNode);
-                this.codeModified = true;
-            }
+            JmmNode newNode;
+            if(constant.equals("true") || constant.equals("false"))  //Boolean constant
+                newNode = new JmmNodeImpl("Boolean");
+            else  //Integer constant
+                newNode = new JmmNodeImpl("Integer");
+            jmmNode.replace(newNode);
+            this.codeModified = true;
         }
         return null;
     }
