@@ -57,6 +57,7 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
             else
                 jmmNode.getJmmParent().add(reachedCode, ifElseIndex);
             jmmNode.delete();
+            this.codeModified = true;
         }
 
         //condition value is undefined
