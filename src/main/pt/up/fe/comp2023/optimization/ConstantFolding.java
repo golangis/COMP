@@ -45,25 +45,25 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
         int ifElseIndex = jmmNode.getIndexOfSelf();
         visit(conditionNode);
 
-        //'else' block code is never reached (condition value == 'true')
+        //'else' block code is never reached (condition value is 'true')
         if (conditionNode.getKind().equals("Boolean") && conditionNode.get("value").equals("true")) {
             if (ifTrue.getKind().equals("CodeBlock")){
                 for(JmmNode child : ifTrue.getChildren())
-                    jmmNode.getJmmParent().setChild(child, child.getIndexOfSelf() + ifElseIndex);
+                    jmmNode.getJmmParent().add(child, child.getIndexOfSelf() + ifElseIndex);
             }
             else
-                jmmNode.getJmmParent().setChild(ifTrue, ifElseIndex);
+                jmmNode.getJmmParent().add(ifTrue, ifElseIndex);
             jmmNode.delete();
         }
 
-        //'if' block code is never executed (condition value == 'false')
+        //'if' block code is never executed (condition value is 'false')
         else if(conditionNode.getKind().equals("Boolean") && conditionNode.get("value").equals("false")) {
             if (ifFalse.getKind().equals("CodeBlock")){
                 for(JmmNode child : ifFalse.getChildren())
-                    jmmNode.getJmmParent().setChild(child, child.getIndexOfSelf() + ifElseIndex);
+                    jmmNode.getJmmParent().add(child, child.getIndexOfSelf() + ifElseIndex);
             }
             else
-                jmmNode.getJmmParent().setChild(ifFalse, ifElseIndex);
+                jmmNode.getJmmParent().add(ifFalse, ifElseIndex);
             jmmNode.delete();
         }
 
