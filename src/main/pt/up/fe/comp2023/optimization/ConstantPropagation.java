@@ -36,13 +36,19 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
         return null;
     }
 
-    private Void dealWithAssignment(JmmNode jmmNode, Map<String, String> stringStringMap) {
+    private Void dealWithAssignment(JmmNode jmmNode, Map<String, String> constants) {
         String varName = jmmNode.get("varname");
-        //TODO
+        JmmNode exprNode = jmmNode.getJmmChild(0);
+        visit(exprNode);
+
+        if (exprNode.getKind().equals("Integer") || exprNode.getKind().equals("Boolean"))
+            constants.put(varName, exprNode.get("value"));
+        else //Unknown Value
+            constants.remove(varName);
         return null;
     }
 
-    private Void dealWithIdentifier(JmmNode jmmNode, Map<String, String> stringStringMap) {
+    private Void dealWithIdentifier(JmmNode jmmNode, Map<String, String> constants) {
         //TODO
 
         return null;
