@@ -25,7 +25,6 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
         setDefaultVisit(this::setDefaultVisit);
         addVisit("Cycle", this::checkCycleCondition);
         addVisit("Condition", this::checkIfElseCondition);
-        //TODO: add visit to "Condition" and check the value of the condition
         addVisit("ParenthesesExpr", this::computeParenthesesExprResult);
         addVisit("NegationExpr", this::negateBooleanExpr);
         addVisit("ArithmeticExpr", this::computeArithmeticExprResult);
@@ -50,8 +49,10 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
             // if condition value is true, the code inside the 'ifCode' is executed
             // else, the code inside the 'elseCode' is executed.
             JmmNode reachedCode = conditionNode.get("value").equals("true") ? ifCode : elseCode;
-
             replaceIfElseWithReachedCode(jmmNode, reachedCode);
+
+            for(JmmNode child : reachedCode.getChildren())
+                visit(child);
             this.codeModified = true;
         }
 
@@ -68,7 +69,7 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
         visit(conditionNode);
 
         if (conditionNode.getKind().equals("Boolean") && conditionNode.get("value").equals("false")) { //Dead code
-            jmmNode.getJmmParent().removeJmmChild(jmmNode);
+            jmmNode.delete();
         }
         else { //Condition value is 'true' or undefined
             for (JmmNode child : jmmNode.getChildren())

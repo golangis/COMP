@@ -18,8 +18,8 @@ public class OptimizationUtils {
         jmmNode.delete();
     }
 
-    public static Map<String, String> intersectMaps (Map<String, String> map1, Map<String, String> map2){
-        Map<String, String> result = new HashMap<>();
+    public static void intersectMaps (Map<String, String> map1, Map<String, String> map2, Map<String, String> result){
+        result.clear();
 
         for (Map.Entry<String, String> entry : map1.entrySet()) {
             String key = entry.getKey();
@@ -28,6 +28,5 @@ public class OptimizationUtils {
             if (map2.containsKey(key) && map2.get(key).equals(value))
                 result.put(key, value);
         }
-        return result;
     }
 }

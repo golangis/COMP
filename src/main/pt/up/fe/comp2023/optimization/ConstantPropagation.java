@@ -7,6 +7,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import static pt.up.fe.comp2023.optimization.OptimizationUtils.*;
@@ -67,8 +68,10 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
             // if condition value is true, the code inside the 'ifTrue' node will be executed
             // else, the code inside the 'ifFalse' node will be executed.
             JmmNode reachedCode = conditionNode.get("value").equals("true") ? ifCode : elseCode;
-
             replaceIfElseWithReachedCode(jmmNode, reachedCode);
+
+            for(JmmNode child : reachedCode.getChildren())
+                visit(child, constants);
             this.codeModified = true;
         }
 
@@ -78,7 +81,7 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
 
             visit(ifCode, ifConstants);
             visit(elseCode, elseConstants);
-            constants = intersectMaps(ifConstants, elseConstants);
+            intersectMaps(ifConstants, elseConstants, constants);
         }
         return null;
     }
@@ -88,7 +91,7 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
         visit(conditionNode, constants);
 
         if(conditionNode.getKind().equals("Boolean") && conditionNode.get("value").equals("false")) //Dead code
-            jmmNode.getJmmParent().removeJmmChild(jmmNode);
+            jmmNode.delete();
         else {
             //TODO: check which variables are modified and remove them from the map
             for (JmmNode child: jmmNode.getChildren())
