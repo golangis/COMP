@@ -21,17 +21,34 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
     @Override
     protected void buildVisitor() {
         setDefaultVisit(this::setDefaultVisit);
+        addVisit("Cycle", this::checkCycleCondition);
+        //TODO: add visit to "Condition" and check the value of the condition
         addVisit("ParenthesesExpr", this::computeParenthesesExprResult);
         addVisit("NegationExpr", this::negateBooleanExpr);
         addVisit("ArithmeticExpr", this::computeArithmeticExprResult);
         addVisit("ComparisonExpr", this::computeComparisonResult);
         addVisit("LogicalExpr", this::computeLogicalExprResult);
+
     }
 
     private Void setDefaultVisit(JmmNode jmmNode, Void unused) {
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
         return null;
+    }
+
+    private Void checkCycleCondition(JmmNode jmmNode, Void unused) {
+        JmmNode conditionNode = jmmNode.getJmmChild(0);
+        visit(conditionNode);
+
+        if (conditionNode.getKind().equals("Boolean") && conditionNode.get("value").equals("false")) { //Dead code
+            jmmNode.getJmmParent().removeJmmChild(jmmNode);
+        }
+        else { //Condition value is 'true' or undefined
+            for (JmmNode child : jmmNode.getChildren())
+                visit(child);
+        }
+        return  null;
     }
 
     private Void computeParenthesesExprResult(JmmNode jmmNode, Void unused) {
