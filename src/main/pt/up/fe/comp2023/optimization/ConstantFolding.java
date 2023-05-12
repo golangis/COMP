@@ -35,8 +35,8 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
     }
 
     private Void computeParenthesesExprResult(JmmNode jmmNode, Void unused) {
-        visit(jmmNode.getJmmChild(0));
         JmmNode exprNode = jmmNode.getJmmChild(0);
+        visit(exprNode);
 
         if(exprNode.getKind().equals("Integer") || exprNode.getKind().equals("Boolean")){
             this.codeModified = true;
@@ -46,8 +46,8 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
     }
 
     private Void negateBooleanExpr(JmmNode jmmNode, Void unused) {
-        visit(jmmNode.getJmmChild(0));
         JmmNode exprNode = jmmNode.getJmmChild(0);
+        visit(exprNode);
 
         if (exprNode.getKind().equals("Boolean")) {
             this.codeModified = true;
@@ -59,11 +59,11 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
     }
 
     private Void computeArithmeticExprResult(JmmNode jmmNode, Void unused) {
-        visit(jmmNode.getJmmChild(0));
-        visit(jmmNode.getJmmChild(1));
         JmmNode leftExpr = jmmNode.getJmmChild(0);
         JmmNode rightExpr = jmmNode.getJmmChild(1);
         String operator = jmmNode.get("op");
+        visit(leftExpr);
+        visit(rightExpr);
 
         if (leftExpr.getKind().equals("Integer") && rightExpr.getKind().equals("Integer")){
             this.codeModified = true;
@@ -82,11 +82,11 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
     }
 
     private Void computeComparisonResult(JmmNode jmmNode, Void unused) {
-        visit(jmmNode.getJmmChild(0));
-        visit(jmmNode.getJmmChild(1));
         JmmNode leftExpr = jmmNode.getJmmChild(0);
         JmmNode rightExpr = jmmNode.getJmmChild(1);
         String operator = jmmNode.get("op");
+        visit(leftExpr);
+        visit(rightExpr);
 
         if (leftExpr.getKind().equals("Integer") && rightExpr.getKind().equals("Integer")){
             this.codeModified = true;
@@ -105,11 +105,11 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
     }
 
     private Void computeLogicalExprResult(JmmNode jmmNode, Void unused) {
-        visit(jmmNode.getJmmChild(0));
-        visit(jmmNode.getJmmChild(1));
         JmmNode leftExpr = jmmNode.getJmmChild(0);
         JmmNode rightExpr = jmmNode.getJmmChild(1);
         String operator = jmmNode.get("op");
+        visit(leftExpr);
+        visit(rightExpr);
 
         if (leftExpr.getKind().equals("Boolean") && rightExpr.getKind().equals("Boolean")){
             this.codeModified = true;
