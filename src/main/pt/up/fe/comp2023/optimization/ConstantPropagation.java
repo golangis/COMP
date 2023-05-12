@@ -2,17 +2,14 @@ package pt.up.fe.comp2023.optimization;
 
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
-import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
-import pt.up.fe.comp2023.semantic.MySymbolTable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static pt.up.fe.comp2023.optimization.OptimizationUtils.intersectMaps;
-import static pt.up.fe.comp2023.semantic.SemanticUtils.getIdentifierType;
+import static pt.up.fe.comp2023.optimization.OptimizationUtils.*;
 
 public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> {
     private final JmmSemanticsResult semanticsResult;
@@ -62,34 +59,26 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
 
     private Void checkIfElseCondition(JmmNode jmmNode, Map<String, String> constants) {
         JmmNode conditionNode = jmmNode.getJmmChild(0);
-        JmmNode ifTrue = jmmNode.getJmmChild(1);
-        JmmNode ifFalse = jmmNode.getJmmChild(2);
-        int ifElseIndex = jmmNode.getIndexOfSelf();
+        JmmNode ifCode = jmmNode.getJmmChild(1);
+        JmmNode elseCode = jmmNode.getJmmChild(2);
         visit(conditionNode, constants);
 
-        //TODO: [refactor] create a method to execute this changes
         if (conditionNode.getKind().equals("Boolean")) {
             // if condition value is true, the code inside the 'ifTrue' node will be executed
             // else, the code inside the 'ifFalse' node will be executed.
-            JmmNode reachedCode = conditionNode.get("value").equals("true") ? ifTrue : ifFalse;
+            JmmNode reachedCode = conditionNode.get("value").equals("true") ? ifCode : elseCode;
 
-            if (reachedCode.getKind().equals("CodeBlock")){
-                for(JmmNode child : reachedCode.getChildren())
-                    jmmNode.getJmmParent().add(child, child.getIndexOfSelf() + ifElseIndex);
-            }
-            else
-                jmmNode.getJmmParent().add(reachedCode, ifElseIndex);
-            jmmNode.delete();
+            replaceIfElseWithReachedCode(jmmNode, reachedCode);
             this.codeModified = true;
         }
 
         else {  //Condition value is undefined
-            Map<String, String> ifTrueConstants =  new HashMap<>(constants);
-            Map<String, String> ifFalseConstants =  new HashMap<>(constants);
+            Map<String, String> ifConstants =  new HashMap<>(constants);
+            Map<String, String> elseConstants =  new HashMap<>(constants);
 
-            visit(ifTrue, ifTrueConstants);
-            visit(ifFalse, ifFalseConstants);
-            constants = intersectMaps(ifTrueConstants, ifFalseConstants);
+            visit(ifCode, ifConstants);
+            visit(elseCode, elseConstants);
+            constants = intersectMaps(ifConstants, elseConstants);
         }
         return null;
     }

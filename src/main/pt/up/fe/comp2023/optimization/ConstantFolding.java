@@ -5,6 +5,8 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 
+import static pt.up.fe.comp2023.optimization.OptimizationUtils.*;
+
 public class ConstantFolding extends AJmmVisitor<Void, Void> {
     private final JmmSemanticsResult semanticsResult;
     private boolean codeModified;
@@ -40,30 +42,23 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
 
     private Void checkIfElseCondition(JmmNode jmmNode, Void unused) {
         JmmNode conditionNode = jmmNode.getJmmChild(0);
-        JmmNode ifTrue = jmmNode.getJmmChild(1);
-        JmmNode ifFalse = jmmNode.getJmmChild(2);
-        int ifElseIndex = jmmNode.getIndexOfSelf();
+        JmmNode ifCode = jmmNode.getJmmChild(1);
+        JmmNode elseCode = jmmNode.getJmmChild(2);
         visit(conditionNode);
 
         if (conditionNode.getKind().equals("Boolean")) {
-            // if condition value is true, the code inside the 'ifTrue' node will be executed
-            // else, the code inside the 'ifFalse' node will be executed.
-            JmmNode reachedCode = conditionNode.get("value").equals("true") ? ifTrue : ifFalse;
+            // if condition value is true, the code inside the 'ifCode' is executed
+            // else, the code inside the 'elseCode' is executed.
+            JmmNode reachedCode = conditionNode.get("value").equals("true") ? ifCode : elseCode;
 
-            if (reachedCode.getKind().equals("CodeBlock")){
-                for(JmmNode child : reachedCode.getChildren())
-                    jmmNode.getJmmParent().add(child, child.getIndexOfSelf() + ifElseIndex);
-            }
-            else
-                jmmNode.getJmmParent().add(reachedCode, ifElseIndex);
-            jmmNode.delete();
+            replaceIfElseWithReachedCode(jmmNode, reachedCode);
             this.codeModified = true;
         }
 
         //condition value is undefined
         else {
-            visit(ifTrue);
-            visit(ifFalse);
+            visit(ifCode);
+            visit(elseCode);
         }
         return null;
     }
