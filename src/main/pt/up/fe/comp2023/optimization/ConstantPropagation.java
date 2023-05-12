@@ -2,11 +2,16 @@ package pt.up.fe.comp2023.optimization;
 
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
+import pt.up.fe.comp2023.semantic.MySymbolTable;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static pt.up.fe.comp2023.semantic.SemanticUtils.getIdentifierType;
 
 public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> {
     private final JmmSemanticsResult semanticsResult;
@@ -48,7 +53,7 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
         constants.clear();
 
         for (JmmNode child: jmmNode.getChildren())
-            visit(child, constants);
+            visit(child, constants); //each statement modifies the map
         return null;
     }
 
@@ -66,7 +71,20 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
 
     private Void dealWithIdentifier(JmmNode jmmNode, Map<String, String> constants) {
         String identifierName = jmmNode.get("value");
+        String constant = constants.get(identifierName);
 
+        if(constant != null) {
+            if(constant.equals("true") || constant.equals("false")) {  //Boolean constant
+                JmmNode newNode = new JmmNodeImpl("Boolean");
+                jmmNode.replace(newNode);
+                this.codeModified = true;
+            }
+            else {  //Integer constant
+                JmmNode newNode = new JmmNodeImpl("Integer");
+                jmmNode.replace(newNode);
+                this.codeModified = true;
+            }
+        }
         return null;
     }
 
