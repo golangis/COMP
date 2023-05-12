@@ -38,6 +38,7 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
         addVisit("MethodDecl", this::changeCurrentMethodName);
         addVisit("VoidMethodDecl", this::changeCurrentMethodName);
         addVisit("MainMethodDecl", this::changeCurrentMethodName);
+        addVisit("Cycle", this::dealWithCycle);
         addVisit("Assignment", this::dealWithAssignment);
         addVisit("Identifier", this::dealWithIdentifier);
     }
@@ -54,6 +55,20 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
 
         for (JmmNode child: jmmNode.getChildren())
             visit(child, constants); //each statement modifies the map
+        return null;
+    }
+
+    private Void dealWithCycle(JmmNode jmmNode, Map<String, String> constants) {
+        JmmNode conditionNode = jmmNode.getJmmChild(0);
+        visit(conditionNode, constants);
+
+        if(conditionNode.getKind().equals("Boolean") && conditionNode.get("value").equals("false")) //Dead code
+            jmmNode.getJmmParent().removeJmmChild(jmmNode);
+        else {
+            //TODO: check which variables are modified and remove them from the map
+            for (JmmNode child: jmmNode.getChildren())
+                visit(child, constants); //each statement modifies the map
+        }
         return null;
     }
 
