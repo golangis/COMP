@@ -70,6 +70,7 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
 
         if (conditionNode.getKind().equals("Boolean") && conditionNode.get("value").equals("false")) { //Dead code
             jmmNode.delete();
+            this.codeModified = true;
         }
         else { //Condition value is 'true' or undefined
             for (JmmNode child : jmmNode.getChildren())

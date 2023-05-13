@@ -6,9 +6,7 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 import static pt.up.fe.comp2023.optimization.OptimizationUtils.*;
 
@@ -87,16 +85,13 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
     }
 
     private Void dealWithCycle(JmmNode jmmNode, Map<String, String> constants) {
-        JmmNode conditionNode = jmmNode.getJmmChild(0);
-        visit(conditionNode, constants);
+        Map <String, String> oldConstants = new HashMap<>(constants);
+        Map <String, String> cycleConstants = new HashMap<>(constants);
 
-        if(conditionNode.getKind().equals("Boolean") && conditionNode.get("value").equals("false")) //Dead code
-            jmmNode.delete();
-        else {
-            //TODO: check which variables are modified and remove them from the map
-            for (JmmNode child: jmmNode.getChildren())
-                visit(child, constants); //each statement modifies the map
-        }
+        for (JmmNode child: jmmNode.getChildren())
+            visit(child, cycleConstants);
+
+        intersectMaps(cycleConstants, oldConstants, constants);
         return null;
     }
 
