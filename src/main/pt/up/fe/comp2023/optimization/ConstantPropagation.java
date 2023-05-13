@@ -12,13 +12,10 @@ import static pt.up.fe.comp2023.optimization.OptimizationUtils.*;
 
 public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> {
     private final JmmSemanticsResult semanticsResult;
-    private final SymbolTable symbolTable;  //TODO: remove
-    private String currentMethodName;   //TODO: remove
     private boolean codeModified;
 
     public ConstantPropagation (JmmSemanticsResult semanticsResult){
         this.semanticsResult = semanticsResult;
-        this.symbolTable = semanticsResult.getSymbolTable();
     }
 
     public boolean apply(){
@@ -32,10 +29,10 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
     @Override
     protected void buildVisitor() {
         setDefaultVisit(this::setDefaultVisit);
-        addVisit("MethodDecl", this::changeCurrentMethodName);
-        addVisit("VoidMethodDecl", this::changeCurrentMethodName);
-        addVisit("MainMethodDecl", this::changeCurrentMethodName);
-        addVisit("Condition", this::checkIfElseCondition);
+        addVisit("MethodDecl", this::clearConstants);
+        addVisit("VoidMethodDecl", this::clearConstants);
+        addVisit("MainMethodDecl", this::clearConstants);
+        addVisit("Condition", this::dealWithCondition);
         addVisit("Cycle", this::dealWithCycle);
         addVisit("Assignment", this::dealWithAssignment);
         addVisit("Identifier", this::dealWithIdentifier);
@@ -47,8 +44,7 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
         return null;
     }
 
-    private Void changeCurrentMethodName(JmmNode jmmNode, Map<String, String> constants) {
-        this.currentMethodName = jmmNode.get("methodname"); //TODO: remove
+    private Void clearConstants(JmmNode jmmNode, Map<String, String> constants) {
         constants.clear();
 
         for (JmmNode child: jmmNode.getChildren())
@@ -56,7 +52,7 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
         return null;
     }
 
-    private Void checkIfElseCondition(JmmNode jmmNode, Map<String, String> constants) {
+    private Void dealWithCondition(JmmNode jmmNode, Map<String, String> constants) {
         JmmNode conditionNode = jmmNode.getJmmChild(0);
         JmmNode ifCode = jmmNode.getJmmChild(1);
         JmmNode elseCode = jmmNode.getJmmChild(2);
