@@ -60,27 +60,13 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
         JmmNode conditionNode = jmmNode.getJmmChild(0);
         JmmNode ifCode = jmmNode.getJmmChild(1);
         JmmNode elseCode = jmmNode.getJmmChild(2);
+        Map<String, String> ifConstants =  new HashMap<>(constants);
+        Map<String, String> elseConstants =  new HashMap<>(constants);
+
         visit(conditionNode, constants);
-
-        if (conditionNode.getKind().equals("Boolean")) {
-            // if condition value is true, the code inside the 'ifTrue' node will be executed
-            // else, the code inside the 'ifFalse' node will be executed.
-            JmmNode reachedCode = conditionNode.get("value").equals("true") ? ifCode : elseCode;
-            replaceIfElseWithReachedCode(jmmNode, reachedCode);
-
-            for(JmmNode child : reachedCode.getChildren())
-                visit(child, constants);
-            this.codeModified = true;
-        }
-
-        else {  //Condition value is undefined
-            Map<String, String> ifConstants =  new HashMap<>(constants);
-            Map<String, String> elseConstants =  new HashMap<>(constants);
-
-            visit(ifCode, ifConstants);
-            visit(elseCode, elseConstants);
-            intersectMaps(ifConstants, elseConstants, constants);
-        }
+        visit(ifCode, ifConstants);
+        visit(elseCode, elseConstants);
+        intersectMaps(ifConstants, elseConstants, constants);
         return null;
     }
 
