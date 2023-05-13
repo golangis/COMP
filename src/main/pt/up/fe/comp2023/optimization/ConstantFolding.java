@@ -23,8 +23,6 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
     @Override
     protected void buildVisitor() {
         setDefaultVisit(this::setDefaultVisit);
-        addVisit("Cycle", this::checkCycleCondition);
-        addVisit("Condition", this::checkIfElseCondition);
         addVisit("ParenthesesExpr", this::computeParenthesesExprResult);
         addVisit("NegationExpr", this::negateBooleanExpr);
         addVisit("ArithmeticExpr", this::computeArithmeticExprResult);
@@ -37,46 +35,6 @@ public class ConstantFolding extends AJmmVisitor<Void, Void> {
         for (JmmNode child: jmmNode.getChildren())
             visit(child);
         return null;
-    }
-
-    private Void checkIfElseCondition(JmmNode jmmNode, Void unused) {
-        JmmNode conditionNode = jmmNode.getJmmChild(0);
-        JmmNode ifCode = jmmNode.getJmmChild(1);
-        JmmNode elseCode = jmmNode.getJmmChild(2);
-        visit(conditionNode);
-
-        if (conditionNode.getKind().equals("Boolean")) {
-            // if condition value is true, the code inside the 'ifCode' is executed
-            // else, the code inside the 'elseCode' is executed.
-            JmmNode reachedCode = conditionNode.get("value").equals("true") ? ifCode : elseCode;
-            replaceIfElseWithReachedCode(jmmNode, reachedCode);
-
-            for(JmmNode child : reachedCode.getChildren())
-                visit(child);
-            this.codeModified = true;
-        }
-
-        //condition value is undefined
-        else {
-            visit(ifCode);
-            visit(elseCode);
-        }
-        return null;
-    }
-
-    private Void checkCycleCondition(JmmNode jmmNode, Void unused) {
-        JmmNode conditionNode = jmmNode.getJmmChild(0);
-        visit(conditionNode);
-
-        if (conditionNode.getKind().equals("Boolean") && conditionNode.get("value").equals("false")) { //Dead code
-            jmmNode.delete();
-            this.codeModified = true;
-        }
-        else { //Condition value is 'true' or undefined
-            for (JmmNode child : jmmNode.getChildren())
-                visit(child);
-        }
-        return  null;
     }
 
     private Void computeParenthesesExprResult(JmmNode jmmNode, Void unused) {
