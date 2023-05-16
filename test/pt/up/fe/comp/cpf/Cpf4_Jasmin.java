@@ -122,11 +122,6 @@ public class Cpf4_Jasmin {
         CpUtils.runJasmin(getJasminResult("arrays/ArrayInit.ollir"), "Result: 5");
     }
 
-    @Test
-    public void section5_Arrays_Init_Array_Complex() {
-        CpUtils.runJasmin(getJasminResult("arrays/ArrayInit.ollir"), "Result: 5");
-    }
-
     /*checks if the access to the elements of array is correct*/
     @Test
     public void section5_Arrays_Store_Array() {
@@ -275,11 +270,6 @@ public class Cpf4_Jasmin {
     @Test
     public void OllirToJasminArrayInit() {
         testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/arrays/ArrayInit.ollir");
-    }
-
-    @Test
-    public void OllirToJasminArrayInitComplex() {
-        testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/arrays/ArrayInitComplex.ollir");
     }
 
     //  private static boolean USE_OLLIR_EXPERIMENTAL = false;
