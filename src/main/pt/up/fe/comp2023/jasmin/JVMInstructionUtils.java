@@ -110,9 +110,10 @@ public class JVMInstructionUtils {
         return "\tinvokespecial " + createInvokeInstructionArgument(instruction, false);
     }
 
-    public static String getNewInstruction(Operand firstArg) {
+    public static String getNewInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
-        statementList += "\tnew " + firstArg.getName() + '\n';
+        statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
+        statementList += "\tnew " + ((Operand)instruction.getFirstArg()).getName() + '\n';
         statementList += "\tdup\n";
         return statementList;
     }
@@ -186,7 +187,7 @@ public class JVMInstructionUtils {
 
         switch (instruction.getInvocationType()) {
             case NEW:
-                statementList += getNewInstruction((Operand)instruction.getFirstArg());
+                statementList += getNewInstruction(instruction, varTable);
                 break;
             case invokespecial:
                 statementList += getInvokeSpecialInstruction(instruction, varTable);
