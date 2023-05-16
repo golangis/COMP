@@ -4,6 +4,7 @@ import org.specs.comp.ollir.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.Math.abs;
@@ -118,6 +119,13 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
+    public static String getNewArrayInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
+        String statementList = "";
+        statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
+        statementList += "\tnewarray int\n"; // TODO: change array type
+        return statementList;
+    }
+
     public static String createUnaryOpStatement(UnaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
         statementList += getLoadInstruction(instruction.getOperand(), varTable);
@@ -187,7 +195,10 @@ public class JVMInstructionUtils {
 
         switch (instruction.getInvocationType()) {
             case NEW:
-                statementList += getNewInstruction(instruction, varTable);
+                if (Objects.equals(((Operand) instruction.getFirstArg()).getName(), "array"))
+                    statementList += getNewArrayInstruction(instruction, varTable);
+                else
+                    statementList += getNewInstruction(instruction, varTable);
                 break;
             case invokespecial:
                 statementList += getInvokeSpecialInstruction(instruction, varTable);
