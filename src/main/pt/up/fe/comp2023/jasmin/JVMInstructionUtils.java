@@ -2,9 +2,7 @@ package pt.up.fe.comp2023.jasmin;
 
 import org.specs.comp.ollir.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.Math.abs;
@@ -77,7 +75,8 @@ public class JVMInstructionUtils {
     public static String loadInvokeArguments(ArrayList<Element> listOfOperands, HashMap<String, Descriptor> varTable) {
         String statementList = "";
         for (Element argument: listOfOperands) {
-            statementList += getLoadInstruction(argument, varTable); }
+            statementList += getLoadInstruction(argument, varTable);
+        }
         return statementList;
     }
 
@@ -122,7 +121,14 @@ public class JVMInstructionUtils {
     public static String getNewArrayInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
         String statementList = "";
         statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
-        statementList += "\tnewarray int\n"; // TODO: change array type
+        statementList += "\tnewarray int\n";
+        return statementList;
+    }
+
+    public static String getArrayLengthInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
+        String statementList = "";
+        statementList += getLoadInstruction(instruction.getFirstArg(), varTable);
+        statementList += "\tarraylength\n";
         return statementList;
     }
 
@@ -210,6 +216,7 @@ public class JVMInstructionUtils {
                 statementList += getInvokeVirtualInstruction(instruction, varTable);
                 break;
             case arraylength:
+                statementList += getArrayLengthInstruction(instruction, varTable);
                 break;
             case ldc:
                 statementList += "\tldc " + ((LiteralElement)instruction.getFirstArg()).getLiteral() + '\n';
