@@ -73,22 +73,16 @@ public class Launcher {
 
         // Optimization optimization = new Optimization();
         // OllirResult ollirResult = optimization.toOllir(semanticsResult);
-        String ollirCode = "import io;\n" +
-                "Arithmetic_and {\n" +
+        String ollirCode = "import ioPlus;\n" +
+                "ArrayInit {\n" +
                 "\n" +
-                "    .construct Arithmetic_and().V {\n" +
+                "    .construct ArrayInit().V {\n" +
                 "        invokespecial(this, \"<init>\").V;\n" +
                 "    }\n" +
                 "\n" +
                 "    .method public static main(args.array.String).V {\n" +
-                "        a.bool :=.bool 1.bool &&.bool 0.bool;\n" +
-                "\n" +
-                "        if (a.bool) goto ifbody_0;\n" +
-                "            invokestatic(io, \"print\", 0.i32).V;\n" +
-                "        goto endif_0;\n" +
-                "        ifbody_0:\n" +
-                "            invokestatic(io, \"print\", 1.i32).V;\n" +
-                "        endif_0:\n" +
+                "        temp0.i32 :=.i32 5.i32;\n" +
+                "        a.array.i32 :=.array.i32 new(array, temp0.i32).array.i32;\n" +
                 "\n" +
                 "        ret.V;\n" +
                 "    }\n" +
