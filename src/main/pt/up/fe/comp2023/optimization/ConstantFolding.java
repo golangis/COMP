@@ -5,8 +5,6 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 
-import static pt.up.fe.comp2023.optimization.OptimizationUtils.*;
-
 public class ConstantFolding extends AJmmVisitor<Void, Void> {
     private final JmmSemanticsResult semanticsResult;
     private boolean codeModified;
