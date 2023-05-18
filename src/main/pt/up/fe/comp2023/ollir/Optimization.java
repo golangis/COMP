@@ -3,12 +3,11 @@ package pt.up.fe.comp2023.ollir;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
-import pt.up.fe.comp.jmm.ast.AJmmVisitor;
-import pt.up.fe.comp2023.ollir.OllirUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -330,8 +329,62 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithArrayAssignment(JmmNode jmmNode, Void unused) {
-        for (var child : jmmNode.getChildren())
-            visit(child);
+        var method = jmmNode.getAncestor("MethodDecl");
+        var voidMethod = jmmNode.getAncestor("VoidMethodDecl");
+        var mainMethod = jmmNode.getAncestor("MainMethodDecl");
+        Symbol var = null;
+        boolean isLocal = false, isParam = false, isField = false;
+        int idParam = 0;
+        String left = jmmNode.get("arrayname");
+
+        if (method.isPresent() || voidMethod.isPresent() || mainMethod.isPresent()) {
+            var methodName = mainMethod.isPresent() ? "main" : method.orElseGet(voidMethod::get).get("methodname");
+            List<Symbol> localVarClass = table.getLocalVariables(methodName);
+            List<Symbol> paramsOnClass = table.getParameters(methodName);
+
+            // Check if local var
+            for (Symbol lv : localVarClass)
+                if (lv.getName().equals(left)) {
+                    var = lv;
+                    isLocal = true;
+                }
+
+            // If not local var, then check if param
+            if (var == null)
+                for (int p = 0; p < paramsOnClass.size(); p++)
+                    if (paramsOnClass.get(p).getName().equals(left)) {
+                        var = paramsOnClass.get(p);
+                        isParam = true;
+                        idParam = p + 1;
+                    }
+        }
+
+        List<Symbol> fields = table.getFields();
+
+        // If not local nor param, check if field
+        if (var == null)
+            for (Symbol f : fields)
+                if (f.getName().equals(left)) {
+                    var = f;
+                    isField = true;
+                }
+
+        JmmNode right = jmmNode.getChildren().get(0);
+        JmmNode last = jmmNode.getChildren().get(1);
+        visit(right);
+
+        if (isLocal)
+            code += "\t\t" + left + "[" ;
+        else if (isParam)
+            code += "\t\t$" + idParam + '.' + left  + "[";
+        else if (isField)
+            code += "\t\tputfield(this, " + left + "[";
+
+        code += right.get("valueOl") +  "].i32 :=.i32 ";
+
+        visit(last);
+
+        code += last.get("valueOl") +";\n";
 
         return null;
     }
