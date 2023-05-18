@@ -11,7 +11,6 @@ import static java.lang.Math.pow;
 public class JVMInstructionUtils {
 
     public static String getLoadInstruction(Element element, HashMap<String, Descriptor> varTable) {
-        System.out.println(element.getType());
         if (element.isLiteral()) {
             int literal = parseInt(((LiteralElement)element).getLiteral());
             if (literal >= 0 && literal <= 5)
@@ -194,10 +193,18 @@ public class JVMInstructionUtils {
 
     public static String createAssignStatement(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
         Element assignElement = instruction.getDest();
-
         String statementList = "";
+
+        if (assignElement instanceof ArrayOperand) {
+            statementList += getLoadInstruction(assignElement, varTable);
+            statementList += getLoadInstruction(((ArrayOperand)assignElement).getIndexOperands().get(0), varTable);
+        }
+
         statementList += JasminUtils.handleInstruction(instruction.getRhs(), varTable, true);
-        statementList += getStoreInstruction(assignElement, varTable);
+        if (assignElement instanceof ArrayOperand)
+            statementList += "\tiastore\n";
+        else
+            statementList += getStoreInstruction(assignElement, varTable);
         return statementList;
     }
 
