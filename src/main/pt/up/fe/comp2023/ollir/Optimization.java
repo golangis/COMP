@@ -249,7 +249,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         return null;
     }
 
-    private Void dealWithLenFieldAccess(JmmNode jmmNode, Void unused) {
+    private Void dealWithFieldDeclaration(JmmNode jmmNode, Void unused) {
         List<Symbol> fieldsOnClass = table.getFields();
         for (Symbol currField : fieldsOnClass) {
             code += "\t.field private " + currField.getName() + OllirUtils.ollirTypes(currField.getType()) + ";\n";
@@ -257,11 +257,24 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         return null;
     }
 
+    private Void dealWithLenFieldAccess(JmmNode jmmNode, Void unused) {
+        JmmNode caller = jmmNode.getJmmChild(0);
+        visit(caller);
+        jmmNode.put("valueOl", "t" + tempVarId + ".i32");
+        String caller_name = caller.get("valueOl");
+        code += "t" + tempVarId++ + ".i32 :=.i32 arraylength(" + caller_name  + ").i32;";
+        return null;
+    }
+
     private Void dealWithArraySubscript(JmmNode jmmNode, Void unused) {
-
-        for (var child : jmmNode.getChildren())
-            visit(child);
-
+        JmmNode left = jmmNode.getJmmChild(0);
+        JmmNode right = jmmNode.getJmmChild(1);
+        visit(left);
+        visit(right);
+        String leftS = left.get("valueOl");
+        String rightS = right.get("valueOl");
+        code += "\t\tt" + tempVarId + ".i32 :=.i32 " + leftS + "[" + rightS + "].i32;\n";
+        jmmNode.put("valueOl", "t" + tempVarId++ + ".i32");
         return null;
     }
 
@@ -561,7 +574,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             code += table.getClassName() + " {\n";
         else
             code += table.getClassName() + " extends " + superClass + "{\n";
-        dealWithLenFieldAccess(jmmNode, unused);
+        dealWithFieldDeclaration(jmmNode, unused);
 
         // Constructor
         code += "\t.construct " + table.getClassName() + "().V {\n" + "\t\tinvokespecial(this, \"<init>\").V;\n\t}\n";
