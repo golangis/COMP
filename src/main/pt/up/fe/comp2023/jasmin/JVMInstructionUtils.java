@@ -11,6 +11,7 @@ import static java.lang.Math.pow;
 public class JVMInstructionUtils {
 
     public static String getLoadInstruction(Element element, HashMap<String, Descriptor> varTable) {
+        System.out.println(element.getType());
         if (element.isLiteral()) {
             int literal = parseInt(((LiteralElement)element).getLiteral());
             if (literal >= 0 && literal <= 5)
@@ -24,7 +25,11 @@ public class JVMInstructionUtils {
             return "\tldc " + literal + '\n';
         }
 
-        ElementType elementType = element.getType().getTypeOfElement();
+        ElementType elementType;
+        if (element instanceof ArrayOperand)
+            elementType = ElementType.ARRAYREF;
+        else
+            elementType = element.getType().getTypeOfElement();
         int virtualReg = varTable.get(((Operand)element).getName()).getVirtualReg();
         switch (elementType) {
             case THIS:
