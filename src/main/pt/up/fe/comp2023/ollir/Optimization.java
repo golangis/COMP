@@ -374,13 +374,14 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         visit(right);
 
         if (isLocal)
-            code += "\t\t" + left + "[" ;
+            code += "\t\t" + left;
         else if (isParam)
-            code += "\t\t$" + idParam + '.' + left  + "[";
+            code += "\t\t$" + idParam + '.' + left;
         else if (isField)
-            code += "\t\tputfield(this, " + left + "[";
+            code += "\t\tt" + tempVarId + ".array.i32 :=.array.i32 getfield(this, " + left + ".array.i32).array.i32;" +
+                    "\n\t\tt" + tempVarId++;
 
-        code += right.get("valueOl") +  "].i32 :=.i32 ";
+        code += "[" + right.get("valueOl") +  "].i32 :=.i32 ";
 
         visit(last);
 
