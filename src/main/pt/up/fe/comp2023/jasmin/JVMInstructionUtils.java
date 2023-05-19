@@ -195,7 +195,12 @@ public class JVMInstructionUtils {
     }
 
     public static String createNoperInstruction(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
-        return getLoadInstruction(instruction.getSingleOperand(), varTable);
+        Element operand = instruction.getSingleOperand();
+        if (operand instanceof ArrayOperand) {
+            return getArrayLoadInstruction((ArrayOperand)operand, varTable)
+                    + "\tiaload\n";
+        }
+        return getLoadInstruction(operand, varTable);
     }
 
     public static String createAssignStatement(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
