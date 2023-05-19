@@ -47,6 +47,13 @@ public class JVMInstructionUtils {
         return "";
     }
 
+    public static String getArrayLoadInstruction(ArrayOperand array, HashMap<String, Descriptor> varTable) {
+        String statementList = "";
+        statementList += getLoadInstruction(array, varTable);
+        statementList += getLoadInstruction(array.getIndexOperands().get(0), varTable);
+        return statementList;
+    }
+
     public static String getStoreInstruction(Element element, HashMap<String, Descriptor> varTable) {
         int virtualReg = varTable.get(((Operand)element).getName()).getVirtualReg();
 
@@ -195,11 +202,8 @@ public class JVMInstructionUtils {
         Element assignElement = instruction.getDest();
         String statementList = "";
 
-        if (assignElement instanceof ArrayOperand) {
-            statementList += getLoadInstruction(assignElement, varTable);
-            statementList += getLoadInstruction(((ArrayOperand)assignElement).getIndexOperands().get(0), varTable);
-        }
-
+        if (assignElement instanceof ArrayOperand)
+            statementList += getArrayLoadInstruction((ArrayOperand)assignElement, varTable);
         statementList += JasminUtils.handleInstruction(instruction.getRhs(), varTable, true);
         if (assignElement instanceof ArrayOperand)
             statementList += "\tiastore\n";
