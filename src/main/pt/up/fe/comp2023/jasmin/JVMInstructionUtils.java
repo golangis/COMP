@@ -185,8 +185,18 @@ public class JVMInstructionUtils {
                 if (!isBranchCond)
                     statementList += createAuxBranchStatement();
                 break;
+            case LTE:
+                statementList += "\tif_icmple ";
+                if (!isBranchCond)
+                    statementList += createAuxBranchStatement();
+                break;
             case GTH:
                 statementList += "\tif_icmpgt ";
+                if (!isBranchCond)
+                    statementList += createAuxBranchStatement();
+                break;
+            case GTE:
+                statementList += "\tif_icmpge ";
                 if (!isBranchCond)
                     statementList += createAuxBranchStatement();
                 break;
