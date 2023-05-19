@@ -8,6 +8,8 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp2023.optimization.ConstantFolding;
+import pt.up.fe.comp2023.optimization.ConstantPropagation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +23,25 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
-        table = semanticsResult.getSymbolTable();
+        this.table = semanticsResult.getSymbolTable();
         visit(semanticsResult.getRootNode());
         code += "} \n";
         System.out.println(code);
         return new OllirResult(semanticsResult, code, reports);
+    }
+
+    @Override
+    public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
+        if (Boolean.parseBoolean(semanticsResult.getConfig().get("optimize"))) {
+            ConstantPropagation constantPropagation = new ConstantPropagation(semanticsResult);
+            ConstantFolding constantFolding = new ConstantFolding(semanticsResult);
+
+            boolean codeModified = constantPropagation.apply() || constantFolding.apply();
+            while (codeModified) {
+                codeModified = constantPropagation.apply() || constantFolding.apply();
+            }
+        }
+        return semanticsResult;
     }
 
     @Override

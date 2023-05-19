@@ -72,6 +72,17 @@ public class Launcher {
         TestUtils.noErrors(semanticsResult.getReports());
 
         Optimization optimization = new Optimization();
+
+        //Apply Constant Propagation and Constant Folding optimizations
+        if(Boolean.parseBoolean(config.get("optimize"))){
+            System.out.println("Applying optimizations...");
+
+            optimization.optimize(semanticsResult);
+
+            // Output AST after optimizations
+            System.out.println(semanticsResult.getRootNode().toTree());
+        }
+
         OllirResult ollirResult = optimization.toOllir(semanticsResult);
 
         JasminGenerator jasminGenerator = new JasminGenerator();
@@ -85,16 +96,20 @@ public class Launcher {
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
 
         // Check if there is at least one argument
-        if (args.length != 1) {
-            throw new RuntimeException("Expected a single argument, a path to an existing input file.");
+        if (args.length < 1) {
+            throw new RuntimeException("Usage: ./jmm <file_path> [-o]");
         }
 
         // Create config
         Map<String, String> config = new HashMap<>();
         config.put("inputFile", args[0]);
-        config.put("optimize", "false");
         config.put("registerAllocation", "-1");
         config.put("debug", "false");
+
+        if (Arrays.asList(args).contains("-o"))
+            config.put("optimize", "true");
+        else
+            config.put("optimize", "false");
 
         return config;
     }
