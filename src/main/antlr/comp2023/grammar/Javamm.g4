@@ -49,11 +49,11 @@ type locals[boolean isArray = false]
 
 statement
     : '{' statement* '}' #CodeBlock
-    | 'if' '(' condition=expression ')' iftrue=statement 'else' iffalse=statement #Condition
-    | 'while' '(' condition=expression ')' whiletrue=statement #Cycle
+    | 'if' '(' expression ')' statement 'else' statement #Condition
+    | 'while' '(' expression ')' statement #Cycle
     | expression ';' #Expr
-    | varname=ID '=' value=expression ';' #Assignment
-    | arrayname=ID '[' index=expression ']' '=' value=expression ';' #ArrayAssignment
+    | varname=ID '=' expression ';' #Assignment
+    | arrayname=ID '[' expression ']' '=' expression ';' #ArrayAssignment
     ;
 
 expression

@@ -3,12 +3,13 @@ package pt.up.fe.comp2023.ollir;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
-import pt.up.fe.comp.jmm.ast.AJmmVisitor;
-import pt.up.fe.comp2023.ollir.OllirUtils;
+import pt.up.fe.comp2023.optimization.ConstantFolding;
+import pt.up.fe.comp2023.optimization.ConstantPropagation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +23,25 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
-        table = semanticsResult.getSymbolTable();
+        this.table = semanticsResult.getSymbolTable();
         visit(semanticsResult.getRootNode());
         code += "} \n";
         System.out.println(code);
         return new OllirResult(semanticsResult, code, reports);
+    }
+
+    @Override
+    public JmmSemanticsResult optimize(JmmSemanticsResult semanticsResult) {
+        if (Boolean.parseBoolean(semanticsResult.getConfig().get("optimize"))) {
+            ConstantPropagation constantPropagation = new ConstantPropagation(semanticsResult);
+            ConstantFolding constantFolding = new ConstantFolding(semanticsResult);
+
+            boolean codeModified = constantPropagation.apply() || constantFolding.apply();
+            while (codeModified) {
+                codeModified = constantPropagation.apply() || constantFolding.apply();
+            }
+        }
+        return semanticsResult;
     }
 
     @Override
@@ -250,7 +265,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         return null;
     }
 
-    private Void dealWithLenFieldAccess(JmmNode jmmNode, Void unused) {
+    private Void dealWithFieldDeclaration(JmmNode jmmNode, Void unused) {
         List<Symbol> fieldsOnClass = table.getFields();
         for (Symbol currField : fieldsOnClass) {
             code += "\t.field private " + currField.getName() + OllirUtils.ollirTypes(currField.getType()) + ";\n";
@@ -258,11 +273,24 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         return null;
     }
 
+    private Void dealWithLenFieldAccess(JmmNode jmmNode, Void unused) {
+        JmmNode caller = jmmNode.getJmmChild(0);
+        visit(caller);
+        jmmNode.put("valueOl", "t" + tempVarId + ".i32");
+        String caller_name = caller.get("valueOl");
+        code += "t" + tempVarId++ + ".i32 :=.i32 arraylength(" + caller_name  + ").i32;";
+        return null;
+    }
+
     private Void dealWithArraySubscript(JmmNode jmmNode, Void unused) {
-
-        for (var child : jmmNode.getChildren())
-            visit(child);
-
+        JmmNode left = jmmNode.getJmmChild(0);
+        JmmNode right = jmmNode.getJmmChild(1);
+        visit(left);
+        visit(right);
+        String leftS = left.get("valueOl");
+        String rightS = right.get("valueOl");
+        code += "\t\tt" + tempVarId + ".i32 :=.i32 " + leftS + "[" + rightS + "].i32;\n";
+        jmmNode.put("valueOl", "t" + tempVarId++ + ".i32");
         return null;
     }
 
@@ -330,8 +358,63 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithArrayAssignment(JmmNode jmmNode, Void unused) {
-        for (var child : jmmNode.getChildren())
-            visit(child);
+        var method = jmmNode.getAncestor("MethodDecl");
+        var voidMethod = jmmNode.getAncestor("VoidMethodDecl");
+        var mainMethod = jmmNode.getAncestor("MainMethodDecl");
+        Symbol var = null;
+        boolean isLocal = false, isParam = false, isField = false;
+        int idParam = 0;
+        String left = jmmNode.get("arrayname");
+
+        if (method.isPresent() || voidMethod.isPresent() || mainMethod.isPresent()) {
+            var methodName = mainMethod.isPresent() ? "main" : method.orElseGet(voidMethod::get).get("methodname");
+            List<Symbol> localVarClass = table.getLocalVariables(methodName);
+            List<Symbol> paramsOnClass = table.getParameters(methodName);
+
+            // Check if local var
+            for (Symbol lv : localVarClass)
+                if (lv.getName().equals(left)) {
+                    var = lv;
+                    isLocal = true;
+                }
+
+            // If not local var, then check if param
+            if (var == null)
+                for (int p = 0; p < paramsOnClass.size(); p++)
+                    if (paramsOnClass.get(p).getName().equals(left)) {
+                        var = paramsOnClass.get(p);
+                        isParam = true;
+                        idParam = p + 1;
+                    }
+        }
+
+        List<Symbol> fields = table.getFields();
+
+        // If not local nor param, check if field
+        if (var == null)
+            for (Symbol f : fields)
+                if (f.getName().equals(left)) {
+                    var = f;
+                    isField = true;
+                }
+
+        JmmNode right = jmmNode.getChildren().get(0);
+        JmmNode last = jmmNode.getChildren().get(1);
+        visit(right);
+
+        if (isLocal)
+            code += "\t\t" + left;
+        else if (isParam)
+            code += "\t\t$" + idParam + '.' + left;
+        else if (isField)
+            code += "\t\tt" + tempVarId + ".array.i32 :=.array.i32 getfield(this, " + left + ".array.i32).array.i32;" +
+                    "\n\t\tt" + tempVarId++;
+
+        code += "[" + right.get("valueOl") +  "].i32 :=.i32 ";
+
+        visit(last);
+
+        code += last.get("valueOl") +";\n";
 
         return null;
     }
@@ -507,7 +590,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             code += table.getClassName() + " {\n";
         else
             code += table.getClassName() + " extends " + superClass + "{\n";
-        dealWithLenFieldAccess(jmmNode, unused);
+        dealWithFieldDeclaration(jmmNode, unused);
 
         // Constructor
         code += "\t.construct " + table.getClassName() + "().V {\n" + "\t\tinvokespecial(this, \"<init>\").V;\n\t}\n";

@@ -71,23 +71,19 @@ public class Launcher {
         // Check if there are semantic errors
         TestUtils.noErrors(semanticsResult.getReports());
 
-        // Optimization optimization = new Optimization();
-        // OllirResult ollirResult = optimization.toOllir(semanticsResult);
-        String ollirCode = "import ioPlus;\n" +
-                "ArrayInit {\n" +
-                "\n" +
-                "    .construct ArrayInit().V {\n" +
-                "        invokespecial(this, \"<init>\").V;\n" +
-                "    }\n" +
-                "\n" +
-                "    .method public static main(args.array.String).V {\n" +
-                "        temp0.i32 :=.i32 5.i32;\n" +
-                "        a.array.i32 :=.array.i32 new(array, temp0.i32).array.i32;\n" +
-                "\n" +
-                "        ret.V;\n" +
-                "    }\n" +
-                "}";
-        OllirResult ollirResult = new OllirResult(ollirCode, new HashMap<>());
+        Optimization optimization = new Optimization();
+
+        //Apply Constant Propagation and Constant Folding optimizations
+        if (Boolean.parseBoolean(config.get("optimize"))) {
+            System.out.println("Applying optimizations...");
+
+            optimization.optimize(semanticsResult);
+
+            // Output AST after optimizations
+            System.out.println(semanticsResult.getRootNode().toTree());
+        }
+
+        OllirResult ollirResult = optimization.toOllir(semanticsResult);
 
         JasminGenerator jasminGenerator = new JasminGenerator();
         JasminResult jasminResult = jasminGenerator.toJasmin(ollirResult);
@@ -100,16 +96,20 @@ public class Launcher {
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
 
         // Check if there is at least one argument
-        if (args.length != 1) {
-            throw new RuntimeException("Expected a single argument, a path to an existing input file.");
+        if (args.length < 1) {
+            throw new RuntimeException("Usage: ./jmm <file_path> [-o]");
         }
 
         // Create config
         Map<String, String> config = new HashMap<>();
         config.put("inputFile", args[0]);
-        config.put("optimize", "false");
         config.put("registerAllocation", "-1");
         config.put("debug", "false");
+
+        if (Arrays.asList(args).contains("-o"))
+            config.put("optimize", "true");
+        else
+            config.put("optimize", "false");
 
         return config;
     }
