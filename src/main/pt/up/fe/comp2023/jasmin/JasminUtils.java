@@ -109,7 +109,7 @@ public class JasminUtils {
                         (CallInstruction)instruction,
                         varTable
                 );
-                if (!isRhs && ((CallInstruction) instruction).getReturnType().getTypeOfElement() != ElementType.VOID)
+                if (!isRhs && ((CallInstruction)instruction).getReturnType().getTypeOfElement() != ElementType.VOID)
                     statementList += "\tpop\n";
                 break;
             case GOTO:
@@ -168,9 +168,16 @@ public class JasminUtils {
     public static String handleMethodStatements(Method method) {
         String statementList = "";
         for (Instruction instruction: method.getInstructions()) {
+            String aux = "";
+            if (instruction instanceof CallInstruction && ((CallInstruction)instruction).getInvocationType() == CallType.invokespecial) {
+                aux = statementList.substring(statementList.lastIndexOf('\t'));
+                statementList = statementList.substring(0, statementList.lastIndexOf('\t'));
+            }
+
             for (String label: method.getLabels(instruction))
                 statementList += "\t" + label + ":\n";
             statementList += handleInstruction(instruction, method.getVarTable(), false);
+            statementList += aux;
         }
         return statementList;
     }
