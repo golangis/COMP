@@ -196,11 +196,15 @@ public class JasminUtils {
     }
 
     public static String createMethodDirective(Method method) {
+        JVMInstructionUtils.numLocals = 0;
+        JVMInstructionUtils.stackSize = 0;
         String methodDirective = ".method ";
+        String instructions = handleMethodStatements(method);
+
         methodDirective += createMethodDeclaration(method);
-        methodDirective += "\t.limit stack 99\n";
-        methodDirective += "\t.limit locals 99\n";
-        methodDirective += handleMethodStatements(method);
+        methodDirective += "\t.limit stack " + JVMInstructionUtils.stackSize + "\n";
+        methodDirective += "\t.limit locals " + JVMInstructionUtils.numLocals + "\n";
+        methodDirective += instructions;
         return methodDirective + ".end method\n\n";
     }
 }

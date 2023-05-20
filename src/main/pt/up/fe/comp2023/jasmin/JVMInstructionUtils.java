@@ -10,6 +10,9 @@ import static java.lang.Math.pow;
 
 public class JVMInstructionUtils {
 
+    public static int numLocals = 0;
+    public static int stackSize = 0;
+
     public static String getLoadInstruction(Element element, HashMap<String, Descriptor> varTable) {
         if (element.isLiteral()) {
             int literal = parseInt(((LiteralElement)element).getLiteral());
