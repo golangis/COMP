@@ -59,6 +59,8 @@ public class JVMInstructionUtils {
 
     public static String getStoreInstruction(Element element, HashMap<String, Descriptor> varTable) {
         int virtualReg = varTable.get(((Operand)element).getName()).getVirtualReg();
+        if (virtualReg > JVMInstructionUtils.numLocals)
+            numLocals = virtualReg;
 
         if (element.isLiteral()) {
             int literal = parseInt(((LiteralElement)element).getLiteral());
