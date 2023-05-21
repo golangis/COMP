@@ -33,6 +33,9 @@ public class JVMInstructionUtils {
         else
             elementType = element.getType().getTypeOfElement();
         int virtualReg = varTable.get(((Operand)element).getName()).getVirtualReg();
+        if (virtualReg > JVMInstructionUtils.numLocals)
+            numLocals = virtualReg;
+
         switch (elementType) {
             case THIS:
                 return "\taload_0\n";
