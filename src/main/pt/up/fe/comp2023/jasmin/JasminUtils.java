@@ -109,8 +109,10 @@ public class JasminUtils {
                         (CallInstruction)instruction,
                         varTable
                 );
-                if (!isRhs && ((CallInstruction)instruction).getReturnType().getTypeOfElement() != ElementType.VOID)
+                if (!isRhs && ((CallInstruction)instruction).getReturnType().getTypeOfElement() != ElementType.VOID) {
                     statementList += "\tpop\n";
+                    JVMInstructionUtils.decreaseStackSize(1);
+                }
                 break;
             case GOTO:
                 statementList += JVMInstructionUtils.createGotoStatement(

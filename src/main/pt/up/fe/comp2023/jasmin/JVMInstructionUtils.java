@@ -27,6 +27,7 @@ public class JVMInstructionUtils {
     }
 
     public static String getLoadInstruction(Element element, HashMap<String, Descriptor> varTable) {
+        increaseStackSize(1);
         if (element.isLiteral()) {
             int literal = parseInt(((LiteralElement)element).getLiteral());
             if (literal >= 0 && literal <= 5)
@@ -74,6 +75,7 @@ public class JVMInstructionUtils {
     }
 
     public static String getStoreInstruction(Element element, HashMap<String, Descriptor> varTable) {
+        decreaseStackSize(1);
         int virtualReg = varTable.get(((Operand)element).getName()).getVirtualReg();
         if (virtualReg > numLocals)
             numLocals = virtualReg;
@@ -128,6 +130,7 @@ public class JVMInstructionUtils {
         statementList += getLoadInstruction(instruction.getFirstArg(), varTable);
         statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
         statementList += "\tinvokevirtual " + createInvokeInstructionArgument(instruction, false);
+        decreaseStackSize(instruction.getListOfOperands().size() + 1);
         return statementList;
     }
 
@@ -135,6 +138,7 @@ public class JVMInstructionUtils {
         String statementList = "";
         statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
         statementList += "\tinvokestatic " + createInvokeInstructionArgument(instruction, true);
+        decreaseStackSize(instruction.getListOfOperands().size());
         return statementList;
     }
 
@@ -147,6 +151,7 @@ public class JVMInstructionUtils {
         statementList += loadInvokeArguments(instruction.getListOfOperands(), varTable);
         statementList += "\tnew " + ((Operand)instruction.getFirstArg()).getName() + '\n';
         statementList += "\tdup\n";
+        increaseStackSize(2);
         return statementList;
     }
 
@@ -172,6 +177,7 @@ public class JVMInstructionUtils {
             case NOT: case NOTB:
                 statementList += "\tifeq ";
                 statementList += createAuxBranchStatement();
+                decreaseStackSize(1);
                 break;
         }
         return statementList;
@@ -185,41 +191,51 @@ public class JVMInstructionUtils {
         switch (instruction.getOperation().getOpType()) {
             case ADD:
                 statementList += "\tiadd\n";
+                decreaseStackSize(1);
                 break;
             case SUB:
                 statementList += "\tisub\n";
+                decreaseStackSize(1);
                 break;
             case MUL:
                 statementList += "\timul\n";
+                decreaseStackSize(1);
                 break;
             case DIV:
                 statementList += "\tidiv\n";
+                decreaseStackSize(1);
                 break;
             case AND: case ANDB:
                 statementList += "\tiand\n";
+                decreaseStackSize(1);
                 break;
             case OR: case ORB:
                 statementList += "\tior\n";
+                decreaseStackSize(1);
                 break;
             case LTH:
                 statementList += "\tif_icmplt ";
                 if (!isBranchCond)
                     statementList += createAuxBranchStatement();
+                decreaseStackSize(2);
                 break;
             case LTE:
                 statementList += "\tif_icmple ";
                 if (!isBranchCond)
                     statementList += createAuxBranchStatement();
+                decreaseStackSize(2);
                 break;
             case GTH:
                 statementList += "\tif_icmpgt ";
                 if (!isBranchCond)
                     statementList += createAuxBranchStatement();
+                decreaseStackSize(2);
                 break;
             case GTE:
                 statementList += "\tif_icmpge ";
                 if (!isBranchCond)
                     statementList += createAuxBranchStatement();
+                decreaseStackSize(2);
                 break;
         }
         return statementList;
@@ -228,8 +244,11 @@ public class JVMInstructionUtils {
     public static String createNoperInstruction(SingleOpInstruction instruction, HashMap<String, Descriptor> varTable) {
         Element operand = instruction.getSingleOperand();
         if (operand instanceof ArrayOperand) {
-            return getArrayLoadInstruction((ArrayOperand)operand, varTable)
-                    + "\tiaload\n";
+            String statementList = "";
+            statementList += getArrayLoadInstruction((ArrayOperand)operand, varTable);
+            statementList += "\tiaload\n";
+            decreaseStackSize(1);
+            return statementList;
         }
         return getLoadInstruction(operand, varTable);
     }
@@ -241,8 +260,10 @@ public class JVMInstructionUtils {
         if (assignElement instanceof ArrayOperand)
             statementList += getArrayLoadInstruction((ArrayOperand)assignElement, varTable);
         statementList += JasminUtils.handleInstruction(instruction.getRhs(), varTable, true);
-        if (assignElement instanceof ArrayOperand)
+        if (assignElement instanceof ArrayOperand) {
             statementList += "\tiastore\n";
+            decreaseStackSize(3);
+        }
         else
             statementList += getStoreInstruction(assignElement, varTable);
         return statementList;
@@ -272,6 +293,7 @@ public class JVMInstructionUtils {
                 break;
             case ldc:
                 statementList += "\tldc " + ((LiteralElement)instruction.getFirstArg()).getLiteral() + '\n';
+                increaseStackSize(1);
                 break;
         }
         return statementList;
@@ -288,16 +310,17 @@ public class JVMInstructionUtils {
     }
 
     public static String createPutfieldStatement(PutFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
-        ArrayList<Element> aux = new ArrayList<>();
-        aux.add(instruction.getThirdOperand());
+        ArrayList<Element> arguments = new ArrayList<>();
+        arguments.add(instruction.getThirdOperand());
 
         String statementList = "";
         statementList += getLoadInstruction(instruction.getFirstOperand(), varTable);
-        statementList += loadInvokeArguments(aux, varTable);
+        statementList += loadInvokeArguments(arguments, varTable);
         statementList += "\tputfield "
                 +  JasminUtils.getTypeDescriptor(instruction.getFirstOperand().getType(), false)
                 + '/' + ((Operand)instruction.getSecondOperand()).getName() + " "
                 + JasminUtils.getTypeDescriptor(instruction.getThirdOperand().getType(), true) + '\n';
+        decreaseStackSize(arguments.size() + 1);
         return statementList;
     }
 
@@ -305,6 +328,7 @@ public class JVMInstructionUtils {
         String statementList = "";
         statementList += createNoperInstruction(instruction.getCondition(), varTable);
         statementList += "\tifne " + instruction.getLabel() + "\n";
+        decreaseStackSize(1);
         return statementList;
     }
 
@@ -337,6 +361,7 @@ public class JVMInstructionUtils {
         JasminUtils.customLabelCounter++;
         // if condition is false
         statementList += "\ticonst_0\n";
+        increaseStackSize(1);
         // skip true section
         statementList += "\tgoto false_" + JasminUtils.customLabelCounter + "\n";
         JasminUtils.customLabelCounter++;
@@ -344,6 +369,7 @@ public class JVMInstructionUtils {
         statementList += "\ttrue_" + (JasminUtils.customLabelCounter - 2) + ":\n";
         // if condition is true
         statementList += "\ticonst_1\n";
+        increaseStackSize(1);
         // false section (for skipping true section)
         statementList += "\tfalse_" + (JasminUtils.customLabelCounter - 1) + ":\n";
         return statementList;
@@ -360,10 +386,12 @@ public class JVMInstructionUtils {
             case INT32: case BOOLEAN:
                 statementList += getLoadInstruction(returnElement, varTable);
                 statementList += "\tireturn\n";
+                decreaseStackSize(1);
                 break;
             case STRING: case OBJECTREF: case ARRAYREF: case THIS:
                 statementList += getLoadInstruction(returnElement, varTable);
                 statementList += "\tareturn\n";
+                decreaseStackSize(1);
         }
         return statementList;
     }
