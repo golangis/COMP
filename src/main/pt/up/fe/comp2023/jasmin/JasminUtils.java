@@ -7,6 +7,8 @@ import java.util.HashMap;
 
 public class JasminUtils {
 
+    public static int customLabelCounter = 0;
+
     public static String getTypeDescriptor(Type type, boolean isDeclaration) {
         ElementType elementType = type.getTypeOfElement();
         if (elementType.equals(ElementType.INT32))
@@ -107,12 +109,22 @@ public class JasminUtils {
                         (CallInstruction)instruction,
                         varTable
                 );
-                if (!isRhs && ((CallInstruction) instruction).getReturnType().getTypeOfElement() != ElementType.VOID)
+                if (!isRhs && ((CallInstruction)instruction).getReturnType().getTypeOfElement() != ElementType.VOID) {
                     statementList += "\tpop\n";
+                    JVMInstructionUtils.decreaseStackSize(1);
+                }
                 break;
             case GOTO:
+                statementList += JVMInstructionUtils.createGotoStatement(
+                        (GotoInstruction)instruction,
+                        varTable
+                );
                 break;
             case BRANCH:
+                statementList += JVMInstructionUtils.createBranchStatement(
+                        (CondBranchInstruction)instruction,
+                        varTable
+                );
                 break;
             case RETURN:
                 statementList += JVMInstructionUtils.createReturnStatement(
@@ -141,11 +153,12 @@ public class JasminUtils {
             case BINARYOPER:
                 statementList += JVMInstructionUtils.createBinaryOpInstruction(
                         (BinaryOpInstruction)instruction,
-                        varTable
+                        varTable,
+                        false
                 );
                 break;
             case NOPER:
-                statementList += JVMInstructionUtils.createInstructionRhs(
+                statementList += JVMInstructionUtils.createNoperInstruction(
                         (SingleOpInstruction)instruction,
                         varTable
                 );
@@ -156,8 +169,18 @@ public class JasminUtils {
 
     public static String handleMethodStatements(Method method) {
         String statementList = "";
-        for (Instruction instruction: method.getInstructions())
+        for (Instruction instruction: method.getInstructions()) {
+            String aux = "";
+            if (instruction instanceof CallInstruction && ((CallInstruction)instruction).getInvocationType() == CallType.invokespecial) {
+                aux = statementList.substring(statementList.lastIndexOf('\t'));
+                statementList = statementList.substring(0, statementList.lastIndexOf('\t'));
+            }
+
+            for (String label: method.getLabels(instruction))
+                statementList += "\t" + label + ":\n";
             statementList += handleInstruction(instruction, method.getVarTable(), false);
+            statementList += aux;
+        }
         return statementList;
     }
 
@@ -175,11 +198,23 @@ public class JasminUtils {
     }
 
     public static String createMethodDirective(Method method) {
+        JVMInstructionUtils.numLocals = 0;
+        JVMInstructionUtils.stackSize = 0;
+        JVMInstructionUtils.currStackSize = 0;
+        String instructions = handleMethodStatements(method);
+        if (method.isStaticMethod() && method.getParams().size() > 0)
+            JVMInstructionUtils.numLocals++;
+        else if (!method.isStaticMethod()) {
+            if (JVMInstructionUtils.numLocals < method.getParams().size())
+                JVMInstructionUtils.numLocals += method.getParams().size();
+            JVMInstructionUtils.numLocals++;
+        }
+
         String methodDirective = ".method ";
         methodDirective += createMethodDeclaration(method);
-        methodDirective += "\t.limit stack 99\n";
-        methodDirective += "\t.limit locals 99\n";
-        methodDirective += handleMethodStatements(method);
+        methodDirective += "\t.limit stack " + JVMInstructionUtils.stackSize + "\n";
+        methodDirective += "\t.limit locals " + JVMInstructionUtils.numLocals + "\n";
+        methodDirective += instructions;
         return methodDirective + ".end method\n\n";
     }
 }

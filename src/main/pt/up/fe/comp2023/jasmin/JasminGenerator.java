@@ -24,19 +24,19 @@ public class JasminGenerator implements JasminBackend {
                 + createMethodDefinitions(classUnit);
     }
 
-    private String createHeader(ClassUnit classUnit) {
+    public static String createHeader(ClassUnit classUnit) {
         return JasminUtils.createClassDirective(classUnit)
                 + JasminUtils.createSuperDirective(classUnit);
     }
 
-    private String createFieldDefinitions(ClassUnit classUnit) {
+    public static String createFieldDefinitions(ClassUnit classUnit) {
         String fieldDefinitions = "";
         for (Field field: classUnit.getFields())
             fieldDefinitions += JasminUtils.createFieldDirective(field);
         return fieldDefinitions;
     }
 
-    private String createMethodDefinitions(ClassUnit classUnit) {
+    public static String createMethodDefinitions(ClassUnit classUnit) {
         String methodDefinitions = "";
         for (Method method: classUnit.getMethods())
             if (method.isConstructMethod())

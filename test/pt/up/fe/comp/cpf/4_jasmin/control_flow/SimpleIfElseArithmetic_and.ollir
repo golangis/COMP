@@ -7,6 +7,8 @@ Arithmetic_and {
 
     .method public static main(args.array.String).V {
         a.bool :=.bool 1.bool &&.bool 0.bool;
+        var1.i32 :=.i32 1.i32;
+        var2.i32 :=.i32 2.i32;
 
         if (a.bool) goto ifbody_0;
             invokestatic(io, "print", 0.i32).V;
@@ -14,6 +16,13 @@ Arithmetic_and {
         ifbody_0:
             invokestatic(io, "print", 1.i32).V;
         endif_0:
+
+        if (var1.i32 <.bool var2.i32) goto ifbody_1;
+            invokestatic(io, "print", 0.i32).V;
+        goto endif_1;
+        ifbody_1:
+            invokestatic(io, "print", 1.i32).V;
+        endif_1:
 
         ret.V;
     }

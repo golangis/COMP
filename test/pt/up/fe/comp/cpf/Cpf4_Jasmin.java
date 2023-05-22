@@ -18,6 +18,7 @@ import pt.up.fe.comp.CpUtils;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp2023.jasmin.JasminGenerator;
 import pt.up.fe.specs.util.SpecsCheck;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsStrings;
@@ -29,79 +30,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class Cpf4_Jasmin {
-
-    //  private static boolean USE_OLLIR_EXPERIMENTAL = false;
-/*
-    public static void enableOllirInputs() {
-        USE_OLLIR_EXPERIMENTAL = true;
-    }
-
-    public static boolean useOllirInputs() {
-        return USE_OLLIR_EXPERIMENTAL;
-    }
-*/
-    static JasminResult getJasminResult(String filename) {
-        /*
-        if (USE_OLLIR_EXPERIMENTAL) {
-            filename = SpecsIo.removeExtension(filename) + ".ollir";
-            return TestUtils.backend(new OllirResult(SpecsIo.getResource("pt/up/fe/comp/cpf/4_jasmin/" + filename),
-                    Collections.emptyMap()));
-        }
-
-        return TestUtils.backend(SpecsIo.getResource("pt/up/fe/comp/cpf/4_jasmin/" + filename));
-*/
-
-        var resource = "pt/up/fe/comp/cpf/4_jasmin/" + filename;
-
-        SpecsCheck.checkArgument(resource.endsWith(".ollir"), () -> "Expected resource to end with .ollir: " + resource);
-
-        // If AstToJasmin pipeline, change name of the resource and execute other test
-        if (TestUtils.hasAstToJasminClass()) {
-
-            // Rename resource
-            var jmmResource = SpecsIo.removeExtension(resource) + ".jmm";
-
-            // Test Jmm resource
-            var result = TestUtils.backend(SpecsIo.getResource(jmmResource));
-
-            return result;
-        }
-
-        var ollirResult = new OllirResult(SpecsIo.getResource(resource), Collections.emptyMap());
-
-        var result = TestUtils.backend(ollirResult);
-
-        return result;
-
-    }
-
-    public static void testOllirToJasmin(String resource, String expectedOutput) {
-        SpecsCheck.checkArgument(resource.endsWith(".ollir"), () -> "Expected resource to end with .ollir: " + resource);
-
-        // If AstToJasmin pipeline, change name of the resource and execute other test
-        if (TestUtils.hasAstToJasminClass()) {
-
-            // Rename resource
-            var jmmResource = SpecsIo.removeExtension(resource) + ".jmm";
-
-            // Test Jmm resource
-            var result = TestUtils.backend(SpecsIo.getResource(jmmResource));
-            ProjectTestUtils.runJasmin(result, expectedOutput);
-
-            return;
-        }
-
-        var ollirResult = new OllirResult(SpecsIo.getResource(resource), Collections.emptyMap());
-
-        var result = TestUtils.backend(ollirResult);
-
-        ProjectTestUtils.runJasmin(result, null);
-    }
-
-    public static void testOllirToJasmin(String resource) {
-        testOllirToJasmin(resource, null);
-    }
-
 
     private static final String JASMIN_METHOD_REGEX_PREFIX = "\\.method\\s+((public|private)\\s+)?(\\w+)\\(\\)";
 
@@ -151,6 +79,12 @@ public class Cpf4_Jasmin {
 
     /*checks if an addition is correct (more than 2 values)*/
     @Test
+    public void section3_ControlFlow_Inverted() {
+        CpUtils.runJasmin(getJasminResult("control_flow/SimpleControlFlow.ollir"), "Result: 3");
+    }
+
+    /*checks OLLIR code that uses >= for an inverted condition */
+    @Test
     public void section3_ControlFlow_If_Not_Simple() {
         CpUtils.runJasmin(getJasminResult("control_flow/SimpleIfElseNot.ollir"), "10\n200");
     }
@@ -179,7 +113,6 @@ public class Cpf4_Jasmin {
     @Test
     public void section4_Calls_Misc_ConditionArgs() {
         CpUtils.runJasmin(getJasminResult("calls/ConditionArgsFuncCall.ollir"), "Result: 10");
-
     }
 
 
@@ -187,7 +120,6 @@ public class Cpf4_Jasmin {
     @Test
     public void section5_Arrays_Init_Array() {
         CpUtils.runJasmin(getJasminResult("arrays/ArrayInit.ollir"), "Result: 5");
-
     }
 
     /*checks if the access to the elements of array is correct*/
@@ -195,7 +127,6 @@ public class Cpf4_Jasmin {
     public void section5_Arrays_Store_Array() {
         CpUtils.runJasmin(getJasminResult("arrays/ArrayAccess.ollir"),
                 "Result: 1\nResult: 2\nResult: 3\nResult: 4\nResult: 5");
-
     }
 
     /*checks multiple expressions as indexes to access the elements of an array*/
@@ -203,7 +134,6 @@ public class Cpf4_Jasmin {
     public void section5_Arrays_Load_ComplexArrayAccess() {
         CpUtils.runJasmin(getJasminResult("arrays/ComplexArrayAccess.ollir"),
                 "Result: 1\nResult: 2\nResult: 3\nResult: 4\nResult: 5");
-
     }
 
     /*checks if array has correct signature ?*/
@@ -290,5 +220,126 @@ public class Cpf4_Jasmin {
 
         // Make sure the code compiles
         jasminResult.compile();
+    }
+
+    @Test
+    public void ollirToJasminArithmeticAnd() {
+        testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/arithmetic/Arithmetic_and.ollir");
+    }
+
+    @Test
+    public void ollirToJasminArithmeticLess() {
+        testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/arithmetic/Arithmetic_less.ollir");
+    }
+
+    @Test
+    public void ollirToJasminIfElseArithmeticAnd() {
+        testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/control_flow/SimpleIfElseArithmetic_and.ollir");
+    }
+
+    @Test
+    public void ollirToJasminSimpleIfElseNot() {
+        testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/control_flow/SimpleIfElseNot.ollir");
+    }
+
+    @Test
+    public void ollirToJasminSimpleIfElseStat() {
+        testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/control_flow/SimpleIfElseStat.ollir");
+    }
+
+    @Test
+    public void ollirToJasminSwitchStat() {
+        testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/control_flow/SwitchStat.ollir");
+    }
+
+    @Test
+    public void ollirToJasminSimpleWhileStat() {
+        testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/control_flow/SimpleWhileStat.ollir");
+    }
+
+    @Test
+    public void ollirToJasminIfWhileNested() {
+        testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/control_flow/IfWhileNested.ollir");
+    }
+
+    @Test
+    public void OllirToJasminArrayInitSimple() {
+        testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/arrays/ArrayInitSimple.ollir");
+    }
+
+    @Test
+    public void OllirToJasminArrayInit() {
+        testOllirToJasmin("pt/up/fe/comp/cpf/4_jasmin/arrays/ArrayInit.ollir");
+    }
+
+    //  private static boolean USE_OLLIR_EXPERIMENTAL = false;
+    /*
+    public static void enableOllirInputs() {
+        USE_OLLIR_EXPERIMENTAL = true;
+    }
+
+    public static boolean useOllirInputs() {
+        return USE_OLLIR_EXPERIMENTAL;
+    }
+    */
+    static JasminResult getJasminResult(String filename) {
+        /*
+        if (USE_OLLIR_EXPERIMENTAL) {
+            filename = SpecsIo.removeExtension(filename) + ".ollir";
+            return TestUtils.backend(new OllirResult(SpecsIo.getResource("pt/up/fe/comp/cpf/4_jasmin/" + filename),
+                    Collections.emptyMap()));
+        }
+
+        return TestUtils.backend(SpecsIo.getResource("pt/up/fe/comp/cpf/4_jasmin/" + filename));
+        */
+
+        var resource = "pt/up/fe/comp/cpf/4_jasmin/" + filename;
+        SpecsCheck.checkArgument(resource.endsWith(".ollir"), () -> "Expected resource to end with .ollir: " + resource);
+
+        // If AstToJasmin pipeline, change name of the resource and execute other test
+        if (TestUtils.hasAstToJasminClass()) {
+
+            // Rename resource
+            var jmmResource = SpecsIo.removeExtension(resource) + ".jmm";
+
+            // Test Jmm resource
+            var result = TestUtils.backend(SpecsIo.getResource(jmmResource));
+
+            return result;
+        }
+
+        var ollirResult = new OllirResult(SpecsIo.getResource(resource), Collections.emptyMap());
+
+        var result = TestUtils.backend(ollirResult);
+
+        return result;
+
+    }
+
+    public static void testOllirToJasmin(String resource, String expectedOutput) {
+        SpecsCheck.checkArgument(resource.endsWith(".ollir"), () -> "Expected resource to end with .ollir: " + resource);
+
+        // If AstToJasmin pipeline, change name of the resource and execute other test
+        if (TestUtils.hasAstToJasminClass()) {
+
+            // Rename resource
+            var jmmResource = SpecsIo.removeExtension(resource) + ".jmm";
+
+            // Test Jmm resource
+            var result = TestUtils.backend(SpecsIo.getResource(jmmResource));
+            ProjectTestUtils.runJasmin(result, expectedOutput);
+
+            return;
+        }
+
+        OllirResult ollirResult = new OllirResult(SpecsIo.getResource(resource), Collections.emptyMap());
+        JasminGenerator jasminGenerator = new JasminGenerator();
+        JasminResult jasminResult = jasminGenerator.toJasmin(ollirResult);
+        System.out.println(jasminResult.getJasminCode());
+        TestUtils.runJasmin(jasminResult.getJasminCode());
+    }
+
+    public static void testOllirToJasmin(String resource) {
+        testOllirToJasmin(resource, null);
     }
 }

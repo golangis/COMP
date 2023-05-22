@@ -1,30 +1,22 @@
 package pt.up.fe.comp2023.ollir;
 
-import org.specs.comp.ollir.ClassUnit;
-import org.specs.comp.ollir.Instruction;
-import org.specs.comp.ollir.Method;
-import org.specs.comp.ollir.OllirErrorException;
+import org.specs.comp.ollir.*;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
-import pt.up.fe.comp.jmm.ast.AJmmVisitor;
-import pt.up.fe.comp2023.ollir.OllirUtils;
-import pt.up.fe.comp2023.optimization.ConstantFolding;
-import pt.up.fe.comp2023.optimization.ConstantPropagation;
-import pt.up.fe.comp2023.optimization.RegisterAllocation;
-import pt.up.fe.comp2023.semantic.MySymbolTable;
+import pt.up.fe.comp2023.optimization.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimization {
     String code = "";
+    String temp;
     List<Report> reports = new ArrayList<>();
     private SymbolTable table;
     int tempVarId = 0;
@@ -71,8 +63,8 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         addVisit("MethodParameters", this::dealWithMethodCallParam);
         addVisit("VarDecl", this::dealWithVarDecl);
         addVisit("CodeBlock", this::dealWithCodeBlock);
-        // addVisit("Condition", this::dealWithCondition); // not for checkpoint 2
-        // addVisit("Cycle", this::dealWithCycle); // not for checkpoint 2
+        addVisit("Condition", this::dealWithCondition);
+        addVisit("Cycle", this::dealWithCycle);
         addVisit("Expr", this::dealWithExpr);
         addVisit("Assignment", this::dealWithAssignment);
         addVisit("ArrayAssignment", this::dealWithArrayAssignment);
@@ -90,6 +82,46 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         addVisit("Boolean", this::dealWithBoolean);
         addVisit("This", this::dealWithThis);
         addVisit("Identifier", this::dealWithIdentifier);
+    }
+
+    private Void dealWithCycle(JmmNode jmmNode, Void unused) {
+        code += "\t\t"; visit(jmmNode.getJmmChild(0)); code += "\n";
+        var ifId = tempVarId++;
+
+        // Condition statement - negation
+        code += "\t\tif (!.bool " + temp + ") goto end_loop" + ifId + ";\n";
+
+        // What occurs if the condition is met
+        code += "\t\tloop" + ifId + ":\n\t"; visit(jmmNode.getJmmChild(1));
+        code += "\t\t"; visit(jmmNode.getJmmChild(0)); code += "\n";
+        code += "\t\t if( " + temp + ") goto loop" + ifId + ";\n";
+
+        // End of If
+        code +="\t\tend_loop" + ifId + ":\n\t";
+
+
+        return null;
+    }
+
+    private Void dealWithCondition(JmmNode jmmNode, Void unused) {
+       code += "\t\t"; visit(jmmNode.getJmmChild(0));
+        var ifId = tempVarId++;
+
+        // Condition statement
+        code += "\t\tif (" + temp + ") goto if" + ifId + ";\n";
+
+        // What occurs if the condition isn't met
+        code += "\t\t\t"; visit(jmmNode.getJmmChild(2));
+        code += "\t\t\tgoto endif" + ifId + ";\n";
+
+        // What occurs if the condition is met
+        code += "\t\tif" + ifId + ":\n\t"; visit(jmmNode.getJmmChild(1));
+
+        // End of If
+        code +="\t\tendif" + ifId + ":\n\t";
+
+
+        return null;
     }
 
     private Void dealWithIdentifier(JmmNode jmmNode, Void unused) {
@@ -140,7 +172,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             else if (isParam)
                 jmmNode.put("valueOl", "$" + idParam + "." + jmmNode.get("value") + ttype);
             else if (isField) {
-                String temp = "t" + tempVarId++ + ttype;
+                temp = "t" + tempVarId++ + ttype;
                 jmmNode.put("valueOl", temp);
                 code += temp + " :=" + ttype + " getfield(this , " + jmmNode.get("value") + ttype + ")" + ttype + ";";
             }
@@ -169,7 +201,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     private Void dealWithObjectCreation(JmmNode jmmNode, Void unused) {
         String rightString = jmmNode.get("classname");
 
-        String temp = "t" + tempVarId++ + "." + rightString;
+        temp = "t" + tempVarId++ + "." + rightString;
 
         code += temp + " :=." + rightString + " new(" + rightString + ")." + rightString + ";\n";
         code += "\t\tinvokespecial(" + temp + ",\"<init>\").V;\n";
@@ -204,7 +236,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             visit(child);
         }
 
-        String temp = "t" + tempVarId++ + returnType;
+        temp = "t" + tempVarId++ + returnType;
         if (makeTemp)
             code += temp + " :=" + returnType + " ";
 
@@ -241,7 +273,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         return null;
     }
 
-    private Void dealWithLenFieldAccess(JmmNode jmmNode, Void unused) {
+    private Void dealWithFieldDeclaration(JmmNode jmmNode, Void unused) {
         List<Symbol> fieldsOnClass = table.getFields();
         for (Symbol currField : fieldsOnClass) {
             code += "\t.field private " + currField.getName() + OllirUtils.ollirTypes(currField.getType()) + ";\n";
@@ -249,10 +281,24 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         return null;
     }
 
-    private Void dealWithArraySubscript(JmmNode jmmNode, Void unused) {
-        for (var child : jmmNode.getChildren())
-            visit(child);
+    private Void dealWithLenFieldAccess(JmmNode jmmNode, Void unused) {
+        JmmNode caller = jmmNode.getJmmChild(0);
+        visit(caller);
+        jmmNode.put("valueOl", "t" + tempVarId + ".i32");
+        String caller_name = caller.get("valueOl");
+        code += "t" + tempVarId++ + ".i32 :=.i32 arraylength(" + caller_name  + ").i32;";
+        return null;
+    }
 
+    private Void dealWithArraySubscript(JmmNode jmmNode, Void unused) {
+        JmmNode left = jmmNode.getJmmChild(0);
+        JmmNode right = jmmNode.getJmmChild(1);
+        visit(left);
+        visit(right);
+        String leftS = left.get("valueOl");
+        String rightS = right.get("valueOl");
+        code += "\t\tt" + tempVarId + ".i32 :=.i32 " + leftS + "[" + rightS + "].i32;\n";
+        jmmNode.put("valueOl", "t" + tempVarId++ + ".i32");
         return null;
     }
 
@@ -265,7 +311,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
         String left = leftSon.get("valueOl");
         String right = rightSon.get("valueOl");
-        String temp = "t" + tempVarId++ + ".bool";
+        temp = "t" + tempVarId++ + ".bool";
 
         code += temp + ":=.bool " + left + " " + jmmNode.get("op") + ".bool " + right + ";\n";
         jmmNode.put("valueOl", temp);
@@ -276,15 +322,20 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     private Void dealWithComparison(JmmNode jmmNode, Void unused) {
         JmmNode leftSon = jmmNode.getJmmChild(0);
         JmmNode rightSon = jmmNode.getJmmChild(1);
+        var condition = jmmNode.getAncestor("Condition");
+        var cycle = jmmNode.getAncestor("Cycle");
+
 
         visit(leftSon);
         visit(rightSon);
 
         String left = leftSon.get("valueOl");
         String right = rightSon.get("valueOl");
-        String temp = "t" + tempVarId++ + ".bool";
+        temp = "t" + tempVarId++ + ".bool";
 
-        code += temp + ":=.bool " + left + " " + jmmNode.get("op") + ".i32 " + right + ";\n";
+        code += temp + ":=.bool " + left + " " + jmmNode.get("op") + ".bool " + right;
+        //if (condition.isEmpty() || cycle.isEmpty())
+            code += ";\n";
         jmmNode.put("valueOl", temp);
 
         return null;
@@ -299,7 +350,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
         String left = leftSon.get("valueOl");
         String right = rightSon.get("valueOl");
-        String temp = "t" + tempVarId++ + ".i32";
+        temp = "t" + tempVarId++ + ".i32";
 
         code += temp + ":=.i32 " + left + " " + jmmNode.get("op") + ".i32 " + right + ";\n";
         jmmNode.put("valueOl", temp);
@@ -315,8 +366,63 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithArrayAssignment(JmmNode jmmNode, Void unused) {
-        for (var child : jmmNode.getChildren())
-            visit(child);
+        var method = jmmNode.getAncestor("MethodDecl");
+        var voidMethod = jmmNode.getAncestor("VoidMethodDecl");
+        var mainMethod = jmmNode.getAncestor("MainMethodDecl");
+        Symbol var = null;
+        boolean isLocal = false, isParam = false, isField = false;
+        int idParam = 0;
+        String left = jmmNode.get("arrayname");
+
+        if (method.isPresent() || voidMethod.isPresent() || mainMethod.isPresent()) {
+            var methodName = mainMethod.isPresent() ? "main" : method.orElseGet(voidMethod::get).get("methodname");
+            List<Symbol> localVarClass = table.getLocalVariables(methodName);
+            List<Symbol> paramsOnClass = table.getParameters(methodName);
+
+            // Check if local var
+            for (Symbol lv : localVarClass)
+                if (lv.getName().equals(left)) {
+                    var = lv;
+                    isLocal = true;
+                }
+
+            // If not local var, then check if param
+            if (var == null)
+                for (int p = 0; p < paramsOnClass.size(); p++)
+                    if (paramsOnClass.get(p).getName().equals(left)) {
+                        var = paramsOnClass.get(p);
+                        isParam = true;
+                        idParam = p + 1;
+                    }
+        }
+
+        List<Symbol> fields = table.getFields();
+
+        // If not local nor param, check if field
+        if (var == null)
+            for (Symbol f : fields)
+                if (f.getName().equals(left)) {
+                    var = f;
+                    isField = true;
+                }
+
+        JmmNode right = jmmNode.getChildren().get(0);
+        JmmNode last = jmmNode.getChildren().get(1);
+        visit(right);
+
+        if (isLocal)
+            code += "\t\t" + left;
+        else if (isParam)
+            code += "\t\t$" + idParam + '.' + left;
+        else if (isField)
+            code += "\t\tt" + tempVarId + ".array.i32 :=.array.i32 getfield(this, " + left + ".array.i32).array.i32;" +
+                    "\n\t\tt" + tempVarId++;
+
+        code += "[" + right.get("valueOl") +  "].i32 :=.i32 ";
+
+        visit(last);
+
+        code += last.get("valueOl") +";\n";
 
         return null;
     }
@@ -384,10 +490,14 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithExpr(JmmNode jmmNode, Void unused) {
+        var cycle = jmmNode.getAncestor("Cycle");
         code += "\t\t";
         for (var child : jmmNode.getChildren())
             visit(child);
-        code += ";\n";
+
+        if (cycle.isEmpty())
+            code += ";\n";
+        System.out.println(jmmNode.getKind());
         return null;
     }
 
@@ -488,7 +598,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             code += table.getClassName() + " {\n";
         else
             code += table.getClassName() + " extends " + superClass + "{\n";
-        dealWithLenFieldAccess(jmmNode, unused);
+        dealWithFieldDeclaration(jmmNode, unused);
 
         // Constructor
         code += "\t.construct " + table.getClassName() + "().V {\n" + "\t\tinvokespecial(this, \"<init>\").V;\n\t}\n";

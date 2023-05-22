@@ -74,7 +74,7 @@ public class Launcher {
         Optimization optimization = new Optimization();
 
         //Apply Constant Propagation and Constant Folding optimizations
-        if(Boolean.parseBoolean(config.get("optimize"))){
+        if (Boolean.parseBoolean(config.get("optimize"))) {
             System.out.println("Applying optimizations...");
 
             optimization.optimize(semanticsResult);

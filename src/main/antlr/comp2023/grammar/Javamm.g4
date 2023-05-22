@@ -57,10 +57,10 @@ statement
     ;
 
 expression
-    : expression '[' expression ']' #ArraySubscript
+    : '(' expression ')' #ParenthesesExpr
+    | expression '[' expression ']' #ArraySubscript
     | expression '.' field='length' #LengthFieldAccess
     | expression '.' methodcall=ID '(' methodCallParameters ')' #MethodCall
-    | '(' expression ')' #ParenthesesExpr
     | '!' expression #NegationExpr
     | expression op=('*' | '/') expression #ArithmeticExpr
     | expression op=('+' | '-') expression #ArithmeticExpr
