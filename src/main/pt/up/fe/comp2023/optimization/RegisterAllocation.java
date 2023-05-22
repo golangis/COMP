@@ -9,6 +9,8 @@ import java.util.Set;
 import java.util.Map;
 
 import static org.specs.comp.ollir.InstructionType.ASSIGN;
+import static pt.up.fe.comp2023.optimization.OptimizationUtils.differenceSets;
+import static pt.up.fe.comp2023.optimization.OptimizationUtils.unionSets;
 
 public class RegisterAllocation {
     private final Method method;
@@ -33,7 +35,7 @@ public class RegisterAllocation {
             System.out.println("Defs:" + defs.get(instruction));
             System.out.println("Uses:" + uses.get(instruction));
         }
-        computeInOuts();
+        computeLiveInOuts();
     }
 
     public Set<Element> getDef(Instruction instruction){
@@ -83,7 +85,36 @@ public class RegisterAllocation {
         return result;
     }
 
-    public void computeInOuts() {
-        //TODO
+    public void computeLiveInOuts() {
+        for (Instruction instruction : method.getInstructions()){
+            this.in.put(instruction, new HashSet<>());
+            this.out.put(instruction, new HashSet<>());
+        }
+
+        boolean liveChanged;
+        do {
+            liveChanged = false;
+            for(Instruction instruction : method.getInstructions()){
+                //Save current liveIn and liveOut
+                Set<Element> liveInAux = new HashSet<>(this.in.get(instruction));
+                Set<Element> liveOutAux = new HashSet<>(this.out.get(instruction));
+
+                //Update liveIn
+                Set<Element> difference = differenceSets(this.out.get(instruction), this.defs.get(instruction));
+                Set<Element> newLiveIn = unionSets(this.uses.get(instruction), difference);
+
+                //Update liveOut
+                Set<Element> newLiveOut = new HashSet<>();
+                for(Node node : instruction.getSuccessors()){
+                    Instruction successor = (Instruction) node;
+                    newLiveOut.addAll(this.in.get(successor));
+                }
+                this.out.put(instruction, newLiveOut);
+
+                //Check if liveIn or liveOut changed
+                if(!liveOutAux.equals(newLiveOut) || !liveInAux.equals(newLiveIn))
+                    liveChanged = true;
+            }
+        } while(liveChanged);
     }
 }
