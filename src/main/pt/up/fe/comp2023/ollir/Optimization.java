@@ -1,5 +1,9 @@
 package pt.up.fe.comp2023.ollir;
 
+import org.specs.comp.ollir.ClassUnit;
+import org.specs.comp.ollir.Instruction;
+import org.specs.comp.ollir.Method;
+import org.specs.comp.ollir.OllirErrorException;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
@@ -11,10 +15,13 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp2023.ollir.OllirUtils;
 import pt.up.fe.comp2023.optimization.ConstantFolding;
 import pt.up.fe.comp2023.optimization.ConstantPropagation;
+import pt.up.fe.comp2023.optimization.RegisterAllocation;
 import pt.up.fe.comp2023.semantic.MySymbolTable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimization {
     String code = "";
@@ -43,6 +50,14 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             }
         }
         return semanticsResult;
+    }
+
+    public OllirResult optimize(OllirResult ollirResult) {
+        ClassUnit classUnit = ollirResult.getOllirClass();
+
+        for(Method method : classUnit.getMethods())
+            new RegisterAllocation(method);
+        return ollirResult;
     }
 
     @Override
