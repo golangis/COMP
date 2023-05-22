@@ -197,7 +197,7 @@ public class JasminUtils {
 
     public static String createMethodDirective(Method method) {
         JVMInstructionUtils.numLocals = 0;
-        JVMInstructionUtils.stackSize = 99;
+        JVMInstructionUtils.stackSize = 0;
         String instructions = handleMethodStatements(method);
         if (method.isStaticMethod() && method.getParams().size() > 0)
             JVMInstructionUtils.numLocals++;

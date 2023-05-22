@@ -12,6 +12,19 @@ public class JVMInstructionUtils {
 
     public static int numLocals = 0;
     public static int stackSize = 0;
+    public static int currStackSize = 0;
+
+    public static void increaseStackSize(int n) {
+        currStackSize += n;
+        if (currStackSize > stackSize)
+            stackSize = currStackSize;
+    }
+
+    public static void decreaseStackSize(int n) {
+        currStackSize -= n;
+        if (currStackSize > stackSize)
+            stackSize = currStackSize;
+    }
 
     public static String getLoadInstruction(Element element, HashMap<String, Descriptor> varTable) {
         if (element.isLiteral()) {
@@ -33,7 +46,7 @@ public class JVMInstructionUtils {
         else
             elementType = element.getType().getTypeOfElement();
         int virtualReg = varTable.get(((Operand)element).getName()).getVirtualReg();
-        if (virtualReg > JVMInstructionUtils.numLocals)
+        if (virtualReg > numLocals)
             numLocals = virtualReg;
 
         switch (elementType) {
@@ -62,7 +75,7 @@ public class JVMInstructionUtils {
 
     public static String getStoreInstruction(Element element, HashMap<String, Descriptor> varTable) {
         int virtualReg = varTable.get(((Operand)element).getName()).getVirtualReg();
-        if (virtualReg > JVMInstructionUtils.numLocals)
+        if (virtualReg > numLocals)
             numLocals = virtualReg;
 
         if (element.isLiteral()) {
