@@ -65,7 +65,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         var ifId = tempVarId++;
 
         // Condition statement - negation
-        code += "\t\tif (!.bool " + temp + ") goto end_loop" + ifId + ";\n";
+        code += "\t\tif (!.bool " +  jmmNode.getJmmChild(0).get("valueOl") + ") goto end_loop" + ifId + ";\n";
 
         // What occurs if the condition is met
         code += "\t\tloop" + ifId + ":\n\t"; visit(jmmNode.getJmmChild(1));
