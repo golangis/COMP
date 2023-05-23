@@ -187,12 +187,14 @@ public class JVMInstructionUtils {
         Element leftOperand = instruction.getLeftOperand();
         Element rightOperand = instruction.getRightOperand();
 
-        if (!(leftOperand instanceof LiteralElement) &&
+        if (instruction.getOperation().getOpType() == OperationType.ADD &&
+            !(leftOperand instanceof LiteralElement) &&
             rightOperand instanceof LiteralElement &&
             parseInt(((LiteralElement)rightOperand).getLiteral()) == 1)
             return "\tiinc " + varTable.get(((Operand)leftOperand).getName()).getVirtualReg() + " 1\n";
 
-        if (leftOperand instanceof LiteralElement &&
+        if (instruction.getOperation().getOpType() == OperationType.ADD &&
+            leftOperand instanceof LiteralElement &&
             !(rightOperand instanceof LiteralElement) &&
             parseInt(((LiteralElement)leftOperand).getLiteral()) == 1)
             return "\tiinc " + varTable.get(((Operand)rightOperand).getName()).getVirtualReg() + " 1\n";
