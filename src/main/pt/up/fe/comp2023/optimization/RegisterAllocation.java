@@ -67,6 +67,12 @@ public class RegisterAllocation {
                 if (returnElement != null && !returnElement.isLiteral() && isLocalVar(returnElement, this.method))
                     result.add(returnElement);
             }
+            case UNARYOPER -> {
+                UnaryOpInstruction unaryOpInstruction = (UnaryOpInstruction) instruction;
+                Element operand = unaryOpInstruction.getOperand();
+                if (!operand.isLiteral() && isLocalVar(operand, this.method))
+                    result.add(operand);
+            }
             case BINARYOPER -> {
                 BinaryOpInstruction binInst = (BinaryOpInstruction) instruction;
                 Element leftOperand = binInst.getLeftOperand();
@@ -88,7 +94,6 @@ public class RegisterAllocation {
                 if (!rightOperand.isLiteral() && isLocalVar(rightOperand, this.method))
                     result.add(rightOperand);
             }
-            //TODO:
         }
         return result;
     }
