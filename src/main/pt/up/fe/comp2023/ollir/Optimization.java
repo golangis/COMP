@@ -483,13 +483,11 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithExpr(JmmNode jmmNode, Void unused) {
-        var cycle = jmmNode.getAncestor("Cycle");
         code += "\t\t";
         for (var child : jmmNode.getChildren())
             visit(child);
 
-        if (cycle.isEmpty())
-            code += ";\n";
+        code += ";\n";
         System.out.println(jmmNode.getKind());
         return null;
     }
