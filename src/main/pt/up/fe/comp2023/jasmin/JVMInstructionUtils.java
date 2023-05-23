@@ -205,59 +205,66 @@ public class JVMInstructionUtils {
         return "";
     }
 
+    public static String createArithmeticInstruction(OperationType operationType) {
+        decreaseStackSize(1);
+
+        switch (operationType) {
+            case ADD:
+                return "\tiadd\n";
+            case SUB:
+                return "\tisub\n";
+            case MUL:
+                return "\timul\n";
+            case DIV:
+                return "\tidiv\n";
+        }
+        return "";
+    }
+
+    public static String createLogicalInstruction(OperationType operationType) {
+        decreaseStackSize(1);
+
+        switch (operationType) {
+            case AND: case ANDB:
+                return "\tiand\n";
+            case OR: case ORB:
+                return "\tior\n";
+        }
+        return "";
+    }
+
+    public static String createComparisonInstruction(OperationType operationType, boolean isBranchCond) {
+        decreaseStackSize(2);
+        String statementList = "";
+
+        switch (operationType) {
+            case LTH:
+                return isBranchCond ? "\tif_icmplt " : "\tif_icmplt " + createAuxBranchStatement();
+            case LTE:
+                return isBranchCond ? "\tif_icmple " : "\tif_icmple " + createAuxBranchStatement();
+            case GTH:
+                return isBranchCond ? "\tif_icmpgt " : "\tif_icmpgt " + createAuxBranchStatement();
+            case GTE:
+                return isBranchCond ? "\tif_icmpge " : "\tif_icmpge " + createAuxBranchStatement();
+        }
+        return "";
+    }
+
     public static String createBinaryOpInstruction(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable, boolean isBranchCond) {
+        OperationType operationType = instruction.getOperation().getOpType();
         String statementList = "";
         statementList += getLoadInstruction(instruction.getLeftOperand(), varTable);
         statementList += getLoadInstruction(instruction.getRightOperand(), varTable);
 
-        switch (instruction.getOperation().getOpType()) {
-            case ADD:
-                statementList += "\tiadd\n";
-                decreaseStackSize(1);
+        switch (operationType) {
+            case ADD: case SUB: case MUL: case DIV:
+                statementList += createArithmeticInstruction(operationType);
                 break;
-            case SUB:
-                statementList += "\tisub\n";
-                decreaseStackSize(1);
+            case AND: case ANDB: case OR: case ORB:
+                statementList += createLogicalInstruction(operationType);
                 break;
-            case MUL:
-                statementList += "\timul\n";
-                decreaseStackSize(1);
-                break;
-            case DIV:
-                statementList += "\tidiv\n";
-                decreaseStackSize(1);
-                break;
-            case AND: case ANDB:
-                statementList += "\tiand\n";
-                decreaseStackSize(1);
-                break;
-            case OR: case ORB:
-                statementList += "\tior\n";
-                decreaseStackSize(1);
-                break;
-            case LTH:
-                statementList += "\tif_icmplt ";
-                if (!isBranchCond)
-                    statementList += createAuxBranchStatement();
-                decreaseStackSize(2);
-                break;
-            case LTE:
-                statementList += "\tif_icmple ";
-                if (!isBranchCond)
-                    statementList += createAuxBranchStatement();
-                decreaseStackSize(2);
-                break;
-            case GTH:
-                statementList += "\tif_icmpgt ";
-                if (!isBranchCond)
-                    statementList += createAuxBranchStatement();
-                decreaseStackSize(2);
-                break;
-            case GTE:
-                statementList += "\tif_icmpge ";
-                if (!isBranchCond)
-                    statementList += createAuxBranchStatement();
-                decreaseStackSize(2);
+            case LTH: case LTE: case GTH: case GTE:
+                statementList += createComparisonInstruction(operationType, isBranchCond);
                 break;
         }
         return statementList;
