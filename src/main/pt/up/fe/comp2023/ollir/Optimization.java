@@ -80,11 +80,11 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithCondition(JmmNode jmmNode, Void unused) {
-       code += "\t\t"; visit(jmmNode.getJmmChild(0));
+        code += "\t\t"; visit(jmmNode.getJmmChild(0));
         var ifId = tempVarId++;
 
         // Condition statement
-        code += "\t\tif (" + temp + ") goto if" + ifId + ";\n";
+        code += "\t\tif (" + jmmNode.getJmmChild(0).get("valueOl") + ") goto if" + ifId + ";\n";
 
         // What occurs if the condition isn't met
         code += "\t\t\t"; visit(jmmNode.getJmmChild(2));
@@ -189,7 +189,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
 
     private Void dealWithArrayCreation(JmmNode jmmNode, Void unused) {
         JmmNode size = jmmNode.getChildren().get(0);
-        String 
+
         for (var child : jmmNode.getChildren())
             visit(child);
 
