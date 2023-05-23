@@ -183,19 +183,22 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
-    public static String checkInc(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
+    public static String checkInc(BinaryOpInstruction instruction, Element dest, HashMap<String, Descriptor> varTable) {
         Element leftOperand = instruction.getLeftOperand();
         Element rightOperand = instruction.getRightOperand();
+        String destName = ((Operand)dest).getName();
 
         if (instruction.getOperation().getOpType() == OperationType.ADD &&
             !(leftOperand instanceof LiteralElement) &&
             rightOperand instanceof LiteralElement &&
+            destName.equals(((Operand)leftOperand).getName()) &&
             parseInt(((LiteralElement)rightOperand).getLiteral()) == 1)
             return "\tiinc " + varTable.get(((Operand)leftOperand).getName()).getVirtualReg() + " 1\n";
 
         if (instruction.getOperation().getOpType() == OperationType.ADD &&
             leftOperand instanceof LiteralElement &&
             !(rightOperand instanceof LiteralElement) &&
+            destName.equals(((Operand)rightOperand).getName()) &&
             parseInt(((LiteralElement)leftOperand).getLiteral()) == 1)
             return "\tiinc " + varTable.get(((Operand)rightOperand).getName()).getVirtualReg() + " 1\n";
 
@@ -273,14 +276,14 @@ public class JVMInstructionUtils {
     }
 
     public static String createAssignStatement(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
+        Element assignElement = instruction.getDest();
         String statementList = "";
         if (instruction.getRhs() instanceof BinaryOpInstruction) {
-            statementList = checkInc((BinaryOpInstruction) instruction.getRhs(), varTable);
+            statementList = checkInc((BinaryOpInstruction) instruction.getRhs(), assignElement, varTable);
             if (!statementList.equals(""))
                 return statementList;
         }
 
-        Element assignElement = instruction.getDest();
         if (assignElement instanceof ArrayOperand)
             statementList += getArrayLoadInstruction((ArrayOperand)assignElement, varTable);
         statementList += JasminUtils.handleInstruction(instruction.getRhs(), varTable, true);
