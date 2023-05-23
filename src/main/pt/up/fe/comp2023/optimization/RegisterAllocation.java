@@ -1,16 +1,14 @@
 package pt.up.fe.comp2023.optimization;
 
 import org.specs.comp.ollir.*;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Map;
 
-import static org.specs.comp.ollir.InstructionType.ASSIGN;
-import static pt.up.fe.comp2023.optimization.OptimizationUtils.differenceSets;
-import static pt.up.fe.comp2023.optimization.OptimizationUtils.unionSets;
+import static org.specs.comp.ollir.InstructionType.*;
+import static pt.up.fe.comp2023.optimization.OptimizationUtils.*;
 
 public class RegisterAllocation {
     private final Method method;
@@ -35,7 +33,7 @@ public class RegisterAllocation {
             System.out.println("Defs:" + defs.get(instruction));
             System.out.println("Uses:" + uses.get(instruction));
         }
-        computeLiveInOuts();
+        //computeLiveInOuts();
     }
 
     public Set<Element> getDef(Instruction instruction){
@@ -43,7 +41,8 @@ public class RegisterAllocation {
 
         if(instruction.getInstType() == ASSIGN) {
             AssignInstruction assignInst = (AssignInstruction)instruction;
-            def.add(assignInst.getDest());
+            if(isLocalVar(assignInst.getDest(), this.method))
+                def.add(assignInst.getDest());
         }
         return def;
     }
@@ -58,27 +57,29 @@ public class RegisterAllocation {
                 CallInstruction callInst = (CallInstruction) instruction;
                 List<Element> arguments = callInst.getListOfOperands();
                 for (Element argument : arguments) {
-                    if (!argument.isLiteral())
+                    if (!argument.isLiteral() && isLocalVar(argument, this.method))
                         result.add(argument);
                 }
             }
             case RETURN -> {
                 ReturnInstruction returnInst = (ReturnInstruction) instruction;
                 Element returnElement = returnInst.getOperand();
-                if (returnElement != null && !returnElement.isLiteral())
+                if (returnElement != null && !returnElement.isLiteral() && isLocalVar(returnElement, this.method))
                     result.add(returnElement);
             }
             case BINARYOPER -> {
                 BinaryOpInstruction binInst = (BinaryOpInstruction) instruction;
-                if (!binInst.getLeftOperand().isLiteral())
-                    result.add(binInst.getLeftOperand());
-                if (!binInst.getRightOperand().isLiteral())
-                    result.add(binInst.getRightOperand());
+                Element leftOperand = binInst.getLeftOperand();
+                Element rightOperand = binInst.getRightOperand();
+                if (!leftOperand.isLiteral() && isLocalVar(leftOperand, this.method))
+                    result.add(leftOperand);
+                if (!rightOperand.isLiteral() && isLocalVar(rightOperand, this.method))
+                    result.add(rightOperand);
             }
             case NOPER -> {
                 SingleOpInstruction singleOpInstruction = (SingleOpInstruction) instruction;
                 Element operand = singleOpInstruction.getSingleOperand();
-                if (!operand.isLiteral())
+                if (!operand.isLiteral() && isLocalVar(operand, this.method))
                     result.add(operand);
             }
         }
