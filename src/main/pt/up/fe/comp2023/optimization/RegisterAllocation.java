@@ -78,10 +78,17 @@ public class RegisterAllocation {
             }
             case NOPER -> {
                 SingleOpInstruction singleOpInstruction = (SingleOpInstruction) instruction;
-                Element operand = singleOpInstruction.getSingleOperand();
-                if (!operand.isLiteral() && isLocalVar(operand, this.method))
-                    result.add(operand);
+                Element rightOperand = singleOpInstruction.getSingleOperand();
+                if (!rightOperand.isLiteral() && isLocalVar(rightOperand, this.method))
+                    result.add(rightOperand);
             }
+            case PUTFIELD -> {
+                PutFieldInstruction putFieldInstruction = (PutFieldInstruction) instruction;
+                Element rightOperand = putFieldInstruction.getThirdOperand();
+                if (!rightOperand.isLiteral() && isLocalVar(rightOperand, this.method))
+                    result.add(rightOperand);
+            }
+            //TODO:
         }
         return result;
     }

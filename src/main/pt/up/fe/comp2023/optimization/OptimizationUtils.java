@@ -42,7 +42,7 @@ public class OptimizationUtils {
         String varName = ((Operand)element).getName();
         int firstLocalVarRegister = method.isStaticMethod() ? 0 : 1 + method.getParams().size();
 
-        return varTable.get(varName).getVirtualReg() < firstLocalVarRegister;
+        return varTable.get(varName).getVirtualReg() >= firstLocalVarRegister;
     }
 
 }
