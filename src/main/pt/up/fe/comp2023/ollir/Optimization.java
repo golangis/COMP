@@ -160,7 +160,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithThis(JmmNode jmmNode, Void unused) {
-        jmmNode.put("valueOl", "this");
+        jmmNode.put("valueOl", "this." + table.getClassName());
         return null;
     }
 
