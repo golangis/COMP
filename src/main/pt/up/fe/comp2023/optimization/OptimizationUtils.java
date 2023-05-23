@@ -1,7 +1,11 @@
 package pt.up.fe.comp2023.optimization;
 
+import org.specs.comp.ollir.Descriptor;
 import org.specs.comp.ollir.Element;
+import org.specs.comp.ollir.Method;
+import org.specs.comp.ollir.Operand;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -32,4 +36,13 @@ public class OptimizationUtils {
 
         return result;
     }
+
+    public static boolean isLocalVar(Element element, Method method) {
+        HashMap<String, Descriptor> varTable = method.getVarTable();
+        String varName = ((Operand)element).getName();
+        int firstLocalVarRegister = method.isStaticMethod() ? 0 : 1 + method.getParams().size();
+
+        return varTable.get(element.toString()).getVirtualReg() < firstLocalVarRegister)
+    }
+
 }
