@@ -188,10 +188,10 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithArrayCreation(JmmNode jmmNode, Void unused) {
-        JmmNode size = jmmNode.getChildren().get(0);
+        visit(jmmNode.getJmmChild(0));
+        code += "\t\tt" + tempVarId + ".array.i32 :=.array.i32 new(array, " + jmmNode.getJmmChild(0).get("valueOl") +").array.i32;\n";
 
-        for (var child : jmmNode.getChildren())
-            visit(child);
+        jmmNode.put("valueOl", "t" + tempVarId++ + ".array.i32" );
 
         return null;
     }
