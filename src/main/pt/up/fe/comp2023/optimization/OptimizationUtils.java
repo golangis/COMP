@@ -5,10 +5,7 @@ import org.specs.comp.ollir.Element;
 import org.specs.comp.ollir.Method;
 import org.specs.comp.ollir.Operand;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class OptimizationUtils {
     public static void intersectMaps (Map<String, String> map1, Map<String, String> map2, Map<String, String> result){
@@ -53,9 +50,9 @@ public class OptimizationUtils {
         return varTable.get(identifier).getVirtualReg() >= firstLocalVarRegister;
     }
 
-    public static Set<String> getLocalVars(Method method) {
+    public static List<String> getLocalVars(Method method) {
         HashMap<String, Descriptor> varTable = method.getVarTable();
-        Set<String> localsVars = new HashSet<>();
+        List<String> localsVars = new ArrayList<>();
 
         for(Map.Entry<String, Descriptor> entry : varTable.entrySet()){
             String identifier = entry.getKey();
@@ -63,6 +60,10 @@ public class OptimizationUtils {
                 localsVars.add(identifier);
         }
         return localsVars;
+    }
+
+    public static String toVarName(Element element){
+        return  ((Operand)element).getName();
     }
 
 }
