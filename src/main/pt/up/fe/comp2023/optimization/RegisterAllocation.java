@@ -3,11 +3,7 @@ package pt.up.fe.comp2023.optimization;
 import org.specs.comp.ollir.*;
 import pt.up.fe.comp2023.optimization.interferenceGraph.MyInterferenceGraph;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 
 import static org.specs.comp.ollir.InstructionType.*;
 import static pt.up.fe.comp2023.optimization.OptimizationUtils.*;
@@ -18,6 +14,7 @@ public class RegisterAllocation {
     private final Map<Node, Set<String>> uses = new HashMap<>();
     private final Map<Node, Set<String>> in = new HashMap<>();
     private final Map<Node, Set<String>> out = new HashMap<>();
+    private final MyInterferenceGraph interferenceGraph = new MyInterferenceGraph();
     public RegisterAllocation(Method method) {
         this.method = method;
         method.buildCFG();
@@ -36,6 +33,7 @@ public class RegisterAllocation {
             System.out.println("Uses:" + uses.get(instruction));
         }
         computeLiveInOut();
+        createInterferenceGraph();
     }
 
     public Set<String> getDef(Instruction instruction){
@@ -135,5 +133,22 @@ public class RegisterAllocation {
                     liveChanged = true;
             }
         } while(liveChanged);
+    }
+
+    private void createInterferenceGraph() {
+        List<String> localVars = getLocalVars(this.method);
+
+        //Add a node for each variable
+        for(String var : localVars)
+            this.interferenceGraph.addNode(var);
+
+        //Compute edges
+        for(Instruction instruction : this.method.getInstructions()){
+            List<String> liveIn = new ArrayList<>(this.in.get(instruction));
+            List<String> defAndLiveOut = new ArrayList<>(unionSets(this.defs.get(instruction), this.out.get(instruction)));
+
+            this.interferenceGraph.connectInterferingVariables(liveIn);
+            this.interferenceGraph.connectInterferingVariables(defAndLiveOut);
+        }
     }
 }
