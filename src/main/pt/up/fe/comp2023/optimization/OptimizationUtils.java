@@ -20,15 +20,16 @@ public class OptimizationUtils {
         }
     }
 
-    public static Set<Element> differenceSets (Set<Element> set1, Set<Element> set2){
-        Set<Element> result = new HashSet<>(set1);
-        result.removeAll(set2);
+    public static <T> Set<T> differenceSets(Set<T> set1, Set<T> set2) {
+        Set<T> result = new HashSet<>(set1);
+        if(set2 != null)
+            result.removeAll(set2);
 
         return result;
     }
 
-    public static Set<Element> unionSets (Set<Element> set1, Set<Element> set2){
-        Set<Element> result = new HashSet<>(set1);
+    public static  <T> Set<T> unionSets(Set<T> set1, Set<T> set2) {
+        Set<T> result = new HashSet<>(set1);
         if(set2 != null)
             result.addAll(set2);
 
@@ -65,5 +66,4 @@ public class OptimizationUtils {
     public static String toVarName(Element element){
         return  ((Operand)element).getName();
     }
-
 }
