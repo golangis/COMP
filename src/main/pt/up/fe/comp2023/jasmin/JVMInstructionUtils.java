@@ -13,6 +13,7 @@ public class JVMInstructionUtils {
     public static int numLocals = 0;
     public static int stackSize = 0;
     public static int currStackSize = 0;
+    public static Map<String, String> varEquivalence = new HashMap<>();
 
     public static void increaseStackSize(int n) {
         currStackSize += n;

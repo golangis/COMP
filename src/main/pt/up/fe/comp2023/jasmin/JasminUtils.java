@@ -4,6 +4,8 @@ import org.specs.comp.ollir.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 public class JasminUtils {
 
@@ -69,6 +71,19 @@ public class JasminUtils {
         return fieldDirective + '\n';
     }
 
+    public static String createConstructMethod(String superClassName) {
+        String methodDirective = ".method public <init>()V\n";
+        methodDirective += "\taload_0\n";
+        methodDirective += "\tinvokespecial ";
+        if (superClassName != null)
+            methodDirective += superClassName;
+        else
+            methodDirective += "java/lang/Object";
+        methodDirective += "/<init>()V\n";
+        methodDirective += "\treturn\n";
+        return methodDirective + ".end method\n\n";
+    }
+
     public static String createMethodSignature(String methodName, ArrayList<Element> listOfParameters, Type returnType, boolean isDeclaration) {
         String methodSignature = "";
         methodSignature += methodName + "(";
@@ -96,6 +111,7 @@ public class JasminUtils {
     }
 
     public static String handleInstruction(Instruction instruction, HashMap<String, Descriptor> varTable, boolean isRhs) {
+        instruction.show();
         String statementList = "";
         switch (instruction.getInstType()) {
             case ASSIGN:
@@ -184,23 +200,28 @@ public class JasminUtils {
         return statementList;
     }
 
-    public static String createConstructMethod(String superClassName) {
-        String methodDirective = ".method public <init>()V\n";
-        methodDirective += "\taload_0\n";
-        methodDirective += "\tinvokespecial ";
-        if (superClassName != null)
-            methodDirective += superClassName;
-        else
-            methodDirective += "java/lang/Object";
-        methodDirective += "/<init>()V\n";
-        methodDirective += "\treturn\n";
-        return methodDirective + ".end method\n\n";
+    public static void createVarEquivalence(Method method) {
+        JVMInstructionUtils.varEquivalence.clear();
+        for (Instruction instruction: method.getInstructions()) {
+            if (instruction instanceof AssignInstruction) {
+                Operand lhs = ((Operand)((AssignInstruction)instruction).getDest());
+                Instruction rhsInstruction = ((AssignInstruction)instruction).getRhs();
+                if (rhsInstruction instanceof SingleOpInstruction &&
+                    ((SingleOpInstruction)rhsInstruction).getSingleOperand() instanceof Operand) {
+                    Operand rhs = ((Operand)((SingleOpInstruction)rhsInstruction).getSingleOperand());
+
+                    JVMInstructionUtils.varEquivalence.put(rhs.getName(), lhs.getName());
+                }
+            }
+        }
     }
 
     public static String createMethodDirective(Method method) {
         JVMInstructionUtils.numLocals = 0;
         JVMInstructionUtils.stackSize = 0;
         JVMInstructionUtils.currStackSize = 0;
+        createVarEquivalence(method);
+
         String instructions = handleMethodStatements(method);
         if (method.isStaticMethod() && method.getParams().size() > 0)
             JVMInstructionUtils.numLocals++;
