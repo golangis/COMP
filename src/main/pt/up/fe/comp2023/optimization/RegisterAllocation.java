@@ -1,6 +1,8 @@
 package pt.up.fe.comp2023.optimization;
 
 import org.specs.comp.ollir.*;
+import pt.up.fe.comp2023.optimization.interferenceGraph.MyInterferenceGraph;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,10 +14,10 @@ import static pt.up.fe.comp2023.optimization.OptimizationUtils.*;
 
 public class RegisterAllocation {
     private final Method method;
-    private final Map<Node, Set<Element>> defs = new HashMap<>();
-    private final Map<Node, Set<Element>> uses = new HashMap<>();
-    private final Map<Node, Set<Element>> in = new HashMap<>();
-    private final Map<Node, Set<Element>> out = new HashMap<>();
+    private final Map<Node, Set<String>> defs = new HashMap<>();
+    private final Map<Node, Set<String>> uses = new HashMap<>();
+    private final Map<Node, Set<String>> in = new HashMap<>();
+    private final Map<Node, Set<String>> out = new HashMap<>();
     public RegisterAllocation(Method method) {
         this.method = method;
         method.buildCFG();
@@ -33,21 +35,23 @@ public class RegisterAllocation {
             System.out.println("Defs:" + defs.get(instruction));
             System.out.println("Uses:" + uses.get(instruction));
         }
-        computeLiveInOuts();
+        computeLiveInOut();
     }
 
-    public Set<Element> getDef(Instruction instruction){
-        Set<Element> def = new HashSet<>();
+    public Set<String> getDef(Instruction instruction){
+        Set<String> def = new HashSet<>();
 
         if(instruction.getInstType() == ASSIGN) {
             AssignInstruction assignInst = (AssignInstruction)instruction;
-            if(isLocalVar(assignInst.getDest(), this.method))
-                def.add(assignInst.getDest());
+            if(isLocalVar(assignInst.getDest(), this.method)){
+                Element dest = assignInst.getDest();
+                def.add(toVarName(dest));
+            }
         }
         return def;
     }
 
-    public Set<Element> getUse(Instruction instruction, Set<Element> result){
+    public Set<String> getUse(Instruction instruction, Set<String> result){
         switch (instruction.getInstType()) {
             case ASSIGN -> {
                 AssignInstruction assignInst = (AssignInstruction) instruction;
@@ -58,47 +62,47 @@ public class RegisterAllocation {
                 List<Element> arguments = callInst.getListOfOperands();
                 for (Element argument : arguments) {
                     if (!argument.isLiteral() && isLocalVar(argument, this.method))
-                        result.add(argument);
+                        result.add(toVarName(argument));
                 }
             }
             case RETURN -> {
                 ReturnInstruction returnInst = (ReturnInstruction) instruction;
                 Element returnElement = returnInst.getOperand();
                 if (returnElement != null && !returnElement.isLiteral() && isLocalVar(returnElement, this.method))
-                    result.add(returnElement);
+                    result.add(toVarName(returnElement));
             }
             case UNARYOPER -> {
                 UnaryOpInstruction unaryOpInstruction = (UnaryOpInstruction) instruction;
                 Element operand = unaryOpInstruction.getOperand();
                 if (!operand.isLiteral() && isLocalVar(operand, this.method))
-                    result.add(operand);
+                    result.add(toVarName(operand));
             }
             case BINARYOPER -> {
                 BinaryOpInstruction binInst = (BinaryOpInstruction) instruction;
                 Element leftOperand = binInst.getLeftOperand();
                 Element rightOperand = binInst.getRightOperand();
                 if (!leftOperand.isLiteral() && isLocalVar(leftOperand, this.method))
-                    result.add(leftOperand);
+                    result.add(toVarName(leftOperand));
                 if (!rightOperand.isLiteral() && isLocalVar(rightOperand, this.method))
-                    result.add(rightOperand);
+                    result.add(toVarName(rightOperand));
             }
             case NOPER -> {
                 SingleOpInstruction singleOpInstruction = (SingleOpInstruction) instruction;
                 Element rightOperand = singleOpInstruction.getSingleOperand();
                 if (!rightOperand.isLiteral() && isLocalVar(rightOperand, this.method))
-                    result.add(rightOperand);
+                    result.add(toVarName(rightOperand));
             }
             case PUTFIELD -> {
                 PutFieldInstruction putFieldInstruction = (PutFieldInstruction) instruction;
                 Element rightOperand = putFieldInstruction.getThirdOperand();
                 if (!rightOperand.isLiteral() && isLocalVar(rightOperand, this.method))
-                    result.add(rightOperand);
+                    result.add(toVarName(rightOperand));
             }
         }
         return result;
     }
 
-    public void computeLiveInOuts() {
+    public void computeLiveInOut() {
         for (Instruction instruction : method.getInstructions()){
             this.in.put(instruction, new HashSet<>());
             this.out.put(instruction, new HashSet<>());
@@ -109,19 +113,19 @@ public class RegisterAllocation {
             liveChanged = false;
             for(Instruction instruction : method.getInstructions()){
                 //Save current liveIn and liveOut
-                Set<Element> liveInAux = new HashSet<>(this.in.get(instruction));
-                Set<Element> liveOutAux = new HashSet<>(this.out.get(instruction));
+                Set<String> liveInAux = new HashSet<>(this.in.get(instruction));
+                Set<String> liveOutAux = new HashSet<>(this.out.get(instruction));
 
                 //Update liveIn
-                Set<Element> difference = differenceSets(this.out.get(instruction), this.defs.get(instruction));
-                Set<Element> newLiveIn = unionSets(this.uses.get(instruction), difference);
+                Set<String> difference = differenceSets(this.out.get(instruction), this.defs.get(instruction));
+                Set<String> newLiveIn = unionSets(this.uses.get(instruction), difference);
                 this.in.put(instruction, newLiveIn);
 
                 //Update liveOut
-                Set<Element> newLiveOut = new HashSet<>();
+                Set<String> newLiveOut = new HashSet<>();
 
                 for(Node successor : instruction.getSuccessors()){
-                    Set<Element> liveInSuccessor =  this.in.get(successor);
+                    Set<String> liveInSuccessor =  this.in.get(successor);
                     newLiveOut = unionSets(newLiveOut, liveInSuccessor);
                 }
                 this.out.put(instruction, newLiveOut);
