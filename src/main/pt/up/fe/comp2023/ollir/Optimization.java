@@ -280,7 +280,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         visit(caller);
         jmmNode.put("valueOl", "t" + tempVarId + ".i32");
         String caller_name = caller.get("valueOl");
-        code += "t" + tempVarId++ + ".i32 :=.i32 arraylength(" + caller_name  + ").i32;";
+        code += "t" + tempVarId++ + ".i32 :=.i32 arraylength(" + caller_name  + ").i32;\n";
         return null;
     }
 
@@ -307,7 +307,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         String right = rightSon.get("valueOl");
         temp = "t" + tempVarId++ + ".bool";
 
-        code += temp + ":=.bool " + left + " " + jmmNode.get("op") + ".bool " + right + ";\n";
+        code += temp + " :=.bool " + left + " " + jmmNode.get("op") + ".bool " + right + ";\n";
         jmmNode.put("valueOl", temp);
 
         return null;
@@ -316,9 +316,6 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     private Void dealWithComparison(JmmNode jmmNode, Void unused) {
         JmmNode leftSon = jmmNode.getJmmChild(0);
         JmmNode rightSon = jmmNode.getJmmChild(1);
-        var condition = jmmNode.getAncestor("Condition");
-        var cycle = jmmNode.getAncestor("Cycle");
-
 
         visit(leftSon);
         visit(rightSon);
@@ -327,9 +324,8 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         String right = rightSon.get("valueOl");
         temp = "t" + tempVarId++ + ".bool";
 
-        code += temp + ":=.bool " + left + " " + jmmNode.get("op") + ".bool " + right;
-        //if (condition.isEmpty() || cycle.isEmpty())
-            code += ";\n";
+        code += temp + " :=.bool " + left + " " + jmmNode.get("op") + ".bool " + right;
+        code += ";\n";
         jmmNode.put("valueOl", temp);
 
         return null;
@@ -346,16 +342,19 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         String right = rightSon.get("valueOl");
         temp = "t" + tempVarId++ + ".i32";
 
-        code += temp + ":=.i32 " + left + " " + jmmNode.get("op") + ".i32 " + right + ";\n";
+        code += temp + " :=.i32 " + left + " " + jmmNode.get("op") + ".i32 " + right + ";\n";
         jmmNode.put("valueOl", temp);
 
         return null;
     }
 
     private Void dealWithNegationExpr(JmmNode jmmNode, Void unused) {
-        for (var child : jmmNode.getChildren())
-            visit(child);
-
+        JmmNode son = jmmNode.getJmmChild(0);
+        visit(son);
+        String sonS = son.get("valueOl");
+        temp = "t" + tempVarId++ + ".bool";
+        code += temp + " :=.bool !.bool " + sonS + ";\n";
+        jmmNode.put("valueOl", temp);
         return null;
     }
 
@@ -474,7 +473,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         if (isLocal)
             code += "\t\t" + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
         else if (isParam)
-            code += "\t\t$" + idParam + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
+            code += "\t\t$" + idParam + "." + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
         else if (isField)
             code += "\t\tputfield(this, " + left + OllirUtils.ollirTypes(var.getType()) + ", ";
 
@@ -484,13 +483,11 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     private Void dealWithExpr(JmmNode jmmNode, Void unused) {
-        var cycle = jmmNode.getAncestor("Cycle");
         code += "\t\t";
         for (var child : jmmNode.getChildren())
             visit(child);
 
-        if (cycle.isEmpty())
-            code += ";\n";
+        code += ";\n";
         System.out.println(jmmNode.getKind());
         return null;
     }
