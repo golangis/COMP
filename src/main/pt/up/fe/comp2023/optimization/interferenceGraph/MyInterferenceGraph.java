@@ -18,9 +18,20 @@ public class MyInterferenceGraph {
         }
         return null;
     }
-    public void addEdge(String src, String dest){
+    public void addInterferenceEdge(String src, String dest){
         getNode(src).getAdj().add(dest);
         getNode(dest).getAdj().add(src);
+    }
+
+    public void connectInterferingVariables(List<String> variables){
+        for(int i = 0; i < variables.size(); i++){
+            for(int j = i + 1; j < variables.size(); j++){
+                String src = variables.get(i);
+                String dest = variables.get(j);
+
+                addInterferenceEdge(src, dest);
+            }
+        }
     }
 
     public void removeNode(String varName){
