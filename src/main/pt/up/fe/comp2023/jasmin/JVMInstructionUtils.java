@@ -235,7 +235,6 @@ public class JVMInstructionUtils {
 
     public static String createComparisonInstruction(OperationType operationType, boolean isBranchCond) {
         decreaseStackSize(2);
-        String statementList = "";
 
         switch (operationType) {
             case LTH:
@@ -250,21 +249,51 @@ public class JVMInstructionUtils {
         return "";
     }
 
+    public static String createZeroComparisonInstruction(OperationType operationType, boolean isBranchCond) {
+        decreaseStackSize(1);
+
+        switch (operationType) {
+            case LTH:
+                return isBranchCond ? "\tiflt " : "\tiflt " + createAuxBranchStatement();
+            case LTE:
+                return isBranchCond ? "\tifle " : "\tifle " + createAuxBranchStatement();
+            case GTH:
+                return isBranchCond ? "\tifgt " : "\tifgt " + createAuxBranchStatement();
+            case GTE:
+                return isBranchCond ? "\tifge " : "\tifge " + createAuxBranchStatement();
+        }
+        return "";
+    }
+
     public static String createBinaryOpInstruction(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable, boolean isBranchCond) {
         OperationType operationType = instruction.getOperation().getOpType();
+        Element leftOperand = instruction.getLeftOperand();
+        Element rightOperand = instruction.getRightOperand();
         String statementList = "";
-        statementList += getLoadInstruction(instruction.getLeftOperand(), varTable);
-        statementList += getLoadInstruction(instruction.getRightOperand(), varTable);
 
         switch (operationType) {
             case ADD: case SUB: case MUL: case DIV:
+                statementList += getLoadInstruction(leftOperand, varTable);
+                statementList += getLoadInstruction(rightOperand, varTable);
                 statementList += createArithmeticInstruction(operationType);
                 break;
             case AND: case ANDB: case OR: case ORB:
+                statementList += getLoadInstruction(leftOperand, varTable);
+                statementList += getLoadInstruction(rightOperand, varTable);
                 statementList += createLogicalInstruction(operationType);
                 break;
             case LTH: case LTE: case GTH: case GTE:
-                statementList += createComparisonInstruction(operationType, isBranchCond);
+                if (leftOperand instanceof LiteralElement && parseInt(((LiteralElement)leftOperand).getLiteral()) == 0) {
+                    statementList += getLoadInstruction(rightOperand, varTable);
+                    statementList += createZeroComparisonInstruction(operationType, isBranchCond);
+                } else if (rightOperand instanceof LiteralElement && parseInt(((LiteralElement)rightOperand).getLiteral()) == 0) {
+                    statementList += getLoadInstruction(leftOperand, varTable);
+                    statementList += createZeroComparisonInstruction(operationType, isBranchCond);
+                } else {
+                    statementList += getLoadInstruction(leftOperand, varTable);
+                    statementList += getLoadInstruction(rightOperand, varTable);
+                    statementList += createComparisonInstruction(operationType, isBranchCond);
+                }
                 break;
         }
         return statementList;
