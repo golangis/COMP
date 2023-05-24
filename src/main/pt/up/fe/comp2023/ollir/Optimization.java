@@ -264,7 +264,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         visit(caller);
         jmmNode.put("valueOl", "t" + tempVarId + ".i32");
         String caller_name = caller.get("valueOl");
-        code += "t" + tempVarId++ + ".i32 :=.i32 arraylength(" + caller_name  + ").i32;";
+        code += "t" + tempVarId++ + ".i32 :=.i32 arraylength(" + caller_name  + ").i32;\n";
         return null;
     }
 
@@ -457,7 +457,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         if (isLocal)
             code += "\t\t" + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
         else if (isParam)
-            code += "\t\t$" + idParam + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
+            code += "\t\t$" + idParam + "." + left + OllirUtils.ollirTypes(var.getType()) + " :=" + OllirUtils.ollirTypes(var.getType()) + " ";
         else if (isField)
             code += "\t\tputfield(this, " + left + OllirUtils.ollirTypes(var.getType()) + ", ";
 
