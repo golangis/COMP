@@ -32,7 +32,8 @@ public class OptimizationUtils {
 
     public static Set<Element> unionSets (Set<Element> set1, Set<Element> set2){
         Set<Element> result = new HashSet<>(set1);
-        result.addAll(set2);
+        if(set2 != null)
+            result.addAll(set2);
 
         return result;
     }
@@ -43,6 +44,25 @@ public class OptimizationUtils {
         int firstLocalVarRegister = method.isStaticMethod() ? 0 : 1 + method.getParams().size();
 
         return varTable.get(varName).getVirtualReg() >= firstLocalVarRegister;
+    }
+
+    public static boolean isLocalVar(String identifier, Method method) {
+        HashMap<String, Descriptor> varTable = method.getVarTable();
+        int firstLocalVarRegister = method.isStaticMethod() ? 0 : 1 + method.getParams().size();
+
+        return varTable.get(identifier).getVirtualReg() >= firstLocalVarRegister;
+    }
+
+    public static Set<String> getLocalVars(Method method) {
+        HashMap<String, Descriptor> varTable = method.getVarTable();
+        Set<String> localsVars = new HashSet<>();
+
+        for(Map.Entry<String, Descriptor> entry : varTable.entrySet()){
+            String identifier = entry.getKey();
+            if(isLocalVar(identifier, method))
+                localsVars.add(identifier);
+        }
+        return localsVars;
     }
 
 }
