@@ -78,6 +78,9 @@ public class ConstantPropagation extends AJmmVisitor<Map<String, String>, Void> 
 
     private Void dealWithAssignment(JmmNode jmmNode, Map<String, String> constants) {
         String varName = jmmNode.get("varname");
+        if(jmmNode.getAncestor("Cycle").isPresent())
+            constants.remove(varName);
+
         JmmNode exprNode = jmmNode.getJmmChild(0);
         visit(exprNode, constants);
 
