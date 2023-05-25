@@ -110,11 +110,11 @@ public class Launcher {
         config.put("optimize", "false");
         config.put("registerAllocation", "-1");
 
-        for (int i = 2; i < args.length; i++) {
+        for (int i = 1; i < args.length; i++) {
             if(args[i].equals("-o"))
                 config.put("optimize", "true");
 
-            else if(args[i].equals("-p")) {
+            else if(args[i].equals("-r")) {
                 if(i + 1 >= args.length)
                     throw new RuntimeException("Missing argument for -r option.");
                 else {
