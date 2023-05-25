@@ -402,6 +402,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         JmmNode right = jmmNode.getChildren().get(0);
         JmmNode last = jmmNode.getChildren().get(1);
         visit(right);
+        visit(last);
 
         if (isLocal)
             code += "\t\t" + left;
@@ -411,11 +412,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             code += "\t\tt" + tempVarId + ".array.i32 :=.array.i32 getfield(this, " + left + ".array.i32).array.i32;" +
                     "\n\t\tt" + tempVarId++;
 
-        code += "[" + right.get("valueOl") +  "].i32 :=.i32 ";
-
-        visit(last);
-
-        code += last.get("valueOl") +";\n";
+        code += "[" + right.get("valueOl") +  "].i32 :=.i32 " + last.get("valueOl") +";\n";
 
         return null;
     }
