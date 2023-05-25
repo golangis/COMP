@@ -73,7 +73,7 @@ public class Launcher {
 
         Optimization optimization = new Optimization();
 
-        //Apply Constant Propagation and Constant Folding optimizations
+        // Apply Constant Propagation and Constant Folding optimizations
         if (Boolean.parseBoolean(config.get("optimize"))) {
             System.out.println("Applying optimizations...");
 
@@ -84,6 +84,8 @@ public class Launcher {
         }
 
         OllirResult ollirResult = optimization.toOllir(semanticsResult);
+
+        // Optimize register allocation
         if (Integer.parseInt(config.get("registerAllocation")) >= 0)
             optimization.optimize(ollirResult);
 
@@ -98,9 +100,8 @@ public class Launcher {
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
 
         // Check if there is at least one argument
-        if (args.length < 1) {
-            throw new RuntimeException("./abc <file_path> [-o] [-p <n>]");
-        }
+        if (args.length < 1)
+            throw new RuntimeException("Usage: ./jmm <file_path> [-o] [-p <n>]");
 
         // Create config
         Map<String, String> config = new HashMap<>();
@@ -127,18 +128,6 @@ public class Launcher {
                 }
             }
         }
-
-            if (Arrays.asList(args).contains("-o"))
-            config.put("optimize", "true");
-        else
-            config.put("optimize", "false");
-
-        if (Arrays.asList(args).contains("-p")){
-            Arrays.asList(args).fin
-        }
-        else
-            config.put("registerAllocation", "-1");
-
         return config;
     }
 }
