@@ -70,7 +70,7 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
         // What occurs if the condition is met
         code += "\t\tloop" + ifId + ":\n\t"; visit(jmmNode.getJmmChild(1));
         code += "\t\t"; visit(jmmNode.getJmmChild(0)); code += "\n";
-        code += "\t\t if( " + temp + ") goto loop" + ifId + ";\n";
+        code += "\t\t if( " + jmmNode.getJmmChild(0).get("valueOl")  + ") goto loop" + ifId + ";\n";
 
         // End of If
         code +="\t\tend_loop" + ifId + ":\n\t";
