@@ -58,6 +58,8 @@ statement
 
 expression
     : '(' expression ')' #ParenthesesExpr
+    | 'new' 'int' '[' expression ']' #ArrayCreation
+    | 'new' classname=ID '(' ')' #ObjectCreation
     | expression '[' expression ']' #ArraySubscript
     | expression '.' field='length' #LengthFieldAccess
     | expression '.' methodcall=ID '(' methodCallParameters ')' #MethodCall
@@ -67,8 +69,6 @@ expression
     | expression op=('<' | '>') expression #ComparisonExpr
     | expression op='&&' expression #LogicalExpr
     | expression op='||' expression #LogicalExpr
-    | 'new' 'int' '[' expression ']' #ArrayCreation
-    | 'new' classname=ID '(' ')' #ObjectCreation
     | value=INT #Integer
     | value=('true' | 'false') #Boolean
     | 'this' #This

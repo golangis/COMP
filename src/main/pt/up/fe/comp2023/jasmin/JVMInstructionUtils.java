@@ -183,59 +183,117 @@ public class JVMInstructionUtils {
         return statementList;
     }
 
-    public static String createBinaryOpInstruction(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable, boolean isBranchCond) {
-        String statementList = "";
-        statementList += getLoadInstruction(instruction.getLeftOperand(), varTable);
-        statementList += getLoadInstruction(instruction.getRightOperand(), varTable);
+    public static String checkInc(BinaryOpInstruction instruction, Element dest, HashMap<String, Descriptor> varTable) {
+        Element leftOperand = instruction.getLeftOperand();
+        Element rightOperand = instruction.getRightOperand();
+        String destName = ((Operand)dest).getName();
 
-        switch (instruction.getOperation().getOpType()) {
+        if (instruction.getOperation().getOpType() == OperationType.ADD &&
+            !(leftOperand instanceof LiteralElement) &&
+            rightOperand instanceof LiteralElement &&
+            destName.equals(((Operand)leftOperand).getName()) &&
+            parseInt(((LiteralElement)rightOperand).getLiteral()) == 1)
+            return "\tiinc " + varTable.get(((Operand)leftOperand).getName()).getVirtualReg() + " 1\n";
+
+        if (instruction.getOperation().getOpType() == OperationType.ADD &&
+            leftOperand instanceof LiteralElement &&
+            !(rightOperand instanceof LiteralElement) &&
+            destName.equals(((Operand)rightOperand).getName()) &&
+            parseInt(((LiteralElement)leftOperand).getLiteral()) == 1)
+            return "\tiinc " + varTable.get(((Operand)rightOperand).getName()).getVirtualReg() + " 1\n";
+
+        return "";
+    }
+
+    public static String createArithmeticInstruction(OperationType operationType) {
+        decreaseStackSize(1);
+
+        switch (operationType) {
             case ADD:
-                statementList += "\tiadd\n";
-                decreaseStackSize(1);
-                break;
+                return "\tiadd\n";
             case SUB:
-                statementList += "\tisub\n";
-                decreaseStackSize(1);
-                break;
+                return "\tisub\n";
             case MUL:
-                statementList += "\timul\n";
-                decreaseStackSize(1);
-                break;
+                return "\timul\n";
             case DIV:
-                statementList += "\tidiv\n";
-                decreaseStackSize(1);
-                break;
+                return "\tidiv\n";
+        }
+        return "";
+    }
+
+    public static String createLogicalInstruction(OperationType operationType) {
+        decreaseStackSize(1);
+
+        switch (operationType) {
             case AND: case ANDB:
-                statementList += "\tiand\n";
-                decreaseStackSize(1);
-                break;
+                return "\tiand\n";
             case OR: case ORB:
-                statementList += "\tior\n";
-                decreaseStackSize(1);
-                break;
+                return "\tior\n";
+        }
+        return "";
+    }
+
+    public static String createComparisonInstruction(OperationType operationType, boolean isBranchCond) {
+        decreaseStackSize(2);
+
+        switch (operationType) {
             case LTH:
-                statementList += "\tif_icmplt ";
-                if (!isBranchCond)
-                    statementList += createAuxBranchStatement();
-                decreaseStackSize(2);
-                break;
+                return isBranchCond ? "\tif_icmplt " : "\tif_icmplt " + createAuxBranchStatement();
             case LTE:
-                statementList += "\tif_icmple ";
-                if (!isBranchCond)
-                    statementList += createAuxBranchStatement();
-                decreaseStackSize(2);
-                break;
+                return isBranchCond ? "\tif_icmple " : "\tif_icmple " + createAuxBranchStatement();
             case GTH:
-                statementList += "\tif_icmpgt ";
-                if (!isBranchCond)
-                    statementList += createAuxBranchStatement();
-                decreaseStackSize(2);
-                break;
+                return isBranchCond ? "\tif_icmpgt " : "\tif_icmpgt " + createAuxBranchStatement();
             case GTE:
-                statementList += "\tif_icmpge ";
-                if (!isBranchCond)
-                    statementList += createAuxBranchStatement();
-                decreaseStackSize(2);
+                return isBranchCond ? "\tif_icmpge " : "\tif_icmpge " + createAuxBranchStatement();
+        }
+        return "";
+    }
+
+    public static String createZeroComparisonInstruction(OperationType operationType, boolean isBranchCond) {
+        decreaseStackSize(1);
+
+        switch (operationType) {
+            case LTH:
+                return isBranchCond ? "\tiflt " : "\tiflt " + createAuxBranchStatement();
+            case LTE:
+                return isBranchCond ? "\tifle " : "\tifle " + createAuxBranchStatement();
+            case GTH:
+                return isBranchCond ? "\tifgt " : "\tifgt " + createAuxBranchStatement();
+            case GTE:
+                return isBranchCond ? "\tifge " : "\tifge " + createAuxBranchStatement();
+        }
+        return "";
+    }
+
+    public static String createBinaryOpInstruction(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable, boolean isBranchCond) {
+        OperationType operationType = instruction.getOperation().getOpType();
+        Element leftOperand = instruction.getLeftOperand();
+        Element rightOperand = instruction.getRightOperand();
+        String statementList = "";
+
+        switch (operationType) {
+            case ADD: case SUB: case MUL: case DIV:
+                statementList += getLoadInstruction(leftOperand, varTable);
+                statementList += getLoadInstruction(rightOperand, varTable);
+                statementList += createArithmeticInstruction(operationType);
+                break;
+            case AND: case ANDB: case OR: case ORB:
+                statementList += getLoadInstruction(leftOperand, varTable);
+                statementList += getLoadInstruction(rightOperand, varTable);
+                statementList += createLogicalInstruction(operationType);
+                break;
+            case LTH: case LTE: case GTH: case GTE:
+                if (leftOperand instanceof LiteralElement && parseInt(((LiteralElement)leftOperand).getLiteral()) == 0) {
+                    statementList += getLoadInstruction(rightOperand, varTable);
+                    statementList += createZeroComparisonInstruction(operationType, isBranchCond);
+                } else if (rightOperand instanceof LiteralElement && parseInt(((LiteralElement)rightOperand).getLiteral()) == 0) {
+                    statementList += getLoadInstruction(leftOperand, varTable);
+                    statementList += createZeroComparisonInstruction(operationType, isBranchCond);
+                } else {
+                    statementList += getLoadInstruction(leftOperand, varTable);
+                    statementList += getLoadInstruction(rightOperand, varTable);
+                    statementList += createComparisonInstruction(operationType, isBranchCond);
+                }
                 break;
         }
         return statementList;
@@ -256,6 +314,11 @@ public class JVMInstructionUtils {
     public static String createAssignStatement(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
         Element assignElement = instruction.getDest();
         String statementList = "";
+        if (instruction.getRhs() instanceof BinaryOpInstruction) {
+            statementList = checkInc((BinaryOpInstruction) instruction.getRhs(), assignElement, varTable);
+            if (!statementList.equals(""))
+                return statementList;
+        }
 
         if (assignElement instanceof ArrayOperand)
             statementList += getArrayLoadInstruction((ArrayOperand)assignElement, varTable);
