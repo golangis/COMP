@@ -50,14 +50,13 @@ public class MyInterferenceGraph {
         this.nodes.remove(node);
     }
 
-    public Map<String, Integer> isMColoringFeasible(int maxColors){
-        MyInterferenceGraph copyGraph = deepCopy();
+    public Stack<String> computeMColoringStack(int maxColors){
         Stack<String> stack = new Stack<>();
         boolean foundNode;
 
-        while(copyGraph.nodes.size() > 0){
+        while (this.nodes.size() > 0) {
             foundNode = false;
-            Iterator<MyNode> iterator = copyGraph.nodes.iterator();
+            Iterator<MyNode> iterator = this.nodes.iterator();
 
             while (iterator.hasNext()) {
                 MyNode node = iterator.next();
@@ -65,12 +64,18 @@ public class MyInterferenceGraph {
                 if (node.getAdj().size() < maxColors) {
                     foundNode = true;
                     stack.push(node.getVariable());
-                    copyGraph.removeNode(node);
+                    this.removeNode(node);
                 }
             }
             if (!foundNode)
                 throw new RuntimeException("The provided number of registers is not enough to store the variables.");
         }
+        return stack;
+    }
+
+    public Map<String, Integer> isMColoringFeasible(int maxColors){
+        MyInterferenceGraph copyGraph = deepCopy();
+        Stack<String> stack = copyGraph.computeMColoringStack(maxColors);
 
         while (!stack.isEmpty()){
             String nodeName = stack.pop();
