@@ -11,18 +11,21 @@ import static pt.up.fe.comp2023.optimization.OptimizationUtils.*;
 public class RegisterAllocation {
     private final Method method;
     private final int registerAllocationOption;
+    private Map<String, Integer> optimalRegisters = new HashMap<>();
     private final Map<Node, Set<String>> defs = new HashMap<>();
     private final Map<Node, Set<String>> uses = new HashMap<>();
     private final Map<Node, Set<String>> in = new HashMap<>();
     private final Map<Node, Set<String>> out = new HashMap<>();
     private final MyInterferenceGraph interferenceGraph = new MyInterferenceGraph();
+
     public RegisterAllocation(Method method, int registerAllocationOption) {
         this.registerAllocationOption = registerAllocationOption;
         this.method = method;
 
         livenessAnalysis();
         createInterferenceGraph();
-        graphColoring();
+        graphColoring();    //Updates optimalRegisters
+        //updateVarsRegisters();
     }
 
     private void livenessAnalysis(){
@@ -63,9 +66,14 @@ public class RegisterAllocation {
     }
 
     private void graphColoring() {
-        //TODO
+        if(registerAllocationOption > 0) { // Try to use at most <n> local variables
+            int k = registerAllocationOption - methodAccessThis(method) - numParams(method);
+            this.optimalRegisters = this.interferenceGraph.isMColoringFeasible(k);
+        }
+        else // Try to use as few local variables as it can
+            this.optimalRegisters = this.interferenceGraph.findOptimalColoring();
     }
-    
+
     private Set<String> getDef(Instruction instruction){
         Set<String> def = new HashSet<>();
 
