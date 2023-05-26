@@ -20,13 +20,18 @@ public class RegisterAllocation {
         this.registerAllocationOption = registerAllocationOption;
         this.method = method;
 
-        method.buildCFG();
-        for (Instruction instruction : method.getInstructions()){
+        livenessAnalysis();
+        createInterferenceGraph();
+        graphColoring();
+    }
+
+    private void livenessAnalysis(){
+        this.method.buildCFG();
+        for (Instruction instruction : this.method.getInstructions()){
             this.defs.put(instruction, getDef(instruction));
             this.uses.put(instruction, getUse(instruction, new HashSet<>()));
         }
         computeLiveInOut();
-        createInterferenceGraph();
 
         //TODO: remove
         System.out.println(method.getMethodName());
@@ -40,7 +45,28 @@ public class RegisterAllocation {
         }
     }
 
-    public Set<String> getDef(Instruction instruction){
+    private void createInterferenceGraph() {
+        List<String> localVars = getLocalVars(this.method);
+
+        //Add a node for each variable
+        for(String var : localVars)
+            this.interferenceGraph.addNode(var);
+
+        //Compute edges
+        for(Instruction instruction : this.method.getInstructions()){
+            List<String> liveIn = new ArrayList<>(this.in.get(instruction));
+            List<String> defAndLiveOut = new ArrayList<>(unionSets(this.defs.get(instruction), this.out.get(instruction)));
+
+            this.interferenceGraph.connectInterferingVariables(liveIn);
+            this.interferenceGraph.connectInterferingVariables(defAndLiveOut);
+        }
+    }
+
+    private void graphColoring() {
+        //TODO
+    }
+    
+    private Set<String> getDef(Instruction instruction){
         Set<String> def = new HashSet<>();
 
         if(instruction.getInstType() == ASSIGN) {
@@ -53,7 +79,7 @@ public class RegisterAllocation {
         return def;
     }
 
-    public Set<String> getUse(Instruction instruction, Set<String> result){
+    private Set<String> getUse(Instruction instruction, Set<String> result){
         switch (instruction.getInstType()) {
             case ASSIGN -> {
                 AssignInstruction assignInst = (AssignInstruction) instruction;
@@ -104,7 +130,7 @@ public class RegisterAllocation {
         return result;
     }
 
-    public void computeLiveInOut() {
+    private void computeLiveInOut() {
         for (Instruction instruction : method.getInstructions()){
             this.in.put(instruction, new HashSet<>());
             this.out.put(instruction, new HashSet<>());
@@ -137,22 +163,5 @@ public class RegisterAllocation {
                     liveChanged = true;
             }
         } while(liveChanged);
-    }
-
-    private void createInterferenceGraph() {
-        List<String> localVars = getLocalVars(this.method);
-
-        //Add a node for each variable
-        for(String var : localVars)
-            this.interferenceGraph.addNode(var);
-
-        //Compute edges
-        for(Instruction instruction : this.method.getInstructions()){
-            List<String> liveIn = new ArrayList<>(this.in.get(instruction));
-            List<String> defAndLiveOut = new ArrayList<>(unionSets(this.defs.get(instruction), this.out.get(instruction)));
-
-            this.interferenceGraph.connectInterferingVariables(liveIn);
-            this.interferenceGraph.connectInterferingVariables(defAndLiveOut);
-        }
     }
 }
