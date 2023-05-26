@@ -66,4 +66,12 @@ public class OptimizationUtils {
     public static String toVarName(Element element){
         return  ((Operand)element).getName();
     }
+
+    public static int methodAccessThis(Method method) {
+        return method.isStaticMethod() ? 0 : 1;
+    }
+
+    public static int numParams(Method method){
+        return method.getParams().size();
+    }
 }
