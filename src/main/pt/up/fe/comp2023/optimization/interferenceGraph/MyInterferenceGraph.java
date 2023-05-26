@@ -4,7 +4,7 @@ import java.util.*;
 
 public class MyInterferenceGraph {
     private final List<MyNode> nodes = new ArrayList<>();
-    private Map<String, Integer> nodeColor = new HashMap<>();
+    private final Map<String, Integer> nodeColor = new HashMap<>();
 
     public MyInterferenceGraph deepCopy(){
         MyInterferenceGraph copy = new MyInterferenceGraph();
@@ -26,6 +26,7 @@ public class MyInterferenceGraph {
         }
         return null;
     }
+
     public void addInterferenceEdge(String src, String dest){
         getNode(src).getAdj().add(dest);
         getNode(dest).getAdj().add(src);
@@ -48,6 +49,14 @@ public class MyInterferenceGraph {
             adjNode.removeAdj(node.getVariable());
         }
         this.nodes.remove(node);
+    }
+
+    private boolean isValidColor(MyNode node, int color){
+        for(String adj : node.getAdj()){
+            if(nodeColor.get(adj) == color)
+                return false;
+        }
+        return true;
     }
 
     public Stack<String> computeMColoringStack(int maxColors){
@@ -99,11 +108,4 @@ public class MyInterferenceGraph {
         return this.nodeColor;
     }
 
-    private boolean isValidColor(MyNode node, int color){
-        for(String adj : node.getAdj()){
-            if(nodeColor.get(adj) == color)
-                return false;
-        }
-        return true;
-    }
 }
