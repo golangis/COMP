@@ -192,14 +192,14 @@ public class JVMInstructionUtils {
         if (instruction.getOperation().getOpType() == OperationType.ADD &&
             !(leftOperand instanceof LiteralElement) &&
             rightOperand instanceof LiteralElement &&
-            destName.equals(((Operand)leftOperand).getName()) &&
+            (destName.equals(((Operand)leftOperand).getName()) || (JVMInstructionUtils.varEquivalence.get(destName).equals(((Operand)leftOperand).getName()))) &&
             parseInt(((LiteralElement)rightOperand).getLiteral()) == 1)
             return "\tiinc " + varTable.get(((Operand)leftOperand).getName()).getVirtualReg() + " 1\n";
 
         if (instruction.getOperation().getOpType() == OperationType.ADD &&
             leftOperand instanceof LiteralElement &&
             !(rightOperand instanceof LiteralElement) &&
-            destName.equals(((Operand)rightOperand).getName()) &&
+            (destName.equals(((Operand)rightOperand).getName()) || (JVMInstructionUtils.varEquivalence.get(destName).equals(((Operand)rightOperand).getName()))) &&
             parseInt(((LiteralElement)leftOperand).getLiteral()) == 1)
             return "\tiinc " + varTable.get(((Operand)rightOperand).getName()).getVirtualReg() + " 1\n";
 
