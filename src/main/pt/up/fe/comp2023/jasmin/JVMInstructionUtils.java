@@ -14,6 +14,7 @@ public class JVMInstructionUtils {
     public static int stackSize = 0;
     public static int currStackSize = 0;
     public static Map<String, String> varEquivalence = new HashMap<>();
+    public static Map<String, String> iincVars = new HashMap<>();
 
     public static void increaseStackSize(int n) {
         currStackSize += n;
@@ -188,20 +189,30 @@ public class JVMInstructionUtils {
         Element leftOperand = instruction.getLeftOperand();
         Element rightOperand = instruction.getRightOperand();
         String destName = ((Operand)dest).getName();
+        String iincVarEquivalent = varEquivalence.get(destName);
+
+        if (iincVarEquivalent == null)
+            return "";
 
         if (instruction.getOperation().getOpType() == OperationType.ADD &&
             !(leftOperand instanceof LiteralElement) &&
             rightOperand instanceof LiteralElement &&
-            (destName.equals(((Operand)leftOperand).getName()) || (varEquivalence.get(destName).equals(((Operand)leftOperand).getName()))) &&
-            parseInt(((LiteralElement)rightOperand).getLiteral()) == 1)
-            return "\tiinc " + varTable.get(((Operand)leftOperand).getName()).getVirtualReg() + " 1\n";
+            parseInt(((LiteralElement)rightOperand).getLiteral()) == 1) {
+            if (iincVarEquivalent.equals(((Operand) leftOperand).getName()))
+                iincVars.put(iincVarEquivalent, destName);
+            if (destName.equals(((Operand) leftOperand).getName()) || iincVarEquivalent.equals(((Operand) leftOperand).getName()))
+                return "\tiinc " + varTable.get(((Operand) leftOperand).getName()).getVirtualReg() + " 1\n";
+        }
 
         if (instruction.getOperation().getOpType() == OperationType.ADD &&
             leftOperand instanceof LiteralElement &&
             !(rightOperand instanceof LiteralElement) &&
-            (destName.equals(((Operand)rightOperand).getName()) || (varEquivalence.get(destName).equals(((Operand)rightOperand).getName()))) &&
-            parseInt(((LiteralElement)leftOperand).getLiteral()) == 1)
-            return "\tiinc " + varTable.get(((Operand)rightOperand).getName()).getVirtualReg() + " 1\n";
+            parseInt(((LiteralElement)leftOperand).getLiteral()) == 1) {
+            if (iincVarEquivalent.equals(((Operand)rightOperand).getName()))
+                iincVars.put(iincVarEquivalent, destName);
+            if (destName.equals(((Operand)rightOperand).getName()) || iincVarEquivalent.equals(((Operand)rightOperand).getName()))
+                return "\tiinc " + varTable.get(((Operand) rightOperand).getName()).getVirtualReg() + " 1\n";
+        }
 
         return "";
     }
@@ -317,14 +328,20 @@ public class JVMInstructionUtils {
         Instruction rhsInstruction = ((AssignInstruction)instruction).getRhs();
         if (!(rhsInstruction instanceof SingleOpInstruction))
             return false;
-        if (!(((SingleOpInstruction)rhsInstruction).getSingleOperand() instanceof Operand))
-            return false;
-        return true;
+        return ((SingleOpInstruction) rhsInstruction).getSingleOperand() instanceof Operand;
     }
 
     public static String createAssignStatement(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
         Element assignElement = instruction.getDest();
         String statementList = "";
+
+        if (checkTempAssign(instruction)) {
+            Element rhsElement = ((SingleOpInstruction)instruction.getRhs()).getSingleOperand();
+            String iincVarEquivalent = iincVars.get(((Operand)assignElement).getName());
+            if (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand)rhsElement).getName()))
+                return "";
+        }
+
         if (instruction.getRhs() instanceof BinaryOpInstruction) {
             statementList = checkInc((BinaryOpInstruction)instruction.getRhs(), assignElement, varTable);
             if (!statementList.equals(""))

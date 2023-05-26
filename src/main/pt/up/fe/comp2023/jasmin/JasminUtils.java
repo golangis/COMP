@@ -4,8 +4,6 @@ import org.specs.comp.ollir.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
 
 public class JasminUtils {
 
@@ -111,7 +109,6 @@ public class JasminUtils {
     }
 
     public static String handleInstruction(Instruction instruction, HashMap<String, Descriptor> varTable, boolean isRhs) {
-        instruction.show();
         String statementList = "";
         switch (instruction.getInstType()) {
             case ASSIGN:
@@ -201,7 +198,10 @@ public class JasminUtils {
     }
 
     public static void createVarEquivalence(Method method) {
+        JVMInstructionUtils.iincVars.clear();
         JVMInstructionUtils.varEquivalence.clear();
+        JVMInstructionUtils.iincVars.clear();
+
         for (Instruction instruction: method.getInstructions()) {
             if (instruction instanceof AssignInstruction && JVMInstructionUtils.checkTempAssign((AssignInstruction)instruction)) {
                 Operand lhs = ((Operand)((AssignInstruction)instruction).getDest());
