@@ -10,30 +10,34 @@ import static pt.up.fe.comp2023.optimization.OptimizationUtils.*;
 
 public class RegisterAllocation {
     private final Method method;
+    private final int registerAllocationOption;
     private final Map<Node, Set<String>> defs = new HashMap<>();
     private final Map<Node, Set<String>> uses = new HashMap<>();
     private final Map<Node, Set<String>> in = new HashMap<>();
     private final Map<Node, Set<String>> out = new HashMap<>();
     private final MyInterferenceGraph interferenceGraph = new MyInterferenceGraph();
-    public RegisterAllocation(Method method) {
+    public RegisterAllocation(Method method, int registerAllocationOption) {
+        this.registerAllocationOption = registerAllocationOption;
         this.method = method;
+
         method.buildCFG();
+        for (Instruction instruction : method.getInstructions()){
+            this.defs.put(instruction, getDef(instruction));
+            this.uses.put(instruction, getUse(instruction, new HashSet<>()));
+        }
+        computeLiveInOut();
+        createInterferenceGraph();
 
         //TODO: remove
         System.out.println(method.getMethodName());
         System.out.println("------------------");
-
-        for (Instruction instruction : method.getInstructions()){
-            this.defs.put(instruction, getDef(instruction));
-            this.uses.put(instruction, getUse(instruction, new HashSet<>()));
-
-            //TODO: remove
+        for(Instruction instruction : method.getInstructions()){
             instruction.show();
             System.out.println("Defs:" + defs.get(instruction));
             System.out.println("Uses:" + uses.get(instruction));
+            System.out.println("In:" + in.get(instruction));
+            System.out.println(("Out: "+ out.get(instruction)));
         }
-        computeLiveInOut();
-        createInterferenceGraph();
     }
 
     public Set<String> getDef(Instruction instruction){

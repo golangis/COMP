@@ -45,11 +45,12 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
     }
 
     public OllirResult optimize(OllirResult ollirResult) {
-        if (Integer.parseInt(ollirResult.getConfig().get("registerAllocation")) >= 0){
-            ClassUnit classUnit = ollirResult.getOllirClass();
+        int registerAllocationOption = Integer.parseInt(ollirResult.getConfig().get("registerAllocation"));
 
+        if (registerAllocationOption >= 0){
+            ClassUnit classUnit = ollirResult.getOllirClass();
             for (Method method : classUnit.getMethods())
-                new RegisterAllocation(method);
+                new RegisterAllocation(method, registerAllocationOption);
         }
         return ollirResult;
     }
