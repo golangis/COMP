@@ -1,13 +1,18 @@
 package pt.up.fe.comp2023.optimization.interferenceGraph;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MyInterferenceGraph {
     private final List<MyNode> nodes = new ArrayList<>();
     private Map<String, Integer> nodeColor = new HashMap<>();
+
+    public MyInterferenceGraph deepCopy(){
+        MyInterferenceGraph copy = new MyInterferenceGraph();
+
+        for(MyNode node : this.nodes)
+            copy.addNode(node.getVariable());
+        return copy;
+    }
 
     public void addNode(String variable){
         MyNode newNode = new MyNode(variable);
@@ -37,19 +42,43 @@ public class MyInterferenceGraph {
         }
     }
 
-    public void removeNode(String varName){
-        MyNode node = getNode(varName);
-
+    public void removeNode(MyNode node){
         for(String adj : node.getAdj()){
             MyNode adjNode = getNode(adj);
-            adjNode.removeAdj(varName);
+            adjNode.removeAdj(node.getVariable());
         }
         this.nodes.remove(node);
     }
 
     public Map<String, Integer> isMColoringFeasible(int maxColors){
-        //TODO
+        MyInterferenceGraph copyGraph = deepCopy();
+        Stack<String> stack = new Stack<>();
+        boolean foundNode;
 
+        while(copyGraph.nodes.size() > 0){
+            foundNode = false;
+            Iterator<MyNode> iterator = copyGraph.nodes.iterator();
+
+            while (iterator.hasNext()) {
+                MyNode node = iterator.next();
+
+                if (node.getAdj().size() < maxColors) {
+                    foundNode = true;
+                    stack.push(node.getVariable());
+                    copyGraph.removeNode(node);
+                }
+            }
+            if (!foundNode)
+                throw new RuntimeException("The provided number of registers is not enough to store the variables.");
+        }
+
+        while (!stack.isEmpty()){
+            String nodeName = stack.pop();
+            for(int color = 0; color < maxColors; color++){
+                if(isValidColor(getNode(nodeName), color))
+                    this.nodeColor.put(nodeName, color);
+            }
+        }
         return this.nodeColor;
     }
 
