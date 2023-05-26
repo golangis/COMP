@@ -203,15 +203,10 @@ public class JasminUtils {
     public static void createVarEquivalence(Method method) {
         JVMInstructionUtils.varEquivalence.clear();
         for (Instruction instruction: method.getInstructions()) {
-            if (instruction instanceof AssignInstruction) {
+            if (instruction instanceof AssignInstruction && JVMInstructionUtils.checkTempAssign((AssignInstruction)instruction)) {
                 Operand lhs = ((Operand)((AssignInstruction)instruction).getDest());
-                Instruction rhsInstruction = ((AssignInstruction)instruction).getRhs();
-                if (rhsInstruction instanceof SingleOpInstruction &&
-                    ((SingleOpInstruction)rhsInstruction).getSingleOperand() instanceof Operand) {
-                    Operand rhs = ((Operand)((SingleOpInstruction)rhsInstruction).getSingleOperand());
-
-                    JVMInstructionUtils.varEquivalence.put(rhs.getName(), lhs.getName());
-                }
+                Operand rhs = ((Operand)((SingleOpInstruction)(((AssignInstruction)instruction).getRhs())).getSingleOperand());
+                JVMInstructionUtils.varEquivalence.put(rhs.getName(), lhs.getName());
             }
         }
     }
