@@ -25,7 +25,7 @@ public class RegisterAllocation {
         livenessAnalysis();
         createInterferenceGraph();
         graphColoring();    //Updates optimalRegisters
-        //updateVarsRegisters();
+        updateVirtualRegisters();
     }
 
     private void livenessAnalysis(){
@@ -72,6 +72,18 @@ public class RegisterAllocation {
         }
         else // Try to use as few local variables as it can
             this.optimalRegisters = this.interferenceGraph.findOptimalColoring();
+    }
+
+    private void updateVirtualRegisters(){
+        int firstLocalVarRegister = methodAccessThis(method) + numParams(method);
+
+        for (Map.Entry<String, Integer> entry : optimalRegisters.entrySet()) {
+            String var = entry.getKey();
+            Integer register = entry.getValue();
+            int virtualRegister = firstLocalVarRegister + register;
+            
+            method.getVarTable().get(var).setVirtualReg(virtualRegister);
+        }
     }
 
     private Set<String> getDef(Instruction instruction){
