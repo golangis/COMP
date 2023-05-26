@@ -1,10 +1,13 @@
 package pt.up.fe.comp2023.optimization.interferenceGraph;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MyInterferenceGraph {
     private final List<MyNode> nodes = new ArrayList<>();
+    private Map<String, Integer> nodeColor = new HashMap<>();
 
     public void addNode(String variable){
         MyNode newNode = new MyNode(variable);
@@ -42,5 +45,31 @@ public class MyInterferenceGraph {
             adjNode.removeAdj(varName);
         }
         this.nodes.remove(node);
+    }
+
+    public Map<String, Integer> isMColoringFeasible(int maxColors){
+        //TODO
+
+        return this.nodeColor;
+    }
+
+    public Map<String, Integer> findOptimalColoring(){
+        int maxColors = this.nodes.size();
+
+        for(MyNode node : this.nodes){
+            for(int color = 0; color < maxColors; color++){
+                if(isValidColor(node, color))
+                    nodeColor.put(node.getVariable(), color);
+            }
+        }
+        return this.nodeColor;
+    }
+
+    private boolean isValidColor(MyNode node, int color){
+        for(String adj : node.getAdj()){
+            if(nodeColor.get(adj) == color)
+                return false;
+        }
+        return true;
     }
 }
