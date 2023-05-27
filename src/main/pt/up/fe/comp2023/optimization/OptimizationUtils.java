@@ -45,7 +45,7 @@ public class OptimizationUtils {
 
     public static boolean isLocalVar(String identifier, Method method) {
         HashMap<String, Descriptor> varTable = method.getVarTable();
-        int firstLocalVarRegister = method.isStaticMethod() ? 0 : 1 + method.getParams().size();
+        int firstLocalVarRegister = methodAccessThis(method) + method.getParams().size();
 
         return varTable.get(identifier).getVirtualReg() >= firstLocalVarRegister;
     }
