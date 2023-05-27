@@ -61,22 +61,21 @@ public class MyInterferenceGraph {
 
     public Stack<String> computeMColoringStack(int maxColors){
         Stack<String> stack = new Stack<>();
-        boolean foundNode;
 
         while (this.nodes.size() > 0) {
-            foundNode = false;
-            Iterator<MyNode> iterator = this.nodes.iterator();
+            MyNode nodeToRemove = null;
 
-            while (iterator.hasNext()) {
-                MyNode node = iterator.next();
-
-                if (node.getAdj().size() < maxColors) {
-                    foundNode = true;
-                    stack.push(node.getVariable());
-                    this.removeNode(node);
+            for(MyNode node : this.nodes){
+                if(node.getAdj().size() < maxColors){
+                    nodeToRemove = node;
+                    break;
                 }
             }
-            if (!foundNode)
+            if(nodeToRemove != null){
+                stack.push(nodeToRemove.getVariable());
+                this.removeNode(nodeToRemove);
+            }
+            else
                 throw new RuntimeException("The provided number of registers is not enough to store the variables.");
         }
         return stack;
