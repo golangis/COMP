@@ -81,6 +81,30 @@ public class MyInterferenceGraph {
         return stack;
     }
 
+    public Stack<String> computeOptimalColoringStack(int maxColors){
+        Stack<String> stack = new Stack<>();
+
+        while (this.nodes.size() > 0) {
+            MyNode nodeToRemove = null;
+
+            for(MyNode node : this.nodes){
+                if(node.getAdj().size() < maxColors){
+                    nodeToRemove = node;
+                    break;
+                }
+            }
+            if(nodeToRemove != null){
+                stack.push(nodeToRemove.getVariable());
+                this.removeNode(nodeToRemove);
+            }
+            else{
+                stack.clear();
+                return stack;
+            }
+        }
+        return stack;
+    }
+
     public Map<String, Integer> isMColoringFeasible(int maxColors){
         MyInterferenceGraph copyGraph = deepCopy();
         Stack<String> stack = copyGraph.computeMColoringStack(maxColors);
@@ -98,11 +122,22 @@ public class MyInterferenceGraph {
     public Map<String, Integer> findOptimalColoring(){
         int maxColors = this.nodes.size();
 
-        for(MyNode node : this.nodes){
-            for(int color = 0; color < maxColors; color++){
-                if(isValidColor(node, color))
-                    nodeColor.put(node.getVariable(), color);
+        for(int currentMaxColors = 1; currentMaxColors <= maxColors; currentMaxColors++){
+            this.nodeColor.clear();
+            MyInterferenceGraph copyGraph = deepCopy();
+            Stack<String> stack = copyGraph.computeOptimalColoringStack(currentMaxColors);
+
+            if(stack.isEmpty())
+                continue;
+
+            while (!stack.isEmpty()){
+                String nodeName = stack.pop();
+                for(int color = 0; color < maxColors; color++){
+                    if(isValidColor(getNode(nodeName), color))
+                        this.nodeColor.put(nodeName, color);
+                }
             }
+            break;
         }
         return this.nodeColor;
     }
