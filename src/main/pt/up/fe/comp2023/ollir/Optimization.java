@@ -1,5 +1,6 @@
 package pt.up.fe.comp2023.ollir;
 
+import org.specs.comp.ollir.*;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
@@ -8,8 +9,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.jmm.report.Report;
-import pt.up.fe.comp2023.optimization.ConstantFolding;
-import pt.up.fe.comp2023.optimization.ConstantPropagation;
+import pt.up.fe.comp2023.optimization.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +42,17 @@ public class Optimization extends AJmmVisitor<Void, Void> implements JmmOptimiza
             }
         }
         return semanticsResult;
+    }
+
+    public OllirResult optimize(OllirResult ollirResult) {
+        int registerAllocationOption = Integer.parseInt(ollirResult.getConfig().getOrDefault("registerAllocation", "-1"));
+
+        if (registerAllocationOption >= 0){
+            ClassUnit classUnit = ollirResult.getOllirClass();
+            for (Method method : classUnit.getMethods())
+                new RegisterAllocation(method, registerAllocationOption);
+        }
+        return ollirResult;
     }
 
     @Override

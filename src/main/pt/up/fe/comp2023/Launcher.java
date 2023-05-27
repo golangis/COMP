@@ -73,7 +73,7 @@ public class Launcher {
 
         Optimization optimization = new Optimization();
 
-        //Apply Constant Propagation and Constant Folding optimizations
+        // Apply Constant Propagation and Constant Folding optimizations
         if (Boolean.parseBoolean(config.get("optimize"))) {
             System.out.println("Applying optimizations...");
 
@@ -84,6 +84,10 @@ public class Launcher {
         }
 
         OllirResult ollirResult = optimization.toOllir(semanticsResult);
+
+        // Optimize register allocation
+        if (Integer.parseInt(config.get("registerAllocation")) >= 0)
+            optimization.optimize(ollirResult);
 
         JasminGenerator jasminGenerator = new JasminGenerator();
         JasminResult jasminResult = jasminGenerator.toJasmin(ollirResult);
@@ -96,21 +100,34 @@ public class Launcher {
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
 
         // Check if there is at least one argument
-        if (args.length < 1) {
-            throw new RuntimeException("Usage: ./jmm <file_path> [-o]");
-        }
+        if (args.length < 1)
+            throw new RuntimeException("Usage: ./jmm <file_path> [-o] [-p <n>]");
 
         // Create config
         Map<String, String> config = new HashMap<>();
         config.put("inputFile", args[0]);
-        config.put("registerAllocation", "-1");
         config.put("debug", "false");
+        config.put("optimize", "false");
+        config.put("registerAllocation", "-1");
 
-        if (Arrays.asList(args).contains("-o"))
-            config.put("optimize", "true");
-        else
-            config.put("optimize", "false");
+        for (int i = 1; i < args.length; i++) {
+            if(args[i].equals("-o"))
+                config.put("optimize", "true");
 
+            else if(args[i].equals("-r")) {
+                if(i + 1 >= args.length)
+                    throw new RuntimeException("Missing argument for -r option.");
+                else {
+                    try {
+                        int n = Integer.parseInt(args[i + 1]);
+                        config.put("registerAllocation", Integer.toString(n));
+                        i++;
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid argument for -r option: " + args[i + 1]);
+                    }
+                }
+            }
+        }
         return config;
     }
 }
