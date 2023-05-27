@@ -195,8 +195,6 @@ public class JVMInstructionUtils {
         if ((operationType == OperationType.ADD || operationType == OperationType.SUB) &&
             !(leftOperand instanceof LiteralElement) &&
             rightOperand instanceof LiteralElement) {
-            if (instruction.getOperation().getOpType() == OperationType.ADD)
-            if (instruction.getOperation().getOpType() == OperationType.SUB)
             if (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand) leftOperand).getName()))
                 iincVars.put(iincVarEquivalent, destName);
             if (destName.equals(((Operand) leftOperand).getName()) ||
