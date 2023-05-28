@@ -186,32 +186,34 @@ public class JVMInstructionUtils {
     }
 
     public static String checkInc(BinaryOpInstruction instruction, Element dest, HashMap<String, Descriptor> varTable) {
+        OperationType operationType = instruction.getOperation().getOpType();
         Element leftOperand = instruction.getLeftOperand();
         Element rightOperand = instruction.getRightOperand();
         String destName = ((Operand)dest).getName();
         String iincVarEquivalent = varEquivalence.get(destName);
 
-        if (iincVarEquivalent == null)
-            return "";
-
-        if (instruction.getOperation().getOpType() == OperationType.ADD &&
+        if ((operationType == OperationType.ADD || operationType == OperationType.SUB) &&
             !(leftOperand instanceof LiteralElement) &&
-            rightOperand instanceof LiteralElement &&
-            parseInt(((LiteralElement)rightOperand).getLiteral()) == 1) {
-            if (iincVarEquivalent.equals(((Operand) leftOperand).getName()))
+            rightOperand instanceof LiteralElement) {
+            if (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand) leftOperand).getName()))
                 iincVars.put(iincVarEquivalent, destName);
-            if (destName.equals(((Operand) leftOperand).getName()) || iincVarEquivalent.equals(((Operand) leftOperand).getName()))
-                return "\tiinc " + varTable.get(((Operand) leftOperand).getName()).getVirtualReg() + " 1\n";
+            if (destName.equals(((Operand) leftOperand).getName()) ||
+                (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand) leftOperand).getName())))
+                return "\tiinc " + varTable.get(((Operand) leftOperand).getName()).getVirtualReg() + " "
+                        + (operationType == OperationType.SUB ? "-" : "")
+                        + ((LiteralElement)rightOperand).getLiteral() + "\n";
         }
 
-        if (instruction.getOperation().getOpType() == OperationType.ADD &&
+        if ((operationType == OperationType.ADD || operationType == OperationType.SUB) &&
             leftOperand instanceof LiteralElement &&
-            !(rightOperand instanceof LiteralElement) &&
-            parseInt(((LiteralElement)leftOperand).getLiteral()) == 1) {
-            if (iincVarEquivalent.equals(((Operand)rightOperand).getName()))
+            !(rightOperand instanceof LiteralElement)) {
+            if (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand)rightOperand).getName()))
                 iincVars.put(iincVarEquivalent, destName);
-            if (destName.equals(((Operand)rightOperand).getName()) || iincVarEquivalent.equals(((Operand)rightOperand).getName()))
-                return "\tiinc " + varTable.get(((Operand) rightOperand).getName()).getVirtualReg() + " 1\n";
+            if (destName.equals(((Operand)rightOperand).getName()) ||
+                (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand)rightOperand).getName())))
+                return "\tiinc " + varTable.get(((Operand) rightOperand).getName()).getVirtualReg() + " "
+                        + (operationType == OperationType.SUB ? "-" : "")
+                        + ((LiteralElement)leftOperand).getLiteral() + "\n";
         }
 
         return "";
