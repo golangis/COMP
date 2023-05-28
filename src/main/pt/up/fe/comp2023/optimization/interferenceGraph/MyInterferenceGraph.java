@@ -59,7 +59,7 @@ public class MyInterferenceGraph {
         return true;
     }
 
-    public Stack<String> computeMColoringStack(int maxColors){
+    public Stack<String> computeColoringStack(int maxColors, boolean isOptimal){
         Stack<String> stack = new Stack<>();
 
         while (this.nodes.size() > 0) {
@@ -75,39 +75,19 @@ public class MyInterferenceGraph {
                 stack.push(nodeToRemove.getVariable());
                 this.removeNode(nodeToRemove);
             }
-            else
-                throw new RuntimeException("The provided number of registers is not enough to store the variables.");
-        }
-        return stack;
-    }
-
-    public Stack<String> computeOptimalColoringStack(int maxColors){
-        Stack<String> stack = new Stack<>();
-
-        while (this.nodes.size() > 0) {
-            MyNode nodeToRemove = null;
-
-            for(MyNode node : this.nodes){
-                if(node.getDegree() < maxColors){
-                    nodeToRemove = node;
-                    break;
-                }
-            }
-            if(nodeToRemove != null){
-                stack.push(nodeToRemove.getVariable());
-                this.removeNode(nodeToRemove);
-            }
-            else{
+            else if (isOptimal){
                 stack.clear();
                 return stack;
             }
+            else
+                throw new RuntimeException("The provided number of registers is not enough to store the local variables.");
         }
         return stack;
     }
 
     public Map<String, Integer> isMColoringFeasible(int maxColors){
         MyInterferenceGraph copyGraph = deepCopy();
-        Stack<String> stack = copyGraph.computeMColoringStack(maxColors);
+        Stack<String> stack = copyGraph.computeColoringStack(maxColors, false);
 
         while (!stack.isEmpty()){
             String nodeName = stack.pop();
@@ -125,7 +105,7 @@ public class MyInterferenceGraph {
         for(int currentMaxColors = 1; currentMaxColors <= maxColors; currentMaxColors++){
             this.nodeColor.clear();
             MyInterferenceGraph copyGraph = deepCopy();
-            Stack<String> stack = copyGraph.computeOptimalColoringStack(currentMaxColors);
+            Stack<String> stack = copyGraph.computeColoringStack(currentMaxColors, true);
 
             if(stack.isEmpty())
                 continue;
