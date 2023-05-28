@@ -53,7 +53,7 @@ public class MyInterferenceGraph {
 
     private boolean isValidColor(MyNode node, int color){
         for(String neighbour : node.getNeighbours()){
-            if(nodeColor.get(neighbour) == color)
+            if(nodeColor.getOrDefault(neighbour, -1) == color)
                 return false;
         }
         return true;
