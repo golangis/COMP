@@ -35,17 +35,6 @@ public class RegisterAllocation {
             this.uses.put(instruction, getUse(instruction, new HashSet<>()));
         }
         computeLiveInOut();
-
-        //TODO: remove
-        System.out.println(method.getMethodName());
-        System.out.println("------------------");
-        for(Instruction instruction : method.getInstructions()){
-            instruction.show();
-            System.out.println("Defs:" + defs.get(instruction));
-            System.out.println("Uses:" + uses.get(instruction));
-            System.out.println("In:" + in.get(instruction));
-            System.out.println(("Out: "+ out.get(instruction)));
-        }
     }
 
     private void createInterferenceGraph() {

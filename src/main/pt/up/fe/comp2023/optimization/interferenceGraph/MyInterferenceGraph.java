@@ -28,8 +28,8 @@ public class MyInterferenceGraph {
     }
 
     public void addInterferenceEdge(String src, String dest){
-        getNode(src).getAdj().add(dest);
-        getNode(dest).getAdj().add(src);
+        getNode(src).addNeighbour(dest);
+        getNode(dest).addNeighbour(src);
     }
 
     public void connectInterferingVariables(List<String> variables){
@@ -44,16 +44,16 @@ public class MyInterferenceGraph {
     }
 
     public void removeNode(MyNode node){
-        for(String adj : node.getAdj()){
-            MyNode adjNode = getNode(adj);
-            adjNode.removeAdj(node.getVariable());
+        for(String neighbour : node.getNeighbours()){
+            MyNode neighbourNode = getNode(neighbour);
+            neighbourNode.removeNeighbour(node.getVariable());
         }
         this.nodes.remove(node);
     }
 
     private boolean isValidColor(MyNode node, int color){
-        for(String adj : node.getAdj()){
-            if(nodeColor.get(adj) == color)
+        for(String neighbour : node.getNeighbours()){
+            if(nodeColor.get(neighbour) == color)
                 return false;
         }
         return true;
@@ -66,7 +66,7 @@ public class MyInterferenceGraph {
             MyNode nodeToRemove = null;
 
             for(MyNode node : this.nodes){
-                if(node.getAdj().size() < maxColors){
+                if(node.getDegree() < maxColors){
                     nodeToRemove = node;
                     break;
                 }
@@ -88,7 +88,7 @@ public class MyInterferenceGraph {
             MyNode nodeToRemove = null;
 
             for(MyNode node : this.nodes){
-                if(node.getAdj().size() < maxColors){
+                if(node.getDegree() < maxColors){
                     nodeToRemove = node;
                     break;
                 }

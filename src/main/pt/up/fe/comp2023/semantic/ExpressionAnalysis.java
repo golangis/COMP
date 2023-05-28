@@ -225,7 +225,7 @@ public class ExpressionAnalysis extends AJmmVisitor<Type, Type> {
         }
 
         String message = "Cannot find '" + objectClassName + "'.";
-        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message)); //TODO: use column of 'classname'
+        this.reports.add(new Report(ReportType.ERROR, Stage.SEMANTIC, getNodeLine(jmmNode), getNodeColumn(jmmNode), message));
         jmmNode.put(TYPENAME, UNKNOWN);
         return UNKNOWN_TYPE;
     }

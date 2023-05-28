@@ -1,12 +1,11 @@
 package pt.up.fe.comp2023.optimization.interferenceGraph;
 
-import org.specs.comp.ollir.Element;
 import java.util.HashSet;
 import java.util.Set;
 
 public class MyNode {
     private final String varName;
-    private final Set<String> adj = new HashSet<>();
+    private final Set<String> neighbours = new HashSet<>();
 
     public MyNode(String varName){
         this.varName = varName;
@@ -16,19 +15,19 @@ public class MyNode {
         return this.varName;
     }
 
-    public Set<String> getAdj() {
-        return adj;
+    public Set<String> getNeighbours() {
+        return neighbours;
     }
 
-    public void addAdj(String varName) {
-        this.adj.add(varName);
+    public void addNeighbour(String varName) {
+        this.neighbours.add(varName);
     }
 
-    public int getNodeDegree() {
-        return this.adj.size();
+    public int getDegree() {
+        return this.neighbours.size();
     }
 
-    public void removeAdj(String varName){
-        this.adj.remove(varName);
+    public void removeNeighbour(String varName){
+        this.neighbours.remove(varName);
     }
 }
