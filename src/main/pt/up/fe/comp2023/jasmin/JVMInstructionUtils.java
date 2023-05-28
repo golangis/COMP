@@ -191,11 +191,11 @@ public class JVMInstructionUtils {
         Element rightOperand = instruction.getRightOperand();
         String destName = ((Operand)dest).getName();
         String iincVarEquivalent = varEquivalence.get(destName);
+        String increment = "";
 
         if ((operationType == OperationType.ADD || operationType == OperationType.SUB) &&
             !(leftOperand instanceof LiteralElement) &&
             rightOperand instanceof LiteralElement) {
-            String increment = "";
             if (operationType == OperationType.ADD && parseInt(((LiteralElement)rightOperand).getLiteral()) <= 127)
                 increment = ((LiteralElement)rightOperand).getLiteral();
             else if (operationType == OperationType.SUB && parseInt(((LiteralElement)rightOperand).getLiteral()) <= 128)
@@ -212,7 +212,6 @@ public class JVMInstructionUtils {
         if ((operationType == OperationType.ADD || operationType == OperationType.SUB) &&
             leftOperand instanceof LiteralElement &&
             !(rightOperand instanceof LiteralElement)) {
-            String increment = "";
             if (operationType == OperationType.ADD && parseInt(((LiteralElement)leftOperand).getLiteral()) <= 127)
                 increment = ((LiteralElement)leftOperand).getLiteral();
             else if (operationType == OperationType.SUB && parseInt(((LiteralElement)leftOperand).getLiteral()) <= 128)
