@@ -195,25 +195,35 @@ public class JVMInstructionUtils {
         if ((operationType == OperationType.ADD || operationType == OperationType.SUB) &&
             !(leftOperand instanceof LiteralElement) &&
             rightOperand instanceof LiteralElement) {
-            if (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand) leftOperand).getName()))
+            String increment = "";
+            if (operationType == OperationType.ADD && parseInt(((LiteralElement)rightOperand).getLiteral()) <= 127)
+                increment = ((LiteralElement)rightOperand).getLiteral();
+            else if (operationType == OperationType.SUB && parseInt(((LiteralElement)rightOperand).getLiteral()) <= 128)
+                increment = "-" + ((LiteralElement)rightOperand).getLiteral();
+            if (!Objects.equals(increment, "") && iincVarEquivalent != null &&
+                iincVarEquivalent.equals(((Operand) leftOperand).getName()))
                 iincVars.put(iincVarEquivalent, destName);
-            if (destName.equals(((Operand) leftOperand).getName()) ||
-                (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand) leftOperand).getName())))
-                return "\tiinc " + varTable.get(((Operand) leftOperand).getName()).getVirtualReg() + " "
-                        + (operationType == OperationType.SUB ? "-" : "")
-                        + ((LiteralElement)rightOperand).getLiteral() + "\n";
+            if (!Objects.equals(increment, "") && (destName.equals(((Operand) leftOperand).getName()) ||
+                (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand) leftOperand).getName()))))
+                return "\tiinc " + varTable.get(((Operand) leftOperand).getName()).getVirtualReg()
+                        + " " + increment + "\n";
         }
 
         if ((operationType == OperationType.ADD || operationType == OperationType.SUB) &&
             leftOperand instanceof LiteralElement &&
             !(rightOperand instanceof LiteralElement)) {
-            if (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand)rightOperand).getName()))
+            String increment = "";
+            if (operationType == OperationType.ADD && parseInt(((LiteralElement)leftOperand).getLiteral()) <= 127)
+                increment = ((LiteralElement)leftOperand).getLiteral();
+            else if (operationType == OperationType.SUB && parseInt(((LiteralElement)leftOperand).getLiteral()) <= 128)
+                increment = "-" + ((LiteralElement)leftOperand).getLiteral();
+            if (!Objects.equals(increment, "") && iincVarEquivalent != null &&
+                iincVarEquivalent.equals(((Operand)rightOperand).getName()))
                 iincVars.put(iincVarEquivalent, destName);
-            if (destName.equals(((Operand)rightOperand).getName()) ||
-                (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand)rightOperand).getName())))
-                return "\tiinc " + varTable.get(((Operand) rightOperand).getName()).getVirtualReg() + " "
-                        + (operationType == OperationType.SUB ? "-" : "")
-                        + ((LiteralElement)leftOperand).getLiteral() + "\n";
+            if (!Objects.equals(increment, "") && (destName.equals(((Operand)rightOperand).getName()) ||
+                (iincVarEquivalent != null && iincVarEquivalent.equals(((Operand)rightOperand).getName()))))
+                return "\tiinc " + varTable.get(((Operand) rightOperand).getName()).getVirtualReg()
+                        + " " + increment + "\n";
         }
 
         return "";
