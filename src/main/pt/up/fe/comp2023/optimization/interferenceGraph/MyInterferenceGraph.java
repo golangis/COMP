@@ -59,7 +59,7 @@ public class MyInterferenceGraph {
         return true;
     }
 
-    public Stack<String> computeColoringStack(int maxColors, boolean isOptimal){
+    public Stack<String> computeColoringStack(int maxColors) throws RuntimeException{
         Stack<String> stack = new Stack<>();
 
         while (this.nodes.size() > 0) {
@@ -75,19 +75,15 @@ public class MyInterferenceGraph {
                 stack.push(nodeToRemove.getVariable());
                 this.removeNode(nodeToRemove);
             }
-            else if (isOptimal){
-                stack.clear();
-                return stack;
-            }
             else
                 throw new RuntimeException("The provided number of registers is not enough to store the local variables.");
         }
         return stack;
     }
 
-    public Map<String, Integer> isMColoringFeasible(int maxColors){
+    public Map<String, Integer> isMColoringFeasible(int maxColors) throws RuntimeException{
         MyInterferenceGraph copyGraph = deepCopy();
-        Stack<String> stack = copyGraph.computeColoringStack(maxColors, false);
+        Stack<String> stack = copyGraph.computeColoringStack(maxColors);
 
         while (!stack.isEmpty()){
             String nodeName = stack.pop();
@@ -103,19 +99,11 @@ public class MyInterferenceGraph {
         int maxColors = this.nodes.size();
 
         for(int currentMaxColors = 1; currentMaxColors <= maxColors; currentMaxColors++){
-            this.nodeColor.clear();
-            MyInterferenceGraph copyGraph = deepCopy();
-            Stack<String> stack = copyGraph.computeColoringStack(currentMaxColors, true);
+            try{
+                this.isMColoringFeasible(currentMaxColors);
 
-            if(stack.isEmpty())
+            }catch (RuntimeException e){    //currentMaxColor is not enough
                 continue;
-
-            while (!stack.isEmpty()){
-                String nodeName = stack.pop();
-                for(int color = 0; color < maxColors; color++){
-                    if(isValidColor(getNode(nodeName), color))
-                        this.nodeColor.put(nodeName, color);
-                }
             }
             break;
         }
